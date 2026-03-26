@@ -9,23 +9,23 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Segurança
-SECRET_KEY = os.environ.get('SECRET_KEY')  # Obrigatório em produção, sem fallback
-DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-b6^(%qu(%bn@8qvl_isg7=z@uiq$=gnmp=w287#*fm1yfr0568')
+
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    'prisma-axon-system-nh8lz.ondigitalocean.app',
     '.ondigitalocean.app',
+    '.onrender.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://prisma-axon-system-nh8lz.ondigitalocean.app',
     'https://*.ondigitalocean.app',
+    'https://primaaxon-web.onrender.com',
 ]
 
-# Aplicações
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -33,9 +33,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',
-    'cloudinary',
     'cloudinary_storage',
+    'cloudinary',
+    'core',
 ]
 
 MIDDLEWARE = [
@@ -69,10 +69,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database
+# Database: PostgreSQL em produção, SQLite local
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
-    DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    }
 else:
     DATABASES = {
         'default': {
@@ -81,7 +83,6 @@ else:
         }
     }
 
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -89,25 +90,28 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internacionalização
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# Static files (WhiteNoise serve em produção)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
-# Media files
-# Uploads e Midia (Cloudinary)
+# Media files (Cloudinary em produção, local em dev)
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'PrismaAxonSystemKey',
-    'API_KEY': '218577513364897',
-    'API_SECRET': 'MK2SmduK8ak0wQnx2qOtLYzc8Dk'
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'dkkgc3xo7'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '218577513364897'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'MK2SmduK8ak0wQnx2qOtLYzc8Dk'),
 }
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+# Em produção usa Cloudinary, local usa filesystem
+if DATABASE_URL:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

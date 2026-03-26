@@ -29,11 +29,11 @@
 </div>
 <div class="hidden lg:flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
     <span class="text-[10px] font-bold text-blue-700 uppercase">Custo:</span>
-    <span id="valor-custo" class="text-sm font-extrabold text-blue-700">R$ {{ custo_projeto|floatformat:2 }}</span>
+    <span id="valor-custo" class="text-sm font-extrabold text-blue-700">R$ 0,00</span>
 </div>
 <div class="hidden lg:flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
     <span class="text-[10px] font-bold text-green-700 uppercase">Venda:</span>
-    <span id="valor-venda" class="text-sm font-extrabold text-green-700">R$ {{ custo_projeto|floatformat:2 }}</span>
+    <span id="valor-venda" class="text-sm font-extrabold text-green-700">R$ 0,00</span>
 </div>
 {% endif %}
 {% endblock %}
@@ -42,8 +42,9 @@
 <style>
     .row-selected { background-color: rgba(0, 188, 212, 0.08) !important; }
     .row-selected:hover { background-color: rgba(0, 188, 212, 0.12) !important; }
+    .cat-btn-active { background: #000666 !important; color: white !important; }
     .popup-tab-active { color: #000666; border-bottom: 2px solid #000666; font-weight: 700; }
-    .popup-tab { color: #767683; border-bottom: 2px solid transparent; cursor: pointer; padding: 8px 16px; font-size: 13px; transition: all 0.15s; }
+    .popup-tab { color: #767683; border-bottom: 2px solid transparent; cursor: pointer; padding: 8px 16px; font-size: 13px; }
     .popup-tab:hover { color: #000666; }
 </style>
 {% endblock %}
@@ -66,7 +67,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- Form oculto para enviar itens ao servidor -->
 {% if projeto %}
 <form id="form-bom" method="POST" action="{% url 'bom_selector_projeto' projeto_id=projeto.id %}" class="hidden">
     {% csrf_token %}
@@ -76,29 +76,26 @@
 {% endif %}
 
 <div class="flex-1 flex flex-col p-3 gap-2 overflow-hidden">
-    <!-- Filtros -->
+    <!-- Filtros de categoria (JavaScript, NÃO recarrega página) -->
     <div class="flex flex-wrap gap-1.5 shrink-0">
-        <a href="{% if projeto %}{% url 'bom_selector_projeto' projeto_id=projeto.id %}{% else %}{% url 'bom_selector' %}{% endif %}"
-           class="px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap flex items-center gap-1 transition-colors {% if not categoria_ativa %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
+        <button onclick="filtrarCategoria('')" class="cat-btn cat-btn-active px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap flex items-center gap-1 transition-colors bg-surface-container-high text-on-surface-variant">
             <span class="material-symbols-outlined text-xs">apps</span>Todos
-        </a>
+        </button>
         {% for cat in categorias %}
-        <a href="{% if projeto %}{% url 'bom_selector_projeto' projeto_id=projeto.id %}{% else %}{% url 'bom_selector' %}{% endif %}?categoria={{ cat }}&busca={{ busca }}"
-           class="px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors {% if categoria_ativa == cat %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
+        <button onclick="filtrarCategoria('{{ cat }}')" class="cat-btn px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest">
             {{ cat }}
-        </a>
+        </button>
         {% endfor %}
     </div>
 
-    <!-- Busca -->
-    <form method="GET" action="{% if projeto %}{% url 'bom_selector_projeto' projeto_id=projeto.id %}{% else %}{% url 'bom_selector' %}{% endif %}" class="shrink-0">
-        {% if categoria_ativa %}<input type="hidden" name="categoria" value="{{ categoria_ativa }}">{% endif %}
+    <!-- Busca (JavaScript, NÃO recarrega página) -->
+    <div class="shrink-0">
         <div class="relative group">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline group-focus-within:text-primary text-lg">search</span>
-            <input name="busca" value="{{ busca }}" class="w-full h-9 pl-9 pr-4 bg-surface-container-high border-none rounded-lg text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 text-sm" placeholder="Pesquisar por nome, modelo, P/N ou fabricante..."/>
+            <input id="busca-input" class="w-full h-9 pl-9 pr-4 bg-surface-container-high border-none rounded-lg text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 text-sm" placeholder="Pesquisar por nome, modelo, P/N ou fabricante..." onkeyup="filtrarTabela()"/>
         </div>
-        <p class="text-[10px] text-on-surface-variant italic ml-1 mt-0.5">{{ total_produtos }} itens disponíveis.</p>
-    </form>
+        <p id="count-filtrados" class="text-[10px] text-on-surface-variant italic ml-1 mt-0.5">{{ total_produtos }} itens disponíveis.</p>
+    </div>
 
     <!-- Tabela -->
     <div class="flex-1 bg-white rounded-xl overflow-auto border border-outline-variant/10 shadow-sm">
@@ -119,7 +116,11 @@
             </thead>
             <tbody class="divide-y divide-surface-container-low text-sm">
                 {% for produto in produtos %}
-                <tr class="hover:bg-surface-container-low/50 transition-colors item-row cursor-default" data-preco="{{ produto.unit_reais }}" data-id="{{ produto.pk }}" ondblclick="abrirDetalhe({{ produto.pk }})">
+                <tr class="hover:bg-surface-container-low/50 transition-colors item-row cursor-default"
+                    data-preco="{{ produto.unit_reais }}"
+                    data-id="{{ produto.pk }}"
+                    data-categoria="{{ produto.categoria }}"
+                    ondblclick="abrirDetalhe({{ produto.pk }})">
                     {% if projeto %}
                     <td class="p-2 text-center">
                         <input type="checkbox" data-produto-id="{{ produto.pk }}" class="item-check rounded border-outline-variant text-primary focus:ring-primary" onchange="onCheckChange(this)">
@@ -170,9 +171,7 @@
             <button class="popup-tab" onclick="showPopupTab('fiscal', this)">Fiscal</button>
             <button class="popup-tab" onclick="showPopupTab('compras', this)">Compras</button>
         </div>
-        <div id="modal-detalhe-body" class="p-6 overflow-y-auto flex-1">
-            <p class="text-on-surface-variant text-center py-8">Carregando...</p>
-        </div>
+        <div id="modal-detalhe-body" class="p-6 overflow-y-auto flex-1"></div>
     </div>
 </div>
 {% endblock %}
@@ -180,7 +179,7 @@
 {% block extra_scripts %}
 <script>
 const custoProjeto = {{ custo_projeto|default:"0" }};
-const itensProjeto = {{ total_itens_projeto|default:"0" }};
+let categoriaAtiva = '';
 
 function onCheckChange(cb) {
     cb.closest('tr').classList.toggle('row-selected', cb.checked);
@@ -208,72 +207,86 @@ function recalcular() {
     if (vv) vv.textContent = 'R$ ' + totalCusto.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
 
+// Filtro por categoria (SEM recarregar página, mantém checks)
+function filtrarCategoria(cat) {
+    categoriaAtiva = cat;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('cat-btn-active'));
+    event.target.closest('.cat-btn').classList.add('cat-btn-active');
+    filtrarTabela();
+}
+
+// Filtro por busca + categoria (SEM recarregar)
+function filtrarTabela() {
+    const busca = document.getElementById('busca-input').value.toLowerCase();
+    let visiveis = 0;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const cat = row.getAttribute('data-categoria') || '';
+        const texto = row.textContent.toLowerCase();
+        let show = true;
+        if (categoriaAtiva && cat.toLowerCase() !== categoriaAtiva.toLowerCase()) show = false;
+        if (busca && !texto.includes(busca)) show = false;
+        row.style.display = show ? '' : 'none';
+        if (show) visiveis++;
+    });
+    document.getElementById('count-filtrados').textContent = visiveis + ' itens visíveis.';
+}
+
 function enviarItens(finalizar) {
     const formItens = document.getElementById('form-itens');
     formItens.innerHTML = '';
     let count = 0;
-
+    // Coleta TODOS os marcados (inclusive os escondidos pelo filtro)
     document.querySelectorAll('.item-row').forEach(row => {
         const check = row.querySelector('.item-check');
         const qty = row.querySelector('.item-qty');
         if (check && check.checked) {
-            const pid = check.getAttribute('data-produto-id');
-            const q = qty ? qty.value : '1';
-            formItens.innerHTML += '<input type="hidden" name="produto_ids" value="' + pid + '">';
-            formItens.innerHTML += '<input type="hidden" name="qtds" value="' + q + '">';
+            formItens.innerHTML += '<input type="hidden" name="produto_ids" value="' + check.getAttribute('data-produto-id') + '">';
+            formItens.innerHTML += '<input type="hidden" name="qtds" value="' + (qty ? qty.value : '1') + '">';
             count++;
         }
     });
-
     if (count === 0 && !finalizar) {
         alert('Selecione pelo menos um item.');
         return;
     }
-
+    if (count === 0 && finalizar) {
+        {% if projeto %}
+        window.location.href = '/projeto/{{ projeto.id }}/fluxo/';
+        {% endif %}
+        return;
+    }
     document.getElementById('input-finalizar').value = finalizar ? '1' : '0';
     document.getElementById('form-bom').submit();
 }
 
-// Popup com abas
+// Popup
 let popupProdutoId = null;
-
 function abrirDetalhe(id) {
     popupProdutoId = id;
     document.getElementById('modal-detalhe').classList.remove('hidden');
     showPopupTab('cadastro', document.querySelector('#popup-tabs .popup-tab'));
 }
-
 function showPopupTab(tab, btn) {
     document.querySelectorAll('#popup-tabs .popup-tab').forEach(t => t.classList.remove('popup-tab-active'));
     if (btn) btn.classList.add('popup-tab-active');
-
     const body = document.getElementById('modal-detalhe-body');
     body.innerHTML = '<p class="text-on-surface-variant text-center py-8">Carregando...</p>';
-
     fetch('/produto/' + popupProdutoId + '/').then(r => r.text()).then(html => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
-        let content = doc.getElementById('t-' + tab);
-
+        const content = doc.getElementById('t-' + tab);
         if (content) {
             body.innerHTML = content.innerHTML;
             body.querySelectorAll('input, select, textarea').forEach(el => {
                 el.setAttribute('readonly', true);
                 if (el.tagName === 'SELECT') el.setAttribute('disabled', true);
-                el.style.opacity = '0.7';
-                el.style.cursor = 'not-allowed';
+                el.style.opacity = '0.7'; el.style.cursor = 'not-allowed';
             });
-        } else {
-            body.innerHTML = '<p class="text-on-surface-variant text-center py-8">Conteúdo não encontrado.</p>';
-        }
-
+        } else body.innerHTML = '<p class="text-on-surface-variant text-center py-8">Conteúdo não encontrado.</p>';
         const nome = doc.querySelector('input[name="nome"]');
         if (nome && nome.value) document.getElementById('modal-titulo').textContent = nome.value;
-    }).catch(() => {
-        body.innerHTML = '<p class="text-error text-center py-8">Erro ao carregar.</p>';
-    });
+    }).catch(() => body.innerHTML = '<p class="text-error text-center py-8">Erro ao carregar.</p>');
 }
-
-function fecharDetalhe() { document.getElementById('modal-detalhe').classList.add('hidden'); popupProdutoId = null; }
+function fecharDetalhe() { document.getElementById('modal-detalhe').classList.add('hidden'); }
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') fecharDetalhe(); });
 
 // Formatar preços
@@ -281,5 +294,8 @@ document.querySelectorAll('.preco-cell').forEach(cell => {
     const v = parseFloat(cell.textContent);
     if (!isNaN(v)) cell.textContent = v.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 });
+
+// Init
+recalcular();
 </script>
 {% endblock %}
