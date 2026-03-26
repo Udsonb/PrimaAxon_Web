@@ -33,10 +33,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage',
-    'cloudinary',
     'core',
+    'storages',             # ← ADICIONE ESSA (se não tiver)
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -100,18 +100,22 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files (Cloudinary em produção, local em dev)
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', 'dkkgc3xo7'),
-    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', '218577513364897'),
-    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', 'MK2SmduK8ak0wQnx2qOtLYzc8Dk'),
-}
 
-# Em produção usa Cloudinary, local usa filesystem
-if DATABASE_URL:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# Google Cloud Storage - 100% Google
+USE_GCS = os.environ.get('USE_GCS', 'False') == 'True'
+
+if USE_GCS:
+    # Produção: Google Cloud Storage
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud_storage.GoogleCloudStorage'
+    STATICFILES_STORAGE = 'storages.backends.gcloud_storage.GoogleCloudStorage'
+    GS_BUCKET_NAME = os.environ.get('GCS_BUCKET_NAME', 'prisma-axon-storage')
+    GS_PROJECT_ID = os.environ.get('GCP_PROJECT_ID')
+    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
+    STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
 else:
+    # Desenvolvimento: Pasta local
     MEDIA_URL = '/media/'
     MEDIA_ROOT = BASE_DIR / 'media'
+    STATIC_URL = '/static/'
+    STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
