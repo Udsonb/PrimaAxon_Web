@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinel Ledger - Registro de Compras</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed": "#000767",
+                        "secondary": "#006b5e",
+                        "primary-fixed": "#e0e0ff",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#bdc2ff",
+                        "on-tertiary-fixed-variant": "#663d00",
+                        "secondary-container": "#94f0df",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#343d96",
+                        "surface": "#fbf8ff",
+                        "on-secondary-fixed": "#00201b",
+                        "tertiary-container": "#472900",
+                        "surface-variant": "#e2e1ed",
+                        "tertiary": "#2a1700",
+                        "outline": "#767683",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#8690ee",
+                        "surface-bright": "#fbf8ff",
+                        "secondary-fixed": "#97f3e2",
+                        "background": "#fbf8ff",
+                        "secondary-fixed-dim": "#7ad7c6",
+                        "primary-container": "#1a237e",
+                        "on-surface": "#1a1b23",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#f1f0fb",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "on-background": "#1a1b23",
+                        "surface-container": "#eeedf8",
+                        "on-tertiary-container": "#d68500",
+                        "on-secondary-fixed-variant": "#005047",
+                        "surface-dim": "#dad9e4",
+                        "outline-variant": "#c6c5d4",
+                        "surface-container-highest": "#e2e1ed",
+                        "on-surface-variant": "#454652",
+                        "surface-tint": "#4c56af",
+                        "primary": "#000666",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffddba",
+                        "inverse-surface": "#2f3038",
+                        "tertiary-fixed-dim": "#ffb865",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-high": "#e8e7f2",
+                        "on-secondary-container": "#006f62",
+                        "surface-container-low": "#f3f2fe",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "on-tertiary-fixed": "#2b1700"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fbf8ff;
+        }
+        .sidebar-item { @apply flex items-center gap-3 px-6 py-3 transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high font-body; }
+        .sidebar-item.active { @apply bg-transparent text-primary border-r-4 border-primary font-bold; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-[#fbf8ff] flex justify-between items-center w-full px-6 py-4 sticky top-0 z-40 border-b border-outline-variant">
+<div class="flex items-center gap-6">
+<span class="text-lg font-bold tracking-tight text-[#1A237E] font-headline">Cadastro de Produtos</span>
+<div class="h-8 w-[1px] bg-outline-variant hidden md:block"></div>
+<div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-sm">
+<div class="flex gap-1">
+<span class="text-on-surface-variant font-medium font-body">Nome:</span>
+<span class="text-primary font-bold font-body">Câmera Sentinel 4K</span>
+</div>
+<div class="flex gap-1">
+<span class="text-on-surface-variant font-medium font-body">Modelo:</span>
+<span class="text-primary font-bold font-body">NT-001</span>
+</div>
+<div class="flex gap-1">
+<span class="text-on-surface-variant font-medium font-body">Fabricante:</span>
+<span class="text-primary font-bold font-body">Global Security</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-[#e2e1ed] transition-colors duration-200">
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</button>
+<button class="p-2 rounded-full hover:bg-[#e2e1ed] transition-colors duration-200">
+<span class="material-symbols-outlined text-on-surface-variant">help</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant ml-2">
+<div class="flex flex-col items-end">
+<span class="text-[10px] font-bold uppercase tracking-[0.1em] text-on-surface-variant leading-none font-label">Perfil</span>
+<span class="text-xs font-extrabold text-primary uppercase tracking-tight font-label">Analista</span>
+</div>
+<div class="h-9 w-9 rounded-full bg-primary-fixed flex items-center justify-center border border-primary-fixed-dim/50 group cursor-pointer hover:bg-primary-container hover:text-on-primary-fixed transition-all duration-200">
+<span class="material-symbols-outlined text-primary group-hover:text-white transition-colors">person</span>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-grow overflow-hidden">
+<!-- Navigation Sidebar -->
+<aside class="w-64 bg-surface-container-low border-r border-outline-variant py-4 flex flex-col gap-1 hidden lg:flex">
+<a class="sidebar-item" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span>Cadastro</span>
+</a>
+<a class="sidebar-item" href="#">
+<span class="material-symbols-outlined">description</span>
+<span>Fiscal</span>
+</a>
+<a class="sidebar-item active" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+<span>Compras</span>
+</a>
+<a class="sidebar-item" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span>Lucro e Tributos</span>
+</a>
+<a class="sidebar-item" href="#">
+<span class="material-symbols-outlined">location_on</span>
+<span>Locação</span>
+</a>
+</aside>
+<main class="flex-grow overflow-y-auto">
+<div class="flex flex-col md:flex-row p-8 gap-8 mb-24 max-w-[1600px] mx-auto w-full">
+<!-- Sidebar Image Context -->
+<aside class="w-full md:w-1/3 flex flex-col gap-6">
+<div class="relative overflow-hidden rounded-xl h-[480px] bg-surface-container-low shadow-sm group">
+<img alt="Câmera de Segurança Industrial" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMLG6kGdRiP-52IVKgW2JKkEPu69FpauDouF90BzLDZuw-dyUqkYd1otKS3KK99w5hPrChSe6_jiszDUle9-nLoh5OHBVzatA6Hq7I5q1IPaGId4Kp9Z-MSIXrcj8VHLYyOwTbaef0t2pNYEPtiw8a_U03sK6_fKXVngeXPTq0fOfxoxExOp983ucEcZ8ZLzGPKvxx11b6hrpxrZyEL96kQJy8xQmIS9ct1RqGiae_rcY1Lhv7eh6W2rB4nxueH5nHAkGTGR7Tn_I"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent flex flex-col justify-end p-8">
+<h1 class="text-white font-headline text-4xl font-extrabold tracking-tight mb-2">Item Ativo</h1>
+<p class="text-primary-fixed-dim font-body text-sm leading-relaxed max-w-xs">Câmera Sentinel 4K - Visão Noturna Avançada</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/15 flex flex-col gap-2">
+<label class="text-on-surface-variant font-label text-[0.6875rem] uppercase tracking-wider block">Código SKU</label>
+<div class="font-headline text-3xl font-bold text-primary">SEC-4K-NT-001</div>
+</div>
+<div class="bg-primary-container text-on-primary-container p-8 rounded-xl shadow-sm">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined">analytics</span>
+<h3 class="font-headline font-bold text-xl">Resumo de Cotações</h3>
+</div>
+<div class="space-y-6">
+<div class="flex justify-between items-end">
+<span class="text-sm opacity-80 font-body">Último Preço</span>
+<span class="text-3xl font-bold font-headline">R$ 1.240,00</span>
+</div>
+<div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+<div class="bg-tertiary-fixed-dim w-3/4 h-full"></div>
+</div>
+<p class="text-xs opacity-70 italic font-body">* Variação de +5% em relação ao semestre anterior</p>
+</div>
+</div>
+</aside>
+<!-- Main Registration Form (Compras Tab) -->
+<section class="flex-1 bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15 flex flex-col gap-8 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="h-8 w-1 bg-primary rounded-full"></div>
+<h2 class="font-headline text-2xl font-bold text-on-surface">Registro de Compras</h2>
+</div>
+<form class="flex flex-col gap-10">
+<!-- Identificação de Origem -->
+<div class="space-y-6">
+<div class="flex items-center gap-2 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-primary text-xl">inventory</span>
+<h3 class="text-sm font-bold text-primary uppercase tracking-wider font-headline">Identificação de Origem</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Nome do Fornecedor</label>
+<input class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" placeholder="Ex: Global Security Ltda" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Estado de Origem</label>
+<div class="relative">
+<select class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none appearance-none cursor-pointer transition-all">
+<option disabled="" selected="" value="">Selecione o Estado</option>
+<option value="SP">São Paulo</option>
+<option value="RJ">Rio de Janeiro</option>
+<option value="PR">Paraná</option>
+<option value="MG">Minas Gerais</option>
+<option value="SC">Santa Catarina</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-high/50 p-4 rounded-lg">
+<input class="w-5 h-5 rounded text-primary border-outline-variant bg-surface-container-high focus:ring-offset-0 focus:ring-primary" id="imported" type="checkbox"/>
+<label class="text-sm font-medium text-on-surface font-body" for="imported">Produto Importado</label>
+<span class="ml-auto material-symbols-outlined text-outline-variant text-sm">info</span>
+</div>
+</div>
+<!-- Parâmetros Financeiros -->
+<div class="space-y-6">
+<div class="flex items-center gap-2 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-primary text-xl">payments</span>
+<h3 class="text-sm font-bold text-primary uppercase tracking-wider font-headline">Parâmetros Financeiros</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Grupo Financeiro</label>
+<div class="relative">
+<select class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none appearance-none cursor-pointer transition-all">
+<option>Group 1</option>
+<option>Group 2</option>
+<option>Group 3</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Tempo de Entrega (Dias)</label>
+<div class="relative">
+<input class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" placeholder="0" type="number"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-outline uppercase font-label">Dias</span>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">NCM</label>
+<input class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" placeholder="0000.00.00" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Data da Última Cotação</label>
+<div class="flex items-center bg-surface-container-high rounded-lg overflow-hidden">
+<span class="material-symbols-outlined px-4 text-outline">calendar_month</span>
+<input class="w-full bg-transparent border-none py-4 pr-4 focus:ring-0 text-on-surface font-body" type="date" value="2023-10-15"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Validade da Cotação</label>
+<div class="flex items-center bg-error-container/20 border border-error/20 rounded-lg overflow-hidden group">
+<span class="material-symbols-outlined px-4 text-error">event_busy</span>
+<input class="w-full bg-transparent border-none py-4 pr-4 focus:ring-0 text-error font-bold font-body" type="date" value="2023-11-15"/>
+<div class="px-4">
+<span class="text-[10px] font-bold uppercase bg-error text-white px-2 py-1 rounded font-label">Expirado</span>
+</div>
+</div>
+<p class="text-[10px] text-error font-medium px-1 mt-1 font-body">Necessário atualizar cotação antes de novos pedidos.</p>
+</div>
+</div>
+</div>
+<!-- Observações -->
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Observações Gerais</label>
+<textarea class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all resize-none" placeholder="Detalhes adicionais sobre negociações, contratos de exclusividade ou particularidades técnicas do fornecedor..." rows="5"></textarea>
+</div>
+</form>
+</section>
+</div>
+</main>
+</div>
+<!-- BottomNavBar -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-end gap-6 p-4 pr-10 bg-white z-50 border-t border-outline-variant">
+<button class="text-[#454652] flex items-center gap-2 px-6 py-2 hover:opacity-90 transition-opacity active:translate-y-0.5 duration-100 uppercase text-xs font-bold tracking-tighter font-label">
+<span class="material-symbols-outlined text-base">cancel</span>
+            CANCELAR
+        </button>
+<button class="bg-[#000666] text-white rounded-md px-8 py-3 flex items-center gap-2 hover:opacity-95 transition-all active:scale-[0.98] duration-100 uppercase text-xs font-bold tracking-tighter font-label">
+<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            CONFIRMAR
+        </button>
+</footer>
+</body></html>

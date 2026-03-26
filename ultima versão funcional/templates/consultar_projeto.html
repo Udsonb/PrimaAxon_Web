@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Prima Axon - Consultar Projeto{% endblock %}
+{% block page_title %}Consultar Projeto{% endblock %}
+
+{% block content %}
+<section class="flex-1 flex flex-col p-4 md:p-6 max-w-[1200px] mx-auto w-full gap-6">
+    
+    <!-- Search Bar -->
+    <form method="GET" action="{% url 'consultar_projeto' %}" class="flex gap-3 items-center">
+        <div class="relative group flex-1 max-w-xl">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline group-focus-within:text-primary transition-colors">search</span>
+            <input name="q" value="{{ query }}" 
+                   class="w-full h-12 pl-12 pr-4 bg-surface-container-high border-none rounded-xl text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 text-sm" 
+                   placeholder="Buscar por nome do cliente ou ID do projeto..."/>
+        </div>
+        <button type="submit" class="h-12 px-6 bg-primary text-white rounded-xl font-bold text-sm hover:opacity-90 transition-all flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">manage_search</span> BUSCAR
+        </button>
+    </form>
+
+    {% if query %}
+    <p class="text-sm text-on-surface-variant">{{ projetos|length }} resultado(s) para "<strong>{{ query }}</strong>"</p>
+    {% endif %}
+
+    <!-- Results -->
+    <div class="space-y-3">
+        {% for projeto in projetos %}
+        <div class="bg-white p-6 rounded-xl border border-outline-variant/10 shadow-sm hover:shadow-md transition-all flex items-center justify-between">
+            <div class="flex items-center gap-6">
+                <div class="w-12 h-12 bg-primary-container text-white rounded-lg flex items-center justify-center font-bold text-sm">
+                    {{ projeto.id_projeto_manual|slice:":2" }}
+                </div>
+                <div>
+                    <h3 class="font-headline font-bold text-primary text-lg">{{ projeto.id_projeto_manual }}</h3>
+                    <p class="text-sm text-on-surface-variant">{{ projeto.nome_cliente }} — {{ projeto.municipio_obra }}/{{ projeto.estado_obra }}</p>
+                    <div class="flex gap-4 mt-1">
+                        <span class="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">{{ projeto.empresa_executora }}</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider {% if projeto.tipo_projeto == 'Publico' %}text-secondary{% else %}text-primary{% endif %}">
+                            {{ projeto.tipo_projeto }}
+                        </span>
+                        <span class="text-[10px] text-on-surface-variant">{{ projeto.data_criacao|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            <a href="#" class="px-6 py-2 bg-primary text-white rounded-lg font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">open_in_new</span> ABRIR
+            </a>
+        </div>
+        {% empty %}
+        {% if query %}
+        <div class="text-center py-16">
+            <span class="material-symbols-outlined text-5xl text-on-surface-variant/20 block mb-3">search_off</span>
+            <p class="font-bold text-on-surface-variant">Nenhum projeto encontrado</p>
+            <p class="text-xs text-on-surface-variant mt-1">Tente buscar com outros termos ou <a href="{% url 'novo_projeto' %}" class="text-primary underline">crie um novo projeto</a>.</p>
+        </div>
+        {% else %}
+        <div class="text-center py-16">
+            <span class="material-symbols-outlined text-5xl text-on-surface-variant/20 block mb-3">folder_open</span>
+            <p class="font-bold text-on-surface-variant">Digite um termo para buscar projetos</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

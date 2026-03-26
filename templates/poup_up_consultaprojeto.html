@@ -1,0 +1,216 @@
+<!DOCTYPE html><html lang="pt-BR"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#bdc2ff",
+              "outline": "#767683",
+              "on-secondary-fixed": "#00201b",
+              "surface-container-highest": "#e2e1ed",
+              "on-secondary-container": "#006f62",
+              "inverse-on-surface": "#f1f0fb",
+              "tertiary": "#2a1700",
+              "tertiary-container": "#472900",
+              "surface-variant": "#e2e1ed",
+              "secondary-container": "#94f0df",
+              "on-tertiary-fixed-variant": "#663d00",
+              "on-error-container": "#93000a",
+              "secondary-fixed": "#97f3e2",
+              "on-tertiary-fixed": "#2b1700",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary": "#ffffff",
+              "error-container": "#ffdad6",
+              "on-secondary-fixed-variant": "#005047",
+              "on-tertiary": "#ffffff",
+              "background": "#fbf8ff",
+              "secondary-fixed-dim": "#7ad7c6",
+              "secondary": "#006b5e",
+              "surface-dim": "#dad9e4",
+              "on-surface-variant": "#454652",
+              "on-primary-container": "#8690ee",
+              "on-error": "#ffffff",
+              "inverse-surface": "#2f3038",
+              "tertiary-fixed-dim": "#ffb865",
+              "primary": "#000666",
+              "outline-variant": "#c6c5d4",
+              "on-background": "#1a1b23",
+              "surface-container-high": "#e8e7f2",
+              "tertiary-fixed": "#ffddba",
+              "surface": "#fbf8ff",
+              "primary-fixed": "#e0e0ff",
+              "on-surface": "#1a1b23",
+              "surface-bright": "#fbf8ff",
+              "on-tertiary-container": "#d68500",
+              "on-primary-fixed": "#000767",
+              "primary-container": "#1a237e",
+              "on-primary-fixed-variant": "#343d96",
+              "surface-tint": "#4c56af",
+              "on-primary": "#ffffff",
+              "surface-container": "#eeedf8",
+              "surface-container-low": "#f3f2fe",
+              "error": "#ba1a1a",
+              "inverse-primary": "#bdc2ff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-effect {
+        backdrop-filter: blur(20px);
+        background: rgba(251, 248, 255, 0.8);
+      }
+      .atmospheric-shadow {
+        box-shadow: 0px 12px 32px rgba(26, 27, 35, 0.06);
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface overflow-hidden">
+<!-- Background Content (Simulated Ledger Dashboard) -->
+<div class="fixed inset-0 flex flex-col md:flex-row">
+<!-- SideNavBar (Predicted Component) -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#f3f2fe] flex flex-col py-8 gap-2 font-['Inter'] text-sm font-medium">
+<div class="px-6 mb-8">
+<h1 class="font-['Manrope'] font-extrabold text-[#1A237E] text-xl tracking-tighter" style="">Sentinel Ledger</h1>
+<p class="text-[10px] uppercase tracking-widest text-outline mt-1" style="">Tactical Architect</p>
+</div>
+<nav class="flex flex-col gap-1">
+<div class="text-[#454652] px-4 py-3 flex items-center gap-3" style="">
+<span class="material-symbols-outlined" data-icon="grid_view" style="">grid_view</span> Dashboard
+                </div>
+<div class="bg-white text-[#1A237E] rounded-r-full font-bold px-4 py-3 flex items-center gap-3" style="">
+<span class="material-symbols-outlined" data-icon="architecture" style="">architecture</span> Projects
+                </div>
+<div class="text-[#454652] px-4 py-3 flex items-center gap-3" style="">
+<span class="material-symbols-outlined" data-icon="payments" style="">payments</span> Ledger
+                </div>
+<div class="text-[#454652] px-4 py-3 flex items-center gap-3" style="">
+<span class="material-symbols-outlined" data-icon="shield" style="">shield</span> Security
+                </div>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 p-10 bg-surface">
+<header class="mb-10 flex justify-between items-end">
+<div>
+<span class="text-xs font-bold text-primary tracking-widest uppercase" style="">Overview</span>
+<h2 class="text-4xl font-headline font-extrabold tracking-tight text-primary mt-2" style="">Active Deployments</h2>
+</div>
+<div class="h-12 w-12 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="account_circle" style="">account_circle</span>
+</div>
+</header>
+<div class="grid grid-cols-12 gap-6">
+<!-- Data Grid Simulation -->
+<div class="col-span-12 bg-surface-container-lowest rounded-xl atmospheric-shadow overflow-hidden">
+<div class="p-6 bg-surface-container-low flex justify-between items-center">
+<h3 class="font-headline font-bold text-on-surface" style="">Financial Dossier</h3>
+<span class="text-xs font-medium text-outline" style="">Sorted by: Project ID</span>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-primary-container text-white rounded flex items-center justify-center font-bold" style="">SL</div>
+<div>
+<p class="text-sm font-bold text-primary" style="">SL-90210 Tactical Grid</p>
+<p class="text-xs text-on-surface-variant" style="">Asset Deployment: North Sector</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-primary" style="">$450,000.00</p>
+<span class="text-[10px] bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold" style="">SECURE</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-primary-container text-white rounded flex items-center justify-center font-bold" style="">NX</div>
+<div>
+<p class="text-sm font-bold text-primary" style="">NX-44 Perimeter Shield</p>
+<p class="text-xs text-on-surface-variant" style="">Infrastructure Material Ops</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-primary" style="">$1,280,000.00</p>
+<span class="text-[10px] bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold" style="">SECURE</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Modal Overlay -->
+<div class="fixed inset-0 bg-on-surface/40 backdrop-blur-[2px] z-50 flex items-center justify-center px-4">
+<!-- Search Project Modal -->
+<section class="w-full max-w-md bg-surface-container-low rounded-xl atmospheric-shadow overflow-hidden flex flex-col">
+<!-- Modal Header -->
+<div class="px-8 pt-8 pb-4">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg" data-icon="search" style="">search</span>
+</div>
+<h2 class="font-headline font-extrabold text-xl tracking-tight text-primary" style="">Consultar Projeto</h2>
+</div>
+<p class="text-sm text-on-surface-variant font-body" style="">Acesse Projetos ativos ou concluidos</p>
+</div>
+<!-- Modal Body / Form -->
+<div class="px-8 py-6 space-y-6">
+<div class="space-y-2">
+<label class="text-[10px] font-bold uppercase tracking-widest text-outline ml-1" for="project_query" style="">Nome ou Número do Projeto</label>
+<div class="relative">
+<input class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3.5 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary/40 placeholder:text-outline/60" id="project_query" placeholder="Ex: SL-90210 ou Operação Alpha" type="text">
+</div>
+</div>
+<!-- Bento-like helper chips (Micro-interaction layer) -->
+<div class="flex flex-wrap gap-2 pt-2">
+<button class="text-[10px] px-3 py-1.5 rounded-full bg-surface-container-highest text-primary font-bold hover:bg-primary-fixed transition-colors" style="">RECENTES</button>
+<button class="text-[10px] px-3 py-1.5 rounded-full bg-surface-container-highest text-primary font-bold hover:bg-primary-fixed transition-colors" style="">ATIVOS</button>
+</div>
+</div>
+<!-- Modal Footer / Actions -->
+<div class="px-8 pb-8 pt-4 flex flex-col sm:flex-row-reverse gap-3">
+<!-- Primary Action: BUSCAR -->
+<button class="flex-1 bg-gradient-to-br from-primary to-primary-container text-white font-headline font-bold py-3.5 rounded-lg shadow-sm hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2" style="">
+<span class="material-symbols-outlined text-sm" data-icon="manage_search" style="">manage_search</span>
+                    BUSCAR
+                </button>
+<!-- Secondary Action: CANCELAR -->
+<button class="flex-1 bg-transparent border-2 border-outline-variant text-on-surface-variant font-headline font-bold py-3.5 rounded-lg hover:bg-surface-container-highest hover:text-primary active:scale-[0.98] transition-all" style="">
+                    CANCELAR
+                </button>
+</div>
+<!-- Decorative Technical Line (Asymmetry) -->
+<div class="h-1.5 w-full flex">
+<div class="h-full flex-1 bg-primary-container"></div>
+<div class="h-full flex-[0.3] bg-secondary"></div>
+<div class="h-full flex-[0.1] bg-tertiary-fixed-dim"></div>
+</div>
+</section>
+</div>
+<!-- Decorative Grain Overlay (Premium Texture) -->
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay">
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+<filter id="noiseFilter">
+<feTurbulence baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" type="fractalNoise"></feTurbulence>
+</filter>
+<rect filter="url(#noiseFilter)" height="100%" width="100%"></rect>
+</svg>
+</div>
+</body></html>

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Prima Axon - Catálogo / BoM Selector{% endblock %}
+{% block page_title %}BoM Selector{% endblock %}
+
+{% block header_extra %}
+<div class="h-6 w-[1px] bg-outline-variant/30 mx-2 hidden md:block"></div>
+<nav class="hidden md:flex gap-4 items-center">
+    <a class="text-primary font-bold border-b-2 border-primary text-sm pb-1" href="{% url 'bom_selector' %}">Materiais</a>
+    <a class="text-on-surface-variant hover:text-primary transition-colors text-sm pb-1" href="#">M.O</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section class="flex-1 flex flex-col p-4 md:p-6 max-w-[1600px] mx-auto w-full gap-4">
+    
+    <!-- Category Filter Chips -->
+    <div class="flex flex-wrap gap-2">
+        <a href="{% url 'bom_selector' %}" 
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap flex items-center gap-2 transition-colors
+                  {% if not categoria_ativa %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
+            <span class="material-symbols-outlined text-sm">apps</span> Todos
+        </a>
+        {% for cat in categorias %}
+        <a href="{% url 'bom_selector' %}?categoria={{ cat }}&busca={{ busca }}" 
+           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap flex items-center gap-2 transition-colors
+                  {% if categoria_ativa == cat %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
+            {{ cat }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Search Bar -->
+    <form method="GET" action="{% url 'bom_selector' %}" class="space-y-1">
+        {% if categoria_ativa %}<input type="hidden" name="categoria" value="{{ categoria_ativa }}">{% endif %}
+        <div class="relative group max-w-4xl">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline group-focus-within:text-primary transition-colors">search</span>
+            <input name="busca" value="{{ busca }}" 
+                   class="w-full h-12 pl-12 pr-4 bg-surface-container-high border-none rounded-xl text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 text-sm transition-all shadow-sm" 
+                   placeholder="Pesquisar por nome, modelo, P/N ou fabricante..."/>
+        </div>
+        <p class="text-[10px] text-on-surface-variant italic ml-2">{{ total_produtos }} itens encontrados na base de materiais.</p>
+    </form>
+
+    <!-- Products Table -->
+    <div class="flex-1 bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/10 shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[900px]">
+                <thead>
+                    <tr class="bg-surface-container-low/50">
+                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">ID</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">NOME DO PRODUTO</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">MODELO</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">P/N</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">FABRICANTE</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">CATEGORIA</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">PREÇO (R$)</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-center">AÇÃO</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-surface-container-low">
+                    {% for produto in produtos %}
+                    <tr class="hover:bg-surface-container-low transition-colors group">
+                        <td class="px-4 py-3 text-xs font-mono text-on-surface-variant">{{ produto.id_planilha }}</td>
+                        <td class="px-4 py-3 font-semibold text-primary text-sm">{{ produto.nome }}</td>
+                        <td class="px-4 py-3 text-sm text-on-surface-variant">{{ produto.modelo }}</td>
+                        <td class="px-4 py-3 text-sm text-on-surface-variant">{{ produto.part_number|default:"-" }}</td>
+                        <td class="px-4 py-3">
+                            <span class="bg-surface-container-highest px-2 py-0.5 rounded text-[10px] font-bold uppercase">{{ produto.fabricante }}</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span class="bg-primary-fixed px-2 py-0.5 rounded text-[10px] font-bold text-primary">{{ produto.categoria }}</span>
+                        </td>
+                        <td class="px-4 py-3 font-bold text-primary text-sm text-right">{{ produto.unit_reais }}</td>
+                        <td class="px-4 py-3 text-center">
+                            <a href="{% url 'detalhe_produto' pk=produto.pk %}" 
+                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-primary text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary hover:text-white transition-all">
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                                Detalhes
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="px-4 py-12 text-center text-on-surface-variant">
+                            <span class="material-symbols-outlined text-4xl mb-2 block opacity-30">inventory_2</span>
+                            <p class="font-bold">Nenhum produto encontrado</p>
+                            <p class="text-xs mt-1">Tente ajustar os filtros ou <a href="{% url 'cadastro_produto' %}" class="text-primary underline">cadastre um novo produto</a>.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endblock %}

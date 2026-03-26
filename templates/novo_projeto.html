@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Prisma Axon - Novo Projeto{% endblock %}
+{% block page_title %}Novo Projeto{% endblock %}
+
+{% block content %}
+<main class="flex items-center justify-center px-4 py-8">
+    <div class="max-w-3xl w-full bg-white rounded-xl shadow-lg border border-outline-variant/20 overflow-hidden">
+        <div class="p-8 md:p-10">
+            <div class="mb-8 text-center">
+                <h1 class="text-3xl font-extrabold text-primary leading-tight font-headline">Configuração de Pré-Projeto</h1>
+                <p class="text-on-surface-variant text-sm mt-2">Preencha os dados do cliente e da obra. O projeto só será criado após incluir itens no BoM.</p>
+            </div>
+            {% if messages %}{% for message in messages %}<div class="{% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} p-3 rounded-lg mb-4 text-xs font-bold uppercase">{{ message }}</div>{% endfor %}{% endif %}
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-bold text-outline uppercase tracking-widest">ID do Projeto</label>
+                        <input name="id_projeto_manual" type="text" placeholder="PRJ-2024-001" required class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-bold text-outline uppercase tracking-widest">Nome do Cliente</label>
+                        <input name="nome_cliente" type="text" placeholder="Nome corporativo" required class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-bold text-outline uppercase tracking-widest">Estado da Obra</label>
+                        <select id="uf" name="estado_obra" required class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40">
+                            <option value="">Carregando UF...</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-bold text-outline uppercase tracking-widest">Município da Obra</label>
+                        <select id="cidade" name="municipio_obra" required class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40">
+                            <option value="">Selecione o Estado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-bold text-outline uppercase tracking-widest">Empresa Executora</label>
+                        <select name="empresa_executora" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40">
+                            <option value="EMIVE" {% if empresa_logada == 'EMIVE' or empresa_logada == 'Emive Grandes Projetos' %}selected{% endif %}>EMIVE</option>
+                            <option value="DIGITAL" {% if empresa_logada == 'DIGITAL' or empresa_logada == 'Digital Tecnologia' %}selected{% endif %}>DIGITAL</option>
+                            <option value="CH" {% if empresa_logada == 'CH' or empresa_logada == 'CH Tecnologia' %}selected{% endif %}>CH</option>
+                            <option value="BMSi">BMSi</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-bold text-outline uppercase tracking-widest">Faturamento do Serviço</label>
+                        <select name="faturamento_servico" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40">
+                            <option value="INSTALACAO" selected>Instalação</option>
+                            <option value="MENSAL">Mensal (Recorrente)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-outline-variant/20 space-y-6">
+                    <div class="space-y-4">
+                        <label class="block text-[10px] font-bold text-outline uppercase tracking-widest">Tipo de Projeto</label>
+                        <div class="flex items-center gap-8">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="tipo_projeto" value="Privado" checked onclick="document.getElementById('campo_licitacao').classList.add('hidden')" class="text-primary focus:ring-primary w-5 h-5">
+                                <span class="text-sm font-medium">Projeto Privado</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="tipo_projeto" value="Publico" onclick="document.getElementById('campo_licitacao').classList.remove('hidden')" class="text-primary focus:ring-primary w-5 h-5">
+                                <span class="text-sm font-medium">Projeto Público</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="campo_licitacao" class="hidden bg-blue-50 p-4 rounded-xl flex items-start gap-4">
+                        <input name="licitacao_publicada" type="checkbox" value="true" class="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary">
+                        <div>
+                            <label class="text-sm font-bold text-primary block">Licitação já publicada</label>
+                            <p class="text-[10px] text-on-surface-variant">Habilita conformidade técnica exigida em edital.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-4 pt-4">
+                    <a href="{% url 'inicio' %}" class="px-6 py-2 text-xs font-bold text-on-surface-variant hover:text-error transition-colors uppercase tracking-widest">CANCELAR</a>
+                    <button type="submit" class="bg-primary hover:bg-primary-container px-10 py-3 rounded-lg text-sm font-bold text-white shadow-lg transition-all flex items-center gap-2">
+                        INICIAR BOM <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome').then(r=>r.json()).then(d=>{const u=document.getElementById('uf');u.innerHTML='<option value="">Selecionar UF</option>';d.forEach(e=>u.innerHTML+=`<option value="${e.sigla}">${e.nome}</option>`)});
+document.getElementById('uf').addEventListener('change',function(){const c=document.getElementById('cidade');c.innerHTML='<option>Carregando...</option>';fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${this.value}/municipios?orderBy=nome`).then(r=>r.json()).then(d=>{c.innerHTML='<option value="">Selecionar cidade</option>';d.forEach(m=>c.innerHTML+=`<option value="${m.nome}">${m.nome}</option>`)})});
+</script>
+{% endblock %}

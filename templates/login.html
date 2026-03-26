@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login | Prisma Axon System</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = { theme: { extend: {
+        colors: {
+            "primary":"#000666","primary-container":"#1a237e","on-primary":"#ffffff",
+            "primary-fixed":"#e0e0ff","primary-fixed-dim":"#bdc2ff",
+            "surface":"#fbf8ff","surface-container-high":"#e8e7f2",
+            "surface-container-lowest":"#ffffff","on-surface":"#1a1b23",
+            "on-surface-variant":"#454652","outline":"#767683","outline-variant":"#c6c5d4",
+        },
+        fontFamily: {"headline":["Manrope"],"body":["Inter"],"label":["Inter"]},
+    }}}
+</script>
+<style>
+    .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; display:inline-block; line-height:1; }
+    .glass-panel { background:rgba(255,255,255,0.8); backdrop-filter:blur(20px); }
+</style>
+</head>
+<body class="bg-surface font-body text-on-surface min-h-screen flex items-center justify-center p-6">
+
+<!-- Background -->
+<div class="fixed inset-0 pointer-events-none opacity-5 flex items-center justify-center overflow-hidden">
+    <div class="w-full h-full border-[20px] border-primary-container grid grid-cols-12 grid-rows-12">
+        <div class="col-span-12 border-b border-primary-container"></div>
+        <div class="col-span-12 border-b border-primary-container"></div>
+    </div>
+</div>
+
+<main class="w-full max-w-[480px] relative z-10">
+    <div class="text-center mb-10">
+        <h1 class="font-headline font-extrabold text-3xl text-primary tracking-tight mb-2">Prisma Axon System</h1>
+        <p class="font-label text-on-surface-variant text-sm tracking-wide uppercase">Bem vindo, faça login para começar</p>
+    </div>
+    
+    <div class="bg-surface-container-lowest rounded-xl p-8 md:p-10 shadow-[0px_12px_32px_rgba(26,27,35,0.06)] border border-surface-container-high relative overflow-hidden">
+        
+        <!-- Logo da empresa (muda via JS) -->
+        <div class="flex justify-center mb-10">
+            <div id="logo-container" class="px-6 py-3 rounded-lg border-dashed border-2 border-outline-variant/30 bg-surface-container-high/30 min-h-[60px] flex items-center justify-center transition-all">
+                <span id="logo-placeholder" class="font-headline font-bold text-primary-container/40 text-sm italic">[LOGO_DA_EMPRESA]</span>
+                <span id="logo-no-image" class="hidden text-on-surface-variant text-xs italic">Inclua a logo no cadastro da empresa</span>
+                <img id="logo-img" src="" alt="Logo" class="hidden max-h-[50px] max-w-[200px] object-contain">
+            </div>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="bg-red-100 text-red-700 p-3 rounded-lg mb-4 text-xs font-bold uppercase">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form class="space-y-6" method="POST" action="">
+            {% csrf_token %}
+            
+            <!-- Selecione a Empresa -->
+            <div class="space-y-2">
+                <label class="block font-label text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest px-1">Selecione sua Empresa</label>
+                <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-[20px]">business</span>
+                    <select id="empresa-select" class="w-full bg-surface-container-high border-none rounded-lg pl-12 pr-4 py-4 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary/40 appearance-none transition-all cursor-pointer" name="company" required>
+                        <option value="" data-logo="">Escolha uma organização...</option>
+                        {% for empresa in empresas %}
+                        <option value="{{ empresa.id }}" data-logo="{% if empresa.logo %}{{ empresa.logo.url }}{% endif %}">{{ empresa.nome_fantasia }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- E-mail / Usuário -->
+            <div class="space-y-2">
+                <label class="block font-label text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest px-1">USUÁRIO / E-MAIL</label>
+                <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-[20px]">mail</span>
+                    <input class="w-full bg-surface-container-high border-none rounded-lg pl-12 pr-4 py-4 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary/40 transition-all" name="username" type="text" placeholder="usuário ou email" required/>
+                </div>
+            </div>
+
+            <!-- Senha -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between px-1">
+                    <label class="block font-label text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-widest">SENHA</label>
+                    <span class="font-label text-[0.6875rem] font-semibold text-primary-container/50 cursor-not-allowed">Esqueci minha senha (em breve)</span>
+                </div>
+                <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors text-[20px]">lock</span>
+                    <input class="w-full bg-surface-container-high border-none rounded-lg pl-12 pr-12 py-4 text-on-surface font-body text-sm focus:ring-2 focus:ring-primary/40 transition-all" name="password" type="password" placeholder="••••••••" required/>
+                </div>
+            </div>
+
+            <button class="w-full bg-primary text-white font-headline font-bold py-4 rounded-lg shadow-sm hover:bg-primary-container transition-all flex items-center justify-center gap-2 mt-4" type="submit">
+                <span>Entrar</span>
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="mt-8 text-center">
+        <p class="font-label text-[0.6875rem] text-on-surface-variant font-medium tracking-wide uppercase">© 2026 PRISMA AXON SYSTEM</p>
+    </div>
+</main>
+
+<script>
+document.getElementById('empresa-select').addEventListener('change', function() {
+    const option = this.options[this.selectedIndex];
+    const logoUrl = option.getAttribute('data-logo');
+    const container = document.getElementById('logo-container');
+    const img = document.getElementById('logo-img');
+    const placeholder = document.getElementById('logo-placeholder');
+    const noImage = document.getElementById('logo-no-image');
+    
+    if (this.value === '') {
+        // Nenhuma empresa selecionada
+        img.classList.add('hidden');
+        noImage.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        container.classList.add('border-dashed', 'border-2', 'border-outline-variant/30', 'bg-surface-container-high/30');
+    } else if (logoUrl) {
+        // Empresa com logo
+        img.src = logoUrl;
+        img.classList.remove('hidden');
+        placeholder.classList.add('hidden');
+        noImage.classList.add('hidden');
+        container.classList.remove('border-dashed', 'border-2', 'border-outline-variant/30', 'bg-surface-container-high/30');
+    } else {
+        // Empresa sem logo
+        img.classList.add('hidden');
+        placeholder.classList.add('hidden');
+        noImage.classList.remove('hidden');
+        container.classList.add('border-dashed', 'border-2', 'border-outline-variant/30', 'bg-surface-container-high/30');
+    }
+});
+</script>
+</body>
+</html>

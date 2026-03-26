@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block title %}Prisma Axon - Gestão de Usuários{% endblock %}
+{% block page_title %}Gestão de Usuários{% endblock %}
+
+{% block header_extra %}
+<div class="h-6 w-[1px] bg-outline-variant/30 mx-2 hidden md:block"></div>
+<nav class="hidden md:flex gap-4 items-center">
+    <a class="text-on-surface-variant hover:text-primary text-sm font-semibold transition-colors" href="{% url 'cadastro_usuario' %}">Novo Usuário</a>
+    <a class="text-primary font-bold border-b-2 border-primary text-sm pb-1" href="{% url 'gestao_usuarios' %}">Lista de Usuários</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section class="flex-1 p-4 md:p-8">
+    <div class="max-w-[1200px] mx-auto space-y-6">
+        <div class="flex justify-between items-end">
+            <div>
+                <h2 class="text-3xl font-extrabold text-primary font-headline tracking-tight">Gestão de Usuários</h2>
+                <p class="text-on-surface-variant text-sm mt-1">Controle e auditoria de usuários no ecossistema Prisma Axon.</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{% url 'cadastro_usuario' %}" class="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-bold text-xs uppercase tracking-widest shadow-lg hover:opacity-90 transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-sm">add</span>Adicionar Usuário
+                </a>
+            </div>
+        </div>
+        <div class="relative flex items-center bg-surface-container-low rounded-lg px-4 py-2 max-w-sm">
+            <span class="material-symbols-outlined text-outline text-lg">search</span>
+            <input id="busca-usuario" class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-outline/60 ml-2" placeholder="Buscar usuário..." type="text" onkeyup="filtrarUsuarios()"/>
+        </div>
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-surface-container-low">
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Nome</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Sobrenome</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Nome de Usuário</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">E-mail</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Status</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Admin</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Último Login</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant text-center">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-surface-container-low">
+                        {% for user in usuarios %}
+                        <tr class="hover:bg-surface-container-low/30 transition-colors linha-usuario">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs uppercase">{{ user.first_name|default:user.username|slice:":1" }}</div>
+                                    <span class="text-sm font-medium text-on-surface">{{ user.first_name|default:"-" }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-on-surface-variant">{{ user.last_name|default:"-" }}</td>
+                            <td class="px-6 py-4 text-sm text-on-surface-variant font-mono">{{ user.username }}</td>
+                            <td class="px-6 py-4 text-sm text-on-surface-variant">{{ user.email|default:"-" }}</td>
+                            <td class="px-6 py-4">
+                                {% if user.is_active %}
+                                <span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-0.5 rounded uppercase">Ativo</span>
+                                {% else %}
+                                <span class="bg-error-container text-error text-[10px] font-bold px-2 py-0.5 rounded uppercase">Inativo</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if user.is_superuser %}
+                                <span class="material-symbols-outlined text-primary" style="font-variation-settings:'FILL' 1;">shield</span>
+                                {% else %}—{% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-xs text-on-surface-variant">{{ user.last_login|date:"d/m/Y H:i"|default:"Nunca" }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <a href="{% url 'editar_usuario' user_id=user.id %}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-primary text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">edit</span>Editar
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-12 text-center text-on-surface-variant">
+                                <span class="material-symbols-outlined text-4xl block opacity-30 mb-2">group</span>
+                                <p class="font-bold">Nenhum usuário cadastrado</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 bg-surface-container-low flex justify-between items-center border-t border-outline-variant/10">
+                <p class="text-xs font-medium text-on-surface-variant">{{ usuarios|length }} usuário(s) cadastrado(s)</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function filtrarUsuarios() {
+    const q = document.getElementById('busca-usuario').value.toLowerCase();
+    document.querySelectorAll('.linha-usuario').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

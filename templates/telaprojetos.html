@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fluxo do Projeto / BoM Construído</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#343d96",
+              "on-tertiary-fixed-variant": "#663d00",
+              "surface-variant": "#e2e1ed",
+              "secondary-container": "#94f0df",
+              "on-error": "#ffffff",
+              "on-secondary-fixed": "#00201b",
+              "error-container": "#ffdad6",
+              "on-secondary-fixed-variant": "#005047",
+              "on-primary-fixed": "#000767",
+              "tertiary-container": "#472900",
+              "surface-bright": "#fbf8ff",
+              "surface": "#fbf8ff",
+              "secondary-fixed": "#97f3e2",
+              "on-surface-variant": "#454652",
+              "on-primary": "#ffffff",
+              "tertiary-fixed-dim": "#ffb865",
+              "inverse-on-surface": "#f1f0fb",
+              "surface-container-low": "#f3f2fe",
+              "error": "#ba1a1a",
+              "on-primary-container": "#8690ee",
+              "tertiary-fixed": "#ffddba",
+              "background": "#fbf8ff",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#1a1b23",
+              "on-secondary": "#ffffff",
+              "secondary": "#006b5e",
+              "surface-container-highest": "#e2e1ed",
+              "on-secondary-container": "#006f62",
+              "secondary-fixed-dim": "#7ad7c6",
+              "primary-fixed": "#e0e0ff",
+              "on-tertiary-fixed": "#2b1700",
+              "primary-fixed-dim": "#bdc2ff",
+              "on-error-container": "#93000a",
+              "surface-tint": "#4c56af",
+              "on-tertiary-container": "#d68500",
+              "inverse-primary": "#bdc2ff",
+              "surface-container": "#eeedf8",
+              "on-background": "#1a1b23",
+              "surface-container-high": "#e8e7f2",
+              "outline-variant": "#c6c5d4",
+              "primary-container": "#1a237e",
+              "surface-dim": "#dad9e4",
+              "inverse-surface": "#2f3038",
+              "primary": "#000666",
+              "outline": "#767683",
+              "tertiary": "#2a1700",
+              "on-tertiary": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface overflow-hidden">
+<!-- SIDEBAR -->
+<aside class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low flex flex-col p-4 gap-6 z-50 border-r border-surface-container-high">
+<div class="space-y-1">
+<h1 class="text-lg font-headline font-bold text-primary tracking-tight" style="">Fluxo do Projeto</h1>
+<p class="text-xs font-semibold text-on-surface-variant/70 uppercase tracking-widest" style="">BoM Construído</p>
+</div>
+<!-- Filters Section -->
+<div class="space-y-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm" style="">search</span>
+<input class="w-full pl-9 pr-3 py-2 text-xs bg-surface-container-high border-none rounded-md focus:ring-2 focus:ring-primary/40 placeholder:text-outline" placeholder="Search by Name/PN" type="text"/>
+</div>
+<select class="w-full px-3 py-2 text-xs bg-surface-container-high border-none rounded-md focus:ring-2 focus:ring-primary/40 text-on-surface-variant">
+<option disabled="" selected="">Manufacturer</option>
+<option>Cisco Systems</option>
+<option>Hikvision</option>
+<option>Axis Communications</option>
+</select>
+<select class="w-full px-3 py-2 text-xs bg-surface-container-high border-none rounded-md focus:ring-2 focus:ring-primary/40 text-on-surface-variant">
+<option disabled="" selected="">Model</option>
+<option>PTZ-9000-X</option>
+<option>NVR-Ultra-Pro</option>
+</select>
+</div>
+<!-- Category Buttons (Nav) -->
+<nav class="flex flex-col gap-1 mt-2">
+<button class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold rounded-md bg-surface-container-lowest text-primary shadow-sm hover:translate-x-1 transition-transform duration-200" style="">
+<span class="material-symbols-outlined text-xl" style="">inventory_2</span>
+<span class="" style="">Materiais</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1 transition-transform duration-200" style="">
+<span class="material-symbols-outlined text-xl" style="">build</span>
+<span class="" style="">Serviço</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1 transition-transform duration-200" style="">
+<span class="material-symbols-outlined text-xl" style="">engineering</span>
+<span class="" style="">Manutenção</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1 transition-transform duration-200" style="">
+<span class="material-symbols-outlined text-xl" style="">payments</span>
+<span class="" style="">Locação</span>
+</button>
+<button class="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-surface-container-highest hover:translate-x-1 transition-transform duration-200" style="">
+<span class="material-symbols-outlined text-xl" style="">calculate</span>
+<span class="" style="">Precificação</span>
+</button>
+</nav>
+<!-- Footer Buttons -->
+<div class="mt-auto flex flex-col gap-2">
+<button class="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-bold uppercase tracking-wider text-primary border border-primary/20 rounded-md hover:bg-primary/5 transition-colors" style="">
+<span class="material-symbols-outlined text-lg" style="">sync</span>
+<span class="" style="">Sync BoM</span>
+</button>
+<button class="flex items-center justify-center gap-2 w-full py-2.5 text-xs font-bold uppercase tracking-wider text-error bg-error-container/30 rounded-md hover:bg-error-container transition-colors" style="">
+<span class="material-symbols-outlined text-lg" style="">logout</span>
+<span class="" style="">Sair</span>
+</button>
+</div>
+</aside>
+<!-- MAIN WRAPPER -->
+<div class="ml-64 flex flex-col h-screen">
+<!-- TOP APP BAR / HEADER -->
+<header class="h-20 bg-surface border-b border-surface-container-high flex items-center justify-between px-8 z-40 shrink-0">
+<!-- COMPONENT: PROJECT INFO -->
+<div class="flex items-center gap-4">
+<div class="flex flex-col">
+<label class="text-[10px] font-bold text-outline uppercase tracking-tighter" style="">Cliente</label>
+<input class="p-0 border-none bg-transparent font-headline font-extrabold text-primary text-lg focus:ring-0 w-64" type="text" value="Global Security Infrastructure"/>
+</div>
+<div class="w-px h-10 bg-surface-container-highest self-center mx-2"></div>
+<div class="flex flex-col">
+<label class="text-[10px] font-bold text-outline uppercase tracking-tighter" style="">Project ID</label>
+<input class="p-0 border-none bg-transparent font-body font-medium text-on-surface-variant text-base focus:ring-0 w-32" type="text" value="2940-XJJ-2024"/>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<!-- COMPONENT: HEADER ACTIONS (Modified: Only save buttons) -->
+<!-- COMPONENT: VIEW NAVIGATION -->
+<nav class="flex gap-6 border-l border-surface-container-high pl-8 h-8 items-center" id="view-navigation">
+<a class="text-xs font-bold text-primary border-b-2 border-primary pb-1" href="#" style="">Projeto</a>
+<a class="text-xs font-medium text-on-surface-variant hover:text-primary transition-colors" href="#" style="">Cliente</a>
+<a class="text-xs font-medium text-on-surface-variant hover:text-primary transition-colors" href="#" style="">MKP e Impostos</a>
+<a class="text-xs font-medium text-on-surface-variant hover:text-primary transition-colors" href="#" style="">M.O</a>
+</nav>
+</div>
+</header>
+<!-- MAIN CONTENT: TABLE VIEW -->
+<main class="flex-1 overflow-auto bg-surface-container-lowest p-8 relative">
+<div class="max-w-[1400px] mx-auto space-y-6">
+<!-- NEW ROW: EXPORT BUTTONS -->
+<div class="flex items-center gap-3 w-full">
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-high rounded-md hover:bg-surface-container-highest text-primary transition-all shadow-sm" style="" title="Export PDF">
+<span class="material-symbols-outlined text-xl" style="">picture_as_pdf</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-high rounded-md hover:bg-surface-container-highest text-secondary transition-all shadow-sm" style="" title="Export Spreadsheet">
+<span class="material-symbols-outlined text-xl" style="">description</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-high rounded-md hover:bg-surface-container-highest text-tertiary-container transition-all shadow-sm" style="" title="Financial Summary">
+<span class="material-symbols-outlined text-xl" style="">attach_money</span>
+</button>
+<div class="flex items-center gap-3 ml-auto">
+<button class="px-6 py-2 text-xs font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-md transition-colors shadow-sm" style="">Salvar Etapa</button>
+<button class="px-6 py-2 text-xs font-bold text-white bg-gradient-to-br from-primary to-primary-container rounded-md shadow-md active:scale-95 duration-150" style="">Salvar e Finalizar</button>
+</div></div>
+<!-- TABLE CONTAINER -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-container-high overflow-hidden shadow-sm">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low text-on-surface-variant sticky top-0 z-10">
+<tr>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest" style="">P/N</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest" style="">NOME</th><th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest" style="">MODELO</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest" style="">FABRICANTE</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-center" style="">Qt</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-right" style="">VALOR UNITÁRIO</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-right" style="">VALOR TOTAL</th>
+<th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-center" style="">FATURAR COMO SERVIÇO</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-mono text-xs text-primary font-bold" style="">HW-CAM-990-P</td>
+<td class="px-6 py-4 text-sm font-medium" style="">Smart Dome PTZ Camera 4K - High Density</td><td class="px-6 py-4 text-sm" style="">PTZ-9000-X</td>
+<td class="px-6 py-4 text-sm" style="">Hikvision</td>
+<td class="px-6 py-4 text-sm text-center" style="">12</td>
+<td class="px-6 py-4 text-sm text-right" style="">$ 1,240.00</td>
+<td class="px-6 py-4 text-sm text-right font-bold text-primary" style="">$ 14,880.00</td>
+<td class="px-6 py-4 text-center" style=""><div class="flex justify-center items-center"><input class="w-4 h-4 rounded border-outline-variant bg-surface-container-high text-primary focus:ring-primary/20 cursor-pointer" type="checkbox"/></div></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-mono text-xs text-primary font-bold" style="">SW-LIC-PRO-1Y</td>
+<td class="px-6 py-4 text-sm font-medium" style="">Enterprise Management License (Annual Renewal)</td><td class="px-6 py-4 text-sm" style="">LIC-ENT-PRO</td>
+<td class="px-6 py-4 text-sm" style="">Cisco</td>
+<td class="px-6 py-4 text-sm text-center" style="">01</td>
+<td class="px-6 py-4 text-sm text-right" style="">$ 4,500.00</td>
+<td class="px-6 py-4 text-sm text-right font-bold text-primary" style="">$ 4,500.00</td>
+<td class="px-6 py-4 text-center" style=""><div class="flex justify-center items-center"><input class="w-4 h-4 rounded border-outline-variant bg-surface-container-high text-primary focus:ring-primary/20 cursor-pointer" type="checkbox"/></div></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-mono text-xs text-primary font-bold" style="">SRV-INST-LVL3</td>
+<td class="px-6 py-4 text-sm font-medium" style="">Specialized High-Rise Technical Installation</td><td class="px-6 py-4 text-sm" style="">SRV-LVL3-INST</td>
+<td class="px-6 py-4 text-sm" style="">Direct Lab</td>
+<td class="px-6 py-4 text-sm text-center" style="">08</td>
+<td class="px-6 py-4 text-sm text-right" style="">$ 850.00</td>
+<td class="px-6 py-4 text-sm text-right font-bold text-primary" style="">$ 6,800.00</td>
+<td class="px-6 py-4 text-center" style=""><div class="flex justify-center items-center"><input checked="" class="w-4 h-4 rounded border-outline-variant bg-surface-container-high text-primary focus:ring-primary/20 cursor-pointer" type="checkbox"/></div></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-mono text-xs text-primary font-bold" style="">CBL-CAT6A-100</td>
+<td class="px-6 py-4 text-sm font-medium" style="">Ultra Performance Shielded Cabling - 100m Roll</td><td class="px-6 py-4 text-sm" style="">CAT6A-100M-SHLD</td>
+<td class="px-6 py-4 text-sm" style="">CommScope</td>
+<td class="px-6 py-4 text-sm text-center" style="">05</td>
+<td class="px-6 py-4 text-sm text-right" style="">$ 320.00</td>
+<td class="px-6 py-4 text-sm text-right font-bold text-primary" style="">$ 1,600.00</td>
+<td class="px-6 py-4 text-center" style=""><div class="flex justify-center items-center"><input class="w-4 h-4 rounded border-outline-variant bg-surface-container-high text-primary focus:ring-primary/20 cursor-pointer" type="checkbox"/></div></td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-mono text-xs text-primary font-bold" style="">MNT-LVL1-ANN</td>
+<td class="px-6 py-4 text-sm font-medium" style="">Quarterly Preventive Maintenance Contract</td><td class="px-6 py-4 text-sm" style="">MNT-LVL1-ANNUAL</td>
+<td class="px-6 py-4 text-sm" style="">Internal</td>
+<td class="px-6 py-4 text-sm text-center" style="">01</td>
+<td class="px-6 py-4 text-sm text-right" style="">$ 2,200.00</td>
+<td class="px-6 py-4 text-sm text-right font-bold text-primary" style="">$ 2,200.00</td>
+<td class="px-6 py-4 text-center" style=""><div class="flex justify-center items-center"><input class="w-4 h-4 rounded border-outline-variant bg-surface-container-high text-primary focus:ring-primary/20 cursor-pointer" type="checkbox"/></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+<!-- FOOTER: SUMMARY BAR -->
+<footer class="h-20 bg-primary dark:bg-indigo-950 backdrop-blur-md bg-opacity-95 flex items-center justify-between px-12 z-50 text-white shadow-[0_-12px_32px_rgba(26,27,35,0.06)] shrink-0">
+<div class="flex items-center gap-10">
+<div class="flex flex-col">
+<span class="text-[10px] font-manrope font-bold text-indigo-100/50 uppercase tracking-widest" style="">Materiais</span>
+<span class="font-headline font-extrabold text-xl text-white tracking-tight" style="">$ 20,980.00</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-manrope font-bold text-indigo-100/50 uppercase tracking-widest" style="">Serviço</span>
+<span class="font-headline font-extrabold text-xl text-white tracking-tight" style="">$ 6,800.00</span>
+</div>
+<div class="flex flex-col">
+<span class="text-[10px] font-manrope font-bold text-indigo-100/50 uppercase tracking-widest" style="">Custo Total</span>
+<span class="font-headline font-extrabold text-xl text-white tracking-tight" style="">$ 27,780.00</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-[10px] font-manrope font-bold text-tertiary-fixed uppercase tracking-[0.2em]" style="">Preço Final de Venda</span>
+<span class="font-headline font-black text-3xl text-tertiary-fixed-dim drop-shadow-sm" style="">$ 42,225.60</span>
+</div>
+</footer>
+</div>
+</body></html>

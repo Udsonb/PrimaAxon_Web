@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinel Ledger | User Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "on-tertiary-fixed": "#2b1700",
+                "on-background": "#1a1b23",
+                "secondary": "#006b5e",
+                "inverse-surface": "#2f3038",
+                "inverse-primary": "#bdc2ff",
+                "inverse-on-surface": "#f1f0fb",
+                "secondary-fixed-dim": "#7ad7c6",
+                "surface-tint": "#4c56af",
+                "on-tertiary-container": "#d68500",
+                "primary-fixed": "#e0e0ff",
+                "tertiary": "#2a1700",
+                "secondary-fixed": "#97f3e2",
+                "outline": "#767683",
+                "error-container": "#ffdad6",
+                "error": "#ba1a1a",
+                "surface-container-highest": "#e2e1ed",
+                "background": "#fbf8ff",
+                "primary": "#000666",
+                "on-secondary": "#ffffff",
+                "tertiary-container": "#472900",
+                "primary-fixed-dim": "#bdc2ff",
+                "primary-container": "#1a237e",
+                "on-secondary-container": "#006f62",
+                "on-primary": "#ffffff",
+                "on-secondary-fixed-variant": "#005047",
+                "tertiary-fixed": "#ffddba",
+                "secondary-container": "#94f0df",
+                "on-primary-container": "#8690ee",
+                "on-surface": "#1a1b23",
+                "on-secondary-fixed": "#00201b",
+                "on-surface-variant": "#454652",
+                "surface-variant": "#e2e1ed",
+                "on-error": "#ffffff",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed-variant": "#343d96",
+                "surface-container": "#eeedf8",
+                "surface-container-low": "#f3f2fe",
+                "on-error-container": "#93000a",
+                "on-tertiary-fixed-variant": "#663d00",
+                "on-primary-fixed": "#000767",
+                "surface-dim": "#dad9e4",
+                "surface": "#fbf8ff",
+                "outline-variant": "#c6c5d4",
+                "on-tertiary": "#ffffff",
+                "surface-container-high": "#e8e7f2",
+                "surface-bright": "#fbf8ff",
+                "tertiary-fixed-dim": "#ffb865"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface flex min-h-screen">
+<!-- SideNavBar (Exact copy from SCREEN_34) -->
+<aside class="bg-[#f3f2fe] dark:bg-slate-900 h-screen w-64 fixed left-0 top-0 flex flex-col py-6 z-50">
+<div class="px-6 mb-10">
+<h1 class="text-xl font-bold tracking-tight text-[#1A237E] dark:text-indigo-300">Controle de Usuário</h1>
+<p class="text-xs font-medium text-on-surface-variant/70 uppercase tracking-widest mt-1"><br/></p>
+</div>
+<nav class="flex-1 space-y-1 px-3">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#454652] dark:text-slate-400 hover:text-[#1A237E] dark:hover:text-indigo-300 hover:bg-white/40 dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg group" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<!-- User Management (ACTIVE) -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#1A237E] dark:text-indigo-300 font-bold border-r-4 border-[#1A237E] dark:border-indigo-500 bg-white/50 dark:bg-slate-800/50 transition-all scale-95 duration-200 rounded-l-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-medium text-sm">User Management</span>
+</a>
+<!-- Security Logs -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#454652] dark:text-slate-400 hover:text-[#1A237E] dark:hover:text-indigo-300 hover:bg-white/40 dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+<span class="font-medium text-sm">Security Logs</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#454652] dark:text-slate-400 hover:text-[#1A237E] dark:hover:text-indigo-300 hover:bg-white/40 dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="flex items-center gap-3 mt-8 pt-6 border-t border-outline-variant/10">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Close-up portrait of a professional male architect in a studio with neutral lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOHF-ABJ6NTDYF0vJ9oJHVsMxGQsmRcMIRrc4yWbckS2KoqOFhX199zTh9xTc2_vHdd-985S4MI-G6Bqq58feTzvAO_h1P_UUrT0eHuL_OkSEqCOFktKTuWaBdghUpla0Dy9ILJajnSESnEUNQ1hnn_dwZJlG9wwKX4I1isNL-hRWnBITMU2HWZcGa_5KC-UoULlfVw_tl-nVS2OYs5an8MrQAThkbqUH-K98fXx1wxlVbKLVAhrNNjbIwf5jhPiiYqfSUUVWp6bo"/>
+<div>
+<p class="text-sm font-bold text-primary dark:text-indigo-200">Alexandre V.</p>
+<p class="text-[10px] text-on-surface-variant font-medium">Administrator</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 flex-1 min-h-screen bg-background relative">
+<!-- TopAppBar (Exact copy from SCREEN_34) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-[#fbf8ff]/80 dark:bg-slate-950/80 backdrop-blur-md flex items-center justify-between px-8 h-20">
+<div class="flex items-center gap-8">
+<nav class="hidden md:flex gap-6">
+<a class="text-[#1A237E] dark:text-indigo-300 border-b-2 border-[#1A237E] pb-1 text-sm font-semibold" href="#">Diretório</a>
+<a class="text-[#454652] dark:text-slate-400 hover:text-[#1A237E] dark:hover:text-indigo-200 text-sm transition-all" href="#">Permissão</a>
+<a class="text-[#454652] dark:text-slate-400 hover:text-[#1A237E] dark:hover:text-indigo-200 text-sm transition-all" href="#">Regras</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant/50 text-xl" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-high border-none rounded-lg text-sm w-64 focus:ring-2 focus:ring-indigo-500/40" placeholder="Search architecture database..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors focus:ring-2 focus:ring-indigo-500/40 rounded-full">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors focus:ring-2 focus:ring-indigo-500/40 rounded-full">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+<img class="w-8 h-8 rounded-full border border-primary/10" data-alt="Professional avatar of a senior male manager against a clean office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPbfrEE5rNb61g2ogR9H3YUItw-o1TrxhFcnWRSaRR7BzGCGl-gosnfEzjc4stqzqTMBkQXORLTUOvQSfYh2Gu-75_TvbJcg8CNWnXU-as9vu5UGpgNbQXpmcQ-edTdWRHvb0rSEZ_vddvqoGeLM-OcmfFWzSmgOJX_5sfzZvNYp3LprQ2_BZhrx7oojlJap9oRnMqCQR0RkqxltXlod04wJ_F9ZbJtZOeyQC5s9Ft-mkq3AvfCkgox4FZe6k71GJfw8ThzlEFAeE"/>
+</div>
+</div>
+</header>
+<!-- Content Area (From original SCREEN_119) -->
+<div class="pt-28 px-12 pb-12">
+<!-- Quick Actions Bar -->
+<div class="flex justify-end items-end mb-8">
+<div class="flex gap-3 bg-surface-container-low p-2 rounded-xl">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary rounded-lg text-sm font-bold shadow-md hover:scale-[1.02] transition-transform">
+<span class="material-symbols-outlined text-lg" data-icon="person_add">person_add</span>
+                    Adicionar
+                </button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-white text-primary border border-primary/10 rounded-lg text-sm font-bold hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="edit">edit</span>
+                    Editar
+                </button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-error-container text-on-error-container rounded-lg text-sm font-bold hover:bg-error/10 transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="delete">delete</span>
+                    Remover
+                </button>
+</div>
+</div>
+<!-- Bento Data Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Main Data Table Section -->
+<div class="col-span-12 bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant">
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant/5 text-center w-12">
+<input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant/5">Nome</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant/5">função</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant/5">E-mail</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant/5">Nivel de acesso</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant/5">Empresa</th>
+<th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest border-b border-outline-variant/5 text-right">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-5 text-center"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center font-bold text-primary dark:text-indigo-400">EN</div>
+<div>
+<p class="font-bold text-sm text-primary">Elias Nakamura</p>
+<p class="text-[10px] text-on-surface-variant">ID: SL-9033</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Structural Engineer</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">e.nakamura@sentinel.arch</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-primary/5 text-primary text-[10px] font-extrabold rounded border border-primary/10">LEVEL 04</span>
+</td>
+<td class="px-6 py-5 text-sm font-semibold text-on-surface-variant">Atlas Foundations</td>
+<td class="px-6 py-5 text-right">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase tracking-tighter rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                    Active
+                                </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group bg-surface-container-low/20">
+<td class="px-6 py-5 text-center"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center font-bold text-secondary">SJ</div>
+<div>
+<p class="font-bold text-sm text-primary">Sarah Jenkins</p>
+<p class="text-[10px] text-on-surface-variant">ID: SL-2104</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Cyber Architect</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">s.jenkins@sentinel.arch</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-primary/5 text-primary text-[10px] font-extrabold rounded border border-primary/10">LEVEL 05</span>
+</td>
+<td class="px-6 py-5 text-sm font-semibold text-on-surface-variant">Ledger Systems</td>
+<td class="px-6 py-5 text-right">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase tracking-tighter rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                    Active
+                                </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group">
+<td class="px-6 py-5 text-center"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center font-bold text-tertiary-container">MR</div>
+<div>
+<p class="font-bold text-sm text-primary">Marcus Rossi</p>
+<p class="text-[10px] text-on-surface-variant">ID: SL-1120</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Field Specialist</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">m.rossi@atlas.foundations</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-primary/5 text-primary text-[10px] font-extrabold rounded border border-primary/10">LEVEL 02</span>
+</td>
+<td class="px-6 py-5 text-sm font-semibold text-on-surface-variant">Atlas Foundations</td>
+<td class="px-6 py-5 text-right">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-error-container text-on-error-container text-[10px] font-black uppercase tracking-tighter rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                    Risk
+                                </span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low/30 transition-colors group bg-surface-container-low/20">
+<td class="px-6 py-5 text-center"><input class="rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/></td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-on-surface">LW</div>
+<div>
+<p class="font-bold text-sm text-primary">Linda Wu</p>
+<p class="text-[10px] text-on-surface-variant">ID: SL-7701</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5 text-sm font-medium text-on-surface-variant">Logistics Manager</td>
+<td class="px-6 py-5 text-sm text-on-surface-variant">linda.wu@sentinel.arch</td>
+<td class="px-6 py-5">
+<span class="px-2 py-1 bg-primary/5 text-primary text-[10px] font-extrabold rounded border border-primary/10">LEVEL 03</span>
+</td>
+<td class="px-6 py-5 text-sm font-semibold text-on-surface-variant">Sentinel Ledger</td>
+<td class="px-6 py-5 text-right">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-black uppercase tracking-tighter rounded-full">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                    Active
+                                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="px-6 py-4 flex items-center justify-between bg-surface-container-lowest">
+<p class="text-xs text-on-surface-variant font-medium">Showing 4 of 128 registered tactical units</p>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-container-low text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="chevron_left">chevron_left</span>
+</button>
+<span class="px-3 text-xs font-bold text-primary">Page 1 of 32</span>
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-container-low text-primary transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Secondary Summary Widget -->
+<!-- Empty spacer to match layout -->
+</div>
+</div>
+</main>
+</body></html>
