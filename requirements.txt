@@ -13,4 +13,8 @@ lxml==5.1.0
 et_xmlfile
 pillow
 python-dotenv
+<<<<<<< HEAD
 requests
+=======
+requests
+>>>>>>> 33f703fe6a9577316d1f7d17f910f91b88d97cb4
