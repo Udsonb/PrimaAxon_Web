@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-b6^(%qu(%bn@8qvl_isg7=z@uiq$=gnmp=w287#*fm1yfr0568
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://primaaxon-web.onrender.com']
 
 
 # Application definition
