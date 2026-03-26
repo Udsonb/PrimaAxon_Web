@@ -4,56 +4,22 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from .models import Produto, Projeto
+from .models import Produto, Projeto, Empresa, Perfil, ItemProjeto
 
 
-# ============================================================
-# FAIXAS DE ID POR CATEGORIA (centena de milhar)
-# ============================================================
 FAIXAS_CATEGORIA = {
-    'CFTV':         100000,
-    'VMS':          200000,
-    'ALARME':       300000,
-    'ACESSO':       400000,
-    'CABEAMENTO':   500000,
-    'INFRA':        600000,
-    'REDE':         700000,
-    'SWITCHES':     750000,  # Sub-grupo de Rede
-    'ENERGIA':      800000,
-    'OUTROS':       900000,
-    'SERVICOS':    1000000,
+    'CFTV': 100000, 'VMS': 200000, 'ALARME': 300000, 'ACESSO': 400000,
+    'CABEAMENTO': 500000, 'INFRA': 600000, 'REDE': 700000, 'SWITCHES': 750000,
+    'ENERGIA': 800000, 'OUTROS': 900000, 'SERVICOS': 1000000,
 }
 
 def gerar_proximo_id(categoria):
-    """
-    Gera o próximo ID sequencial para uma categoria.
-    Ex: CFTV → primeiro produto = 100001, segundo = 100002, etc.
-    """
     categoria_upper = categoria.upper().strip()
-    
-    # Mapeia variações para a chave correta
-    mapa = {
-        'ACESSO (C.A)': 'ACESSO',
-        'ACESSO': 'ACESSO',
-        'ELETRICIDADE': 'ENERGIA',
-        'SERVIÇO': 'SERVICOS',
-        'SERVICO': 'SERVICOS',
-    }
+    mapa = {'ACESSO (C.A)': 'ACESSO', 'ELETRICIDADE': 'ENERGIA', 'SERVIÇO': 'SERVICOS', 'SERVICO': 'SERVICOS'}
     chave = mapa.get(categoria_upper, categoria_upper)
-    
-    faixa_inicio = FAIXAS_CATEGORIA.get(chave, 900000)  # Default: OUTROS
-    faixa_fim = faixa_inicio + 9999
-    
-    # Busca o maior ID existente nessa faixa
-    ultimo = Produto.objects.filter(
-        id_planilha__gte=faixa_inicio,
-        id_planilha__lte=faixa_fim
-    ).order_by('-id_planilha').first()
-    
-    if ultimo:
-        return ultimo.id_planilha + 1
-    else:
-        return faixa_inicio + 1  # Primeiro da faixa: 100001, 200001, etc.
+    faixa_inicio = FAIXAS_CATEGORIA.get(chave, 900000)
+    ultimo = Produto.objects.filter(id_planilha__gte=faixa_inicio, id_planilha__lte=faixa_inicio+9999).order_by('-id_planilha').first()
+    return (ultimo.id_planilha + 1) if ultimo else (faixa_inicio + 1)
 
 
 # ============================================================
@@ -61,29 +27,30 @@ def gerar_proximo_id(categoria):
 # ============================================================
 def minha_tela_login(request):
     if request.user.is_authenticated:
-        return redirect('dashboard')
-    
+        return redirect('inicio')
     if request.method == "POST":
         login_input = request.POST.get('username')
         senha_digitada = request.POST.get('password')
-
+        empresa_id = request.POST.get('company', '')
         username_final = login_input
         if "@" in login_input:
             try:
-                usuario_pelo_email = User.objects.get(email=login_input)
-                username_final = usuario_pelo_email.username
+                username_final = User.objects.get(email=login_input).username
             except User.DoesNotExist:
                 pass
-
         user = authenticate(request, username=username_final, password=senha_digitada)
-
         if user is not None:
             login(request, user)
-            return redirect('dashboard')
+            # Salva a empresa na sessão DEPOIS do login e força persistência
+            if empresa_id:
+                request.session['empresa_id'] = int(empresa_id)
+                request.session.modified = True
+                request.session.save()
+            return redirect('inicio')
         else:
             messages.error(request, "Usuário/E-mail ou senha incorretos!")
-    
-    return render(request, 'login.html')
+    empresas = Empresa.objects.all().order_by('nome_fantasia')
+    return render(request, 'login.html', {'empresas': empresas})
 
 
 def deslogar(request):
@@ -92,41 +59,49 @@ def deslogar(request):
 
 
 # ============================================================
-# DASHBOARD
+# INÍCIO (tela principal)
 # ============================================================
 @login_required(login_url='/')
-def dashboard(request):
-    total_projetos = Projeto.objects.count()
+def inicio(request):
+    total_projetos = Projeto.objects.filter(finalizado=True).count()
     total_produtos = Produto.objects.count()
-    
-    # Soma do custo de todos os produtos (unit_reais)
-    custo_raw = Produto.objects.aggregate(total=Sum('unit_reais'))['total'] or 0
-    
-    # Formata para exibição brasileira
-    if custo_raw >= 1000000:
-        custo_total = f"{custo_raw/1000000:,.1f}M".replace(',', '.')
-    elif custo_raw >= 1000:
-        custo_total = f"{custo_raw:,.0f}".replace(',', '.')
+    # Soma real dos projetos finalizados
+    from decimal import Decimal
+    valor_total_projetos = Decimal('0')
+    for projeto in Projeto.objects.filter(finalizado=True):
+        for item in ItemProjeto.objects.filter(projeto=projeto):
+            valor_total_projetos += item.preco_unitario * item.quantidade
+    # Formatar
+    if valor_total_projetos >= 1000000:
+        valor_fmt = f"{float(valor_total_projetos)/1000000:,.1f}M".replace(',', '.')
+    elif valor_total_projetos >= 1000:
+        valor_fmt = f"{float(valor_total_projetos):,.2f}".replace(',', 'X').replace('.', '.').replace('X', ',')
     else:
-        custo_total = f"{custo_raw:,.2f}".replace(',', '.')
-    
+        valor_fmt = f"{float(valor_total_projetos):,.2f}".replace(',', 'X').replace('.', '.').replace('X', ',')
     context = {
         'total_projetos': total_projetos,
         'total_produtos': total_produtos,
-        'custo_total': custo_total,
+        'valor_total_projetos': valor_fmt,
     }
-    return render(request, 'dashboard.html', context)
+    return render(request, 'inicio.html', context)
 
 
 # ============================================================
-# NOVO PROJETO (CREATE)
+# PRÉ-PROJETO (wizard etapa 1)
 # ============================================================
 @login_required(login_url='/')
 def novo_projeto(request):
     if request.method == 'POST':
+        id_manual = request.POST.get('id_projeto_manual', '').strip()
+        if not id_manual:
+            messages.error(request, 'O ID do projeto é obrigatório.')
+            return render(request, 'novo_projeto.html')
+        if Projeto.objects.filter(id_projeto_manual=id_manual).exists():
+            messages.error(request, f'Já existe um projeto com o número "{id_manual}". Escolha outro.')
+            return render(request, 'novo_projeto.html')
         try:
             projeto = Projeto.objects.create(
-                id_projeto_manual=request.POST.get('id_projeto_manual', ''),
+                id_projeto_manual=id_manual,
                 nome_cliente=request.POST.get('nome_cliente', ''),
                 estado_obra=request.POST.get('estado_obra', ''),
                 municipio_obra=request.POST.get('municipio_obra', ''),
@@ -134,95 +109,225 @@ def novo_projeto(request):
                 faturamento_servico=request.POST.get('faturamento_servico', 'MENSAL'),
                 tipo_projeto=request.POST.get('tipo_projeto', 'Privado'),
                 licitacao_publicada=request.POST.get('licitacao_publicada') == 'true',
-                material_aplicado=request.POST.get('material_aplicado') == 'true',
+                finalizado=False,
             )
-            # Projeto criado → vai direto pro BoM Selector
-            return redirect('bom_selector')
+            return redirect('bom_selector_projeto', projeto_id=projeto.id)
         except Exception as e:
-            messages.error(request, f'Erro ao criar projeto: {e}')
+            messages.error(request, f'Erro ao criar pré-projeto: {e}')
     
-    return render(request, 'novo_projeto.html')
+    # Pega empresa da sessão para pré-selecionar
+    empresa_logada = None
+    try:
+        empresa_id = request.session.get('empresa_id')
+        if empresa_id:
+            empresa_logada = Empresa.objects.get(id=empresa_id).nome_fantasia
+    except Exception:
+        pass
+    return render(request, 'novo_projeto.html', {'empresa_logada': empresa_logada})
 
 
 # ============================================================
-# CONSULTAR PROJETO (SEARCH)
+# CONSULTAR PROJETO (mostra todos se sem filtro)
 # ============================================================
 @login_required(login_url='/')
 def consultar_projeto(request):
+    # Excluir projeto
+    if request.method == 'POST':
+        projeto_id = request.POST.get('excluir_projeto_id')
+        if projeto_id:
+            try:
+                projeto = Projeto.objects.get(id=projeto_id)
+                ItemProjeto.objects.filter(projeto=projeto).delete()
+                projeto.delete()
+            except Projeto.DoesNotExist:
+                pass
+        return redirect('consultar_projeto')
+
     q = request.GET.get('q', '').strip()
-    projetos = []
-    
     if q:
         projetos = Projeto.objects.filter(
             Q(id_projeto_manual__icontains=q) | Q(nome_cliente__icontains=q)
         ).order_by('-data_criacao')
-    
-    context = {
-        'projetos': projetos,
-        'query': q,
-    }
-    return render(request, 'consultar_projeto.html', context)
+    else:
+        projetos = Projeto.objects.all().order_by('-data_criacao')
+
+    # Calcular totais para cada projeto
+    projetos_dados = []
+    for p in projetos:
+        itens = ItemProjeto.objects.filter(projeto=p)
+        custo = sum(float(i.preco_unitario) * i.quantidade for i in itens)
+        tem_itens = itens.exists()
+        projetos_dados.append({
+            'projeto': p,
+            'custo': custo,
+            'venda': custo,  # TODO: aplicar MKP
+            'tem_itens': tem_itens,
+        })
+
+    return render(request, 'consultar_projeto.html', {'projetos_dados': projetos_dados, 'query': q, 'total': len(projetos_dados)})
 
 
 # ============================================================
-# BOM SELECTOR (lista de produtos para consulta)
+# BOM SELECTOR
 # ============================================================
 @login_required(login_url='/')
-def bom_selector(request):
+def bom_selector(request, projeto_id=None):
+    projeto = get_object_or_404(Projeto, id=projeto_id) if projeto_id else None
+
+    # POST = incluir itens no projeto
+    if request.method == 'POST' and projeto:
+        produto_ids = request.POST.getlist('produto_ids')
+        qtds = request.POST.getlist('qtds')
+        count = 0
+        for pid, qty in zip(produto_ids, qtds):
+            try:
+                produto = Produto.objects.get(pk=int(pid))
+                ItemProjeto.objects.update_or_create(
+                    projeto=projeto, produto=produto,
+                    defaults={
+                        'quantidade': int(qty) if qty else 1,
+                        'preco_unitario': produto.unit_reais,
+                    }
+                )
+                count += 1
+            except (Produto.DoesNotExist, ValueError):
+                pass
+
+        finalizar = request.POST.get('finalizar') == '1'
+        if finalizar:
+            return redirect('fluxo_projeto', projeto_id=projeto.id)
+
     categoria = request.GET.get('categoria', '')
     busca = request.GET.get('busca', '')
-    
     produtos = Produto.objects.all().order_by('categoria', 'nome')
-    
+
+    # Excluir produtos já incluídos neste projeto
+    if projeto:
+        ids_ja_incluidos = ItemProjeto.objects.filter(projeto=projeto).values_list('produto_id', flat=True)
+        produtos = produtos.exclude(id_planilha__in=ids_ja_incluidos)
+
     if categoria:
         produtos = produtos.filter(categoria__iexact=categoria)
     if busca:
         produtos = produtos.filter(
-            Q(nome__icontains=busca) | 
-            Q(modelo__icontains=busca) | 
-            Q(part_number__icontains=busca) |
-            Q(fabricante__icontains=busca)
+            Q(nome__icontains=busca) | Q(modelo__icontains=busca) |
+            Q(part_number__icontains=busca) | Q(fabricante__icontains=busca)
         )
-    
-    # Lista de categorias únicas para os filtros
     categorias = Produto.objects.values_list('categoria', flat=True).distinct().order_by('categoria')
-    
+
+    # Totais já incluídos no projeto
+    total_itens_projeto = 0
+    custo_projeto = 0
+    if projeto:
+        itens_projeto = ItemProjeto.objects.filter(projeto=projeto)
+        total_itens_projeto = itens_projeto.count()
+        custo_projeto = sum(i.preco_unitario * i.quantidade for i in itens_projeto)
+
     context = {
-        'produtos': produtos,
-        'categorias': categorias,
-        'categoria_ativa': categoria,
-        'busca': busca,
-        'total_produtos': produtos.count(),
+        'produtos': produtos, 'categorias': categorias,
+        'categoria_ativa': categoria, 'busca': busca,
+        'total_produtos': produtos.count(), 'projeto': projeto,
+        'total_itens_projeto': total_itens_projeto,
+        'custo_projeto': custo_projeto,
     }
     return render(request, 'bom_selector.html', context)
 
 
 # ============================================================
-# CADASTRO DE PRODUTO (CREATE / EDIT)
+# FLUXO DO PROJETO (tela final do BoM construído)
+# ============================================================
+@login_required(login_url='/')
+def fluxo_projeto(request, projeto_id):
+    projeto = get_object_or_404(Projeto, id=projeto_id)
+
+    if request.method == 'POST':
+        acao = request.POST.get('acao', '')
+
+        # Excluir item
+        if acao == 'excluir':
+            item_id = request.POST.get('item_id')
+            ItemProjeto.objects.filter(id=item_id, projeto=projeto).delete()
+            return redirect('fluxo_projeto', projeto_id=projeto.id)
+
+        # Salvar quantidades
+        if acao == 'salvar_qtds':
+            for item in ItemProjeto.objects.filter(projeto=projeto):
+                nova_qty = request.POST.get(f'qty_{item.id}')
+                if nova_qty:
+                    item.quantidade = int(nova_qty)
+                    item.save()
+            return redirect('fluxo_projeto', projeto_id=projeto.id)
+
+        # Finalizar projeto
+        if acao == 'finalizar':
+            # Salvar quantidades primeiro
+            for item in ItemProjeto.objects.filter(projeto=projeto):
+                nova_qty = request.POST.get(f'qty_{item.id}')
+                if nova_qty:
+                    item.quantidade = int(nova_qty)
+                    item.save()
+            # Aplicar desconto se houver
+            desconto = request.POST.get('desconto', '0')
+            # Marcar como finalizado
+            projeto.finalizado = True
+            projeto.save()
+            return redirect('inicio')
+
+    itens = ItemProjeto.objects.filter(projeto=projeto).select_related('produto')
+
+    total_materiais = 0
+    total_servico = 0
+    for item in itens:
+        valor = item.preco_unitario * item.quantidade
+        if item.faturar_servico:
+            total_servico += valor
+        else:
+            total_materiais += valor
+
+    custo_total = total_materiais + total_servico
+    venda_total = custo_total  # TODO: aplicar MKP
+
+    context = {
+        'projeto': projeto,
+        'itens': itens,
+        'total_materiais': total_materiais,
+        'total_servico': total_servico,
+        'custo_total': custo_total,
+        'venda_total': venda_total,
+    }
+    return render(request, 'fluxo_projeto.html', context)
+
+
+# ============================================================
+# CANCELAR PRÉ-PROJETO
+# ============================================================
+@login_required(login_url='/')
+def cancelar_projeto(request, projeto_id):
+    projeto = get_object_or_404(Projeto, id=projeto_id)
+    if not projeto.finalizado:
+        projeto.delete()
+    return redirect('inicio')
+
+
+# ============================================================
+# CADASTRO DE PRODUTO
 # ============================================================
 @login_required(login_url='/')
 def cadastro_produto(request):
-    """Tela de cadastro de novo produto."""
     if request.method == 'POST':
         categoria = request.POST.get('categoria', 'OUTROS')
         novo_id = gerar_proximo_id(categoria)
-        
         try:
-            produto = Produto.objects.create(
-                id_planilha=novo_id,
-                nome=request.POST.get('nome', ''),
-                modelo=request.POST.get('modelo', ''),
-                part_number=request.POST.get('part_number', ''),
-                fabricante=request.POST.get('fabricante', ''),
-                unidade=request.POST.get('unidade', 'peça'),
-                categoria=categoria,
-                descricao=request.POST.get('descricao', ''),
+            Produto.objects.create(
+                id_planilha=novo_id, nome=request.POST.get('nome', ''),
+                modelo=request.POST.get('modelo', ''), part_number=request.POST.get('part_number', ''),
+                fabricante=request.POST.get('fabricante', ''), unidade=request.POST.get('unidade', 'peça'),
+                categoria=categoria, descricao=request.POST.get('descricao', ''),
                 moeda=request.POST.get('moeda', 'reais'),
                 preco_fornecedor=request.POST.get('preco_fornecedor', 0) or 0,
                 unit_reais=request.POST.get('unit_reais', 0) or 0,
                 frete_na_compra=request.POST.get('frete_na_compra', 0) or 0,
-                ipi=request.POST.get('ipi', 0) or 0,
-                icms=request.POST.get('icms', 0) or 0,
+                ipi=request.POST.get('ipi', 0) or 0, icms=request.POST.get('icms', 0) or 0,
                 nome_fornecedor=request.POST.get('nome_fornecedor', ''),
                 estado_origem=request.POST.get('estado_origem', ''),
                 grupo_financeiro=request.POST.get('grupo_financeiro', ''),
@@ -241,68 +346,31 @@ def cadastro_produto(request):
                 ir_csll_lp_loc=request.POST.get('ir_csll_lp_loc', 0) or 0,
                 ir_csll_lr_loc=request.POST.get('ir_csll_lr_loc', 0) or 0,
                 mkp_loc=request.POST.get('mkp_loc', 0) or 0,
+                status='amarelo',  # Novo produto = aguardando validação
             )
-            messages.success(request, f'Produto #{novo_id} - {produto.nome} cadastrado com sucesso!')
-            return redirect('bom_selector')
+            return redirect('inicio')
         except Exception as e:
-            messages.error(request, f'Erro ao cadastrar produto: {e}')
-    
-    context = {
-        'modo': 'criar',
-    }
-    return render(request, 'cadastro_produto.html', context)
+            messages.error(request, f'Erro: {e}')
+    return render(request, 'cadastro_produto.html', {'modo': 'criar'})
 
 
 @login_required(login_url='/')
 def detalhe_produto(request, pk):
-    """Tela de detalhe/edição de produto existente."""
     produto = get_object_or_404(Produto, pk=pk)
-    
     if request.method == 'POST':
-        # Modo edição — atualiza os campos
-        produto.nome = request.POST.get('nome', produto.nome)
-        produto.modelo = request.POST.get('modelo', produto.modelo)
-        produto.part_number = request.POST.get('part_number', produto.part_number)
-        produto.fabricante = request.POST.get('fabricante', produto.fabricante)
-        produto.unidade = request.POST.get('unidade', produto.unidade)
-        produto.categoria = request.POST.get('categoria', produto.categoria)
-        produto.descricao = request.POST.get('descricao', produto.descricao)
-        produto.moeda = request.POST.get('moeda', produto.moeda)
-        produto.preco_fornecedor = request.POST.get('preco_fornecedor', produto.preco_fornecedor) or 0
-        produto.unit_reais = request.POST.get('unit_reais', produto.unit_reais) or 0
-        produto.frete_na_compra = request.POST.get('frete_na_compra', produto.frete_na_compra) or 0
-        produto.ipi = request.POST.get('ipi', produto.ipi) or 0
-        produto.icms = request.POST.get('icms', produto.icms) or 0
-        produto.nome_fornecedor = request.POST.get('nome_fornecedor', produto.nome_fornecedor)
-        produto.estado_origem = request.POST.get('estado_origem', produto.estado_origem)
-        produto.grupo_financeiro = request.POST.get('grupo_financeiro', produto.grupo_financeiro)
-        produto.ncm = request.POST.get('ncm', produto.ncm)
-        produto.lucro_percent = request.POST.get('lucro_percent', produto.lucro_percent) or 0
-        produto.iss_percent = request.POST.get('iss_percent', produto.iss_percent) or 0
-        produto.pis_cofins_percent = request.POST.get('pis_cofins_percent', produto.pis_cofins_percent) or 0
-        produto.ir_csll_lp = request.POST.get('ir_csll_lp', produto.ir_csll_lp) or 0
-        produto.ir_csll_lr = request.POST.get('ir_csll_lr', produto.ir_csll_lr) or 0
-        produto.mkp = request.POST.get('mkp', produto.mkp) or 0
-        produto.custo_loc = request.POST.get('custo_loc', produto.custo_loc) or 0
-        produto.custo_mensal = request.POST.get('custo_mensal', produto.custo_mensal) or 0
-        produto.iss_loc = request.POST.get('iss_loc', produto.iss_loc) or 0
-        produto.pis_cofins_loc = request.POST.get('pis_cofins_loc', produto.pis_cofins_loc) or 0
-        produto.ir_csll_lp_loc = request.POST.get('ir_csll_lp_loc', produto.ir_csll_lp_loc) or 0
-        produto.ir_csll_lr_loc = request.POST.get('ir_csll_lr_loc', produto.ir_csll_lr_loc) or 0
-        produto.mkp_loc = request.POST.get('mkp_loc', produto.mkp_loc) or 0
-        
+        for field in ['nome','modelo','part_number','fabricante','unidade','categoria','descricao','moeda',
+                       'nome_fornecedor','estado_origem','grupo_financeiro','ncm']:
+            setattr(produto, field, request.POST.get(field, getattr(produto, field)))
+        for field in ['preco_fornecedor','unit_reais','frete_na_compra','ipi','icms',
+                       'lucro_percent','iss_percent','pis_cofins_percent','ir_csll_lp','ir_csll_lr','mkp',
+                       'custo_loc','custo_mensal','iss_loc','pis_cofins_loc','ir_csll_lp_loc','ir_csll_lr_loc','mkp_loc']:
+            setattr(produto, field, request.POST.get(field, getattr(produto, field)) or 0)
         try:
             produto.save()
-            messages.success(request, f'Produto #{produto.id_planilha} atualizado com sucesso!')
             return redirect('detalhe_produto', pk=produto.pk)
         except Exception as e:
-            messages.error(request, f'Erro ao atualizar: {e}')
-    
-    context = {
-        'produto': produto,
-        'modo': 'detalhe',  # Começa em modo consulta, JS libera edição
-    }
-    return render(request, 'cadastro_produto.html', context)
+            messages.error(request, f'Erro: {e}')
+    return render(request, 'cadastro_produto.html', {'produto': produto, 'modo': 'detalhe'})
 
 
 # ============================================================
@@ -311,7 +379,143 @@ def detalhe_produto(request, pk):
 @login_required(login_url='/')
 def gestao_usuarios(request):
     usuarios = User.objects.all().order_by('username')
-    context = {
-        'usuarios': usuarios,
-    }
-    return render(request, 'gestao_usuarios.html', context)
+    return render(request, 'gestao_usuarios.html', {'usuarios': usuarios})
+
+
+# ============================================================
+# GESTÃO DE EMPRESAS
+# ============================================================
+@login_required(login_url='/')
+def gestao_empresas(request):
+    empresas = Empresa.objects.all().order_by('nome_fantasia')
+    return render(request, 'gestao_empresas.html', {'empresas': empresas})
+
+
+@login_required(login_url='/')
+def cadastro_empresa(request):
+    if request.method == 'POST':
+        cnpj = request.POST.get('cnpj', '').strip()
+        if Empresa.objects.filter(cnpj=cnpj).exists():
+            messages.error(request, f'Já existe uma empresa com o CNPJ "{cnpj}".')
+            return render(request, 'cadastro_empresa.html')
+        try:
+            empresa = Empresa(
+                razao_social=request.POST.get('razao_social', ''),
+                nome_fantasia=request.POST.get('nome_fantasia', ''),
+                cnpj=cnpj,
+            )
+            if request.FILES.get('logo'):
+                empresa.logo = request.FILES['logo']
+            empresa.save()
+            return redirect('gestao_empresas')
+        except Exception as e:
+            messages.error(request, f'Erro ao cadastrar empresa: {e}')
+    return render(request, 'cadastro_empresa.html')
+
+
+@login_required(login_url='/')
+def editar_empresa(request, empresa_id):
+    edit_empresa = get_object_or_404(Empresa, id=empresa_id)
+    if request.method == 'POST':
+        edit_empresa.razao_social = request.POST.get('razao_social', edit_empresa.razao_social)
+        edit_empresa.nome_fantasia = request.POST.get('nome_fantasia', edit_empresa.nome_fantasia)
+        if request.FILES.get('logo'):
+            edit_empresa.logo = request.FILES['logo']
+        try:
+            edit_empresa.save()
+            return redirect('gestao_empresas')
+        except Exception as e:
+            messages.error(request, f'Erro: {e}')
+    return render(request, 'cadastro_empresa.html', {'edit_empresa': edit_empresa})
+
+
+# ============================================================
+# CADASTRO / EDIÇÃO DE USUÁRIO
+# ============================================================
+@login_required(login_url='/')
+def cadastro_usuario(request):
+    empresas = Empresa.objects.all().order_by('nome_fantasia')
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        password = request.POST.get('password', '')
+        password2 = request.POST.get('password2', '')
+
+        if not username:
+            messages.error(request, 'Nome de usuário é obrigatório.')
+            return render(request, 'cadastro_usuario.html', {'empresas': empresas})
+        if User.objects.filter(username=username).exists():
+            messages.error(request, f'O nome de usuário "{username}" já existe.')
+            return render(request, 'cadastro_usuario.html', {'empresas': empresas})
+        if password != password2:
+            messages.error(request, 'As senhas não conferem.')
+            return render(request, 'cadastro_usuario.html', {'empresas': empresas})
+        if len(password) < 4:
+            messages.error(request, 'A senha deve ter pelo menos 4 caracteres.')
+            return render(request, 'cadastro_usuario.html', {'empresas': empresas})
+
+        try:
+            nivel = request.POST.get('nivel', 'analista')
+            user = User.objects.create_user(
+                username=username, email=email, password=password,
+                first_name=first_name, last_name=last_name,
+            )
+            if nivel == 'admin':
+                user.is_superuser = True
+                user.is_staff = True
+            elif nivel in ('gerente', 'supervisor'):
+                user.is_staff = True
+            user.save()
+
+            # Criar perfil com foto e função
+            empresa_id = request.POST.get('empresa', '')
+            perfil = Perfil.objects.create(
+                user=user,
+                funcao=request.POST.get('funcao', ''),
+                empresa_id=int(empresa_id) if empresa_id else None,
+            )
+            if request.FILES.get('foto'):
+                perfil.foto = request.FILES['foto']
+                perfil.save()
+
+            return redirect('gestao_usuarios')
+        except Exception as e:
+            messages.error(request, f'Erro ao criar usuário: {e}')
+
+    return render(request, 'cadastro_usuario.html', {'empresas': empresas})
+
+
+@login_required(login_url='/')
+def editar_usuario(request, user_id):
+    edit_user = get_object_or_404(User, id=user_id)
+    empresas = Empresa.objects.all().order_by('nome_fantasia')
+
+    # Garantir que o perfil existe
+    perfil, _ = Perfil.objects.get_or_create(user=edit_user)
+
+    if request.method == 'POST':
+        edit_user.first_name = request.POST.get('first_name', edit_user.first_name)
+        edit_user.last_name = request.POST.get('last_name', edit_user.last_name)
+        edit_user.email = request.POST.get('email', edit_user.email)
+
+        nivel = request.POST.get('nivel', 'analista')
+        edit_user.is_superuser = (nivel == 'admin')
+        edit_user.is_staff = (nivel in ('admin', 'gerente', 'supervisor'))
+
+        perfil.funcao = request.POST.get('funcao', perfil.funcao)
+        empresa_id = request.POST.get('empresa', '')
+        perfil.empresa_id = int(empresa_id) if empresa_id else None
+
+        if request.FILES.get('foto'):
+            perfil.foto = request.FILES['foto']
+
+        try:
+            edit_user.save()
+            perfil.save()
+            return redirect('gestao_usuarios')
+        except Exception as e:
+            messages.error(request, f'Erro: {e}')
+
+    return render(request, 'cadastro_usuario.html', {'edit_user': edit_user, 'perfil': perfil, 'empresas': empresas})

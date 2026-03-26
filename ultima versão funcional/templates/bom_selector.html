@@ -1,97 +1,285 @@
 {% extends 'base.html' %}
-
-{% block title %}Prima Axon - Catálogo / BoM Selector{% endblock %}
+{% block title %}Prisma Axon - BoM Selector{% endblock %}
 {% block page_title %}BoM Selector{% endblock %}
 
 {% block header_extra %}
-<div class="h-6 w-[1px] bg-outline-variant/30 mx-2 hidden md:block"></div>
-<nav class="hidden md:flex gap-4 items-center">
-    <a class="text-primary font-bold border-b-2 border-primary text-sm pb-1" href="{% url 'bom_selector' %}">Materiais</a>
-    <a class="text-on-surface-variant hover:text-primary transition-colors text-sm pb-1" href="#">M.O</a>
+<div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
+<nav class="hidden md:flex gap-3 items-center">
+    <a class="text-primary font-bold border-b-2 border-primary text-sm pb-0.5" href="#">Materiais</a>
+    <a class="text-on-surface-variant hover:text-primary text-sm" href="#">M.O</a>
 </nav>
+{% if projeto %}
+<div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
+<div class="hidden md:flex items-center gap-2 text-sm">
+    <span class="text-primary font-bold">{{ projeto.id_projeto_manual }}</span>
+    <span class="text-on-surface-variant">—</span>
+    <span class="text-primary">{{ projeto.nome_cliente }}</span>
+</div>
+<div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
+<div class="hidden md:flex items-center gap-1">
+    <span id="status-dot" class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+    <span id="status-text" class="text-[10px] font-bold uppercase text-red-600">Em progresso</span>
+</div>
+<div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden lg:block"></div>
+<div class="hidden lg:flex items-center gap-1 bg-primary-fixed/50 px-2 py-1 rounded-lg">
+    <span class="text-[10px] font-bold text-primary uppercase">Itens:</span>
+    <span id="count-projeto" class="text-sm font-extrabold text-primary">{{ total_itens_projeto }}</span>
+    <span class="text-[10px] text-primary">+</span>
+    <span id="count-selected" class="text-sm font-extrabold text-primary">0</span>
+</div>
+<div class="hidden lg:flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
+    <span class="text-[10px] font-bold text-blue-700 uppercase">Custo:</span>
+    <span id="valor-custo" class="text-sm font-extrabold text-blue-700">R$ {{ custo_projeto|floatformat:2 }}</span>
+</div>
+<div class="hidden lg:flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
+    <span class="text-[10px] font-bold text-green-700 uppercase">Venda:</span>
+    <span id="valor-venda" class="text-sm font-extrabold text-green-700">R$ {{ custo_projeto|floatformat:2 }}</span>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_head %}
+<style>
+    .row-selected { background-color: rgba(0, 188, 212, 0.08) !important; }
+    .row-selected:hover { background-color: rgba(0, 188, 212, 0.12) !important; }
+    .popup-tab-active { color: #000666; border-bottom: 2px solid #000666; font-weight: 700; }
+    .popup-tab { color: #767683; border-bottom: 2px solid transparent; cursor: pointer; padding: 8px 16px; font-size: 13px; transition: all 0.15s; }
+    .popup-tab:hover { color: #000666; }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+{% if projeto %}
+<div class="pt-3 mt-auto border-t border-outline-variant/20 flex flex-col gap-1.5 mb-2">
+    <p class="text-[8px] font-bold text-on-surface-variant uppercase tracking-widest px-1 mb-1">Ações do Projeto</p>
+    <button type="button" onclick="enviarItens(false)" class="w-full px-2 py-2 rounded-lg bg-secondary text-white font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-1">
+        <span class="material-symbols-outlined text-sm">add_shopping_cart</span>Incluir e Salvar
+    </button>
+    <button type="button" onclick="enviarItens(true)" class="w-full px-2 py-2 rounded-lg bg-primary text-white font-bold text-[10px] uppercase tracking-wider shadow-lg hover:opacity-90 transition-all flex items-center justify-center gap-1">
+        <span class="material-symbols-outlined text-sm">check_circle</span>Ir para o BoM
+    </button>
+    <a href="{% url 'inicio' %}" class="w-full px-2 py-2 rounded-lg bg-error text-white font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all text-center flex items-center justify-center gap-1 mt-1">
+        <span class="material-symbols-outlined text-sm">cancel</span>Cancelar
+    </a>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block content %}
-<section class="flex-1 flex flex-col p-4 md:p-6 max-w-[1600px] mx-auto w-full gap-4">
-    
-    <!-- Category Filter Chips -->
-    <div class="flex flex-wrap gap-2">
-        <a href="{% url 'bom_selector' %}" 
-           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap flex items-center gap-2 transition-colors
-                  {% if not categoria_ativa %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
-            <span class="material-symbols-outlined text-sm">apps</span> Todos
+<!-- Form oculto para enviar itens ao servidor -->
+{% if projeto %}
+<form id="form-bom" method="POST" action="{% url 'bom_selector_projeto' projeto_id=projeto.id %}" class="hidden">
+    {% csrf_token %}
+    <div id="form-itens"></div>
+    <input type="hidden" name="finalizar" id="input-finalizar" value="0">
+</form>
+{% endif %}
+
+<div class="flex-1 flex flex-col p-3 gap-2 overflow-hidden">
+    <!-- Filtros -->
+    <div class="flex flex-wrap gap-1.5 shrink-0">
+        <a href="{% if projeto %}{% url 'bom_selector_projeto' projeto_id=projeto.id %}{% else %}{% url 'bom_selector' %}{% endif %}"
+           class="px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap flex items-center gap-1 transition-colors {% if not categoria_ativa %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
+            <span class="material-symbols-outlined text-xs">apps</span>Todos
         </a>
         {% for cat in categorias %}
-        <a href="{% url 'bom_selector' %}?categoria={{ cat }}&busca={{ busca }}" 
-           class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap flex items-center gap-2 transition-colors
-                  {% if categoria_ativa == cat %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
+        <a href="{% if projeto %}{% url 'bom_selector_projeto' projeto_id=projeto.id %}{% else %}{% url 'bom_selector' %}{% endif %}?categoria={{ cat }}&busca={{ busca }}"
+           class="px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap transition-colors {% if categoria_ativa == cat %}bg-primary text-white{% else %}bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest{% endif %}">
             {{ cat }}
         </a>
         {% endfor %}
     </div>
 
-    <!-- Search Bar -->
-    <form method="GET" action="{% url 'bom_selector' %}" class="space-y-1">
+    <!-- Busca -->
+    <form method="GET" action="{% if projeto %}{% url 'bom_selector_projeto' projeto_id=projeto.id %}{% else %}{% url 'bom_selector' %}{% endif %}" class="shrink-0">
         {% if categoria_ativa %}<input type="hidden" name="categoria" value="{{ categoria_ativa }}">{% endif %}
-        <div class="relative group max-w-4xl">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline group-focus-within:text-primary transition-colors">search</span>
-            <input name="busca" value="{{ busca }}" 
-                   class="w-full h-12 pl-12 pr-4 bg-surface-container-high border-none rounded-xl text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 text-sm transition-all shadow-sm" 
-                   placeholder="Pesquisar por nome, modelo, P/N ou fabricante..."/>
+        <div class="relative group">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline group-focus-within:text-primary text-lg">search</span>
+            <input name="busca" value="{{ busca }}" class="w-full h-9 pl-9 pr-4 bg-surface-container-high border-none rounded-lg text-on-surface placeholder:text-outline focus:ring-2 focus:ring-primary/40 text-sm" placeholder="Pesquisar por nome, modelo, P/N ou fabricante..."/>
         </div>
-        <p class="text-[10px] text-on-surface-variant italic ml-2">{{ total_produtos }} itens encontrados na base de materiais.</p>
+        <p class="text-[10px] text-on-surface-variant italic ml-1 mt-0.5">{{ total_produtos }} itens disponíveis.</p>
     </form>
 
-    <!-- Products Table -->
-    <div class="flex-1 bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/10 shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[900px]">
-                <thead>
-                    <tr class="bg-surface-container-low/50">
-                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">ID</th>
-                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">NOME DO PRODUTO</th>
-                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">MODELO</th>
-                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">P/N</th>
-                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">FABRICANTE</th>
-                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">CATEGORIA</th>
-                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-right">PREÇO (R$)</th>
-                        <th class="px-4 py-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest text-center">AÇÃO</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-surface-container-low">
-                    {% for produto in produtos %}
-                    <tr class="hover:bg-surface-container-low transition-colors group">
-                        <td class="px-4 py-3 text-xs font-mono text-on-surface-variant">{{ produto.id_planilha }}</td>
-                        <td class="px-4 py-3 font-semibold text-primary text-sm">{{ produto.nome }}</td>
-                        <td class="px-4 py-3 text-sm text-on-surface-variant">{{ produto.modelo }}</td>
-                        <td class="px-4 py-3 text-sm text-on-surface-variant">{{ produto.part_number|default:"-" }}</td>
-                        <td class="px-4 py-3">
-                            <span class="bg-surface-container-highest px-2 py-0.5 rounded text-[10px] font-bold uppercase">{{ produto.fabricante }}</span>
-                        </td>
-                        <td class="px-4 py-3">
-                            <span class="bg-primary-fixed px-2 py-0.5 rounded text-[10px] font-bold text-primary">{{ produto.categoria }}</span>
-                        </td>
-                        <td class="px-4 py-3 font-bold text-primary text-sm text-right">{{ produto.unit_reais }}</td>
-                        <td class="px-4 py-3 text-center">
-                            <a href="{% url 'detalhe_produto' pk=produto.pk %}" 
-                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-primary text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary hover:text-white transition-all">
-                                <span class="material-symbols-outlined text-sm">visibility</span>
-                                Detalhes
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" class="px-4 py-12 text-center text-on-surface-variant">
-                            <span class="material-symbols-outlined text-4xl mb-2 block opacity-30">inventory_2</span>
-                            <p class="font-bold">Nenhum produto encontrado</p>
-                            <p class="text-xs mt-1">Tente ajustar os filtros ou <a href="{% url 'cadastro_produto' %}" class="text-primary underline">cadastre um novo produto</a>.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- Tabela -->
+    <div class="flex-1 bg-white rounded-xl overflow-auto border border-outline-variant/10 shadow-sm">
+        <table class="w-full text-left border-collapse min-w-[1000px]">
+            <thead class="sticky top-0 z-10">
+                <tr class="bg-surface-container-low">
+                    {% if projeto %}<th class="p-2 w-8 text-center text-[9px] font-bold text-on-surface-variant uppercase">Incluir</th>{% endif %}
+                    <th class="px-2 py-2 w-6 text-center text-[9px] font-bold text-on-surface-variant uppercase">Status</th>
+                    <th class="px-2 py-2 text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">ID</th>
+                    <th class="px-2 py-2 text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">Nome do Produto</th>
+                    <th class="px-2 py-2 text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">Modelo</th>
+                    <th class="px-2 py-2 text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">Fabricante</th>
+                    <th class="px-2 py-2 text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">P/N</th>
+                    <th class="px-2 py-2 text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">Categoria</th>
+                    <th class="px-2 py-2 text-[9px] font-bold text-on-surface-variant uppercase tracking-widest text-right">Preço (R$)</th>
+                    {% if projeto %}<th class="px-2 py-2 text-[9px] font-bold text-on-surface-variant uppercase tracking-widest text-center w-14">Qtd</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-surface-container-low text-sm">
+                {% for produto in produtos %}
+                <tr class="hover:bg-surface-container-low/50 transition-colors item-row cursor-default" data-preco="{{ produto.unit_reais }}" data-id="{{ produto.pk }}" ondblclick="abrirDetalhe({{ produto.pk }})">
+                    {% if projeto %}
+                    <td class="p-2 text-center">
+                        <input type="checkbox" data-produto-id="{{ produto.pk }}" class="item-check rounded border-outline-variant text-primary focus:ring-primary" onchange="onCheckChange(this)">
+                    </td>
+                    {% endif %}
+                    <td class="px-2 py-1.5 text-center">
+                        {% if produto.status == 'verde' %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500" title="Conferido"></span>
+                        {% elif produto.status == 'amarelo' %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400" title="Aguardando"></span>
+                        {% elif produto.status == 'azul' %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500" title="Aprovado"></span>
+                        {% elif produto.status == 'vermelho' %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500" title="Descontinuado"></span>
+                        {% else %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span>{% endif %}
+                    </td>
+                    <td class="px-2 py-1.5 text-xs font-mono text-on-surface-variant">{{ produto.id_planilha }}</td>
+                    <td class="px-2 py-1.5 font-semibold text-primary">{{ produto.nome }}</td>
+                    <td class="px-2 py-1.5 text-xs text-on-surface-variant">{{ produto.modelo }}</td>
+                    <td class="px-2 py-1.5"><span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">{{ produto.fabricante }}</span></td>
+                    <td class="px-2 py-1.5 text-xs text-on-surface-variant">{{ produto.part_number|default:"-" }}</td>
+                    <td class="px-2 py-1.5"><span class="bg-primary-fixed px-1.5 py-0.5 rounded text-[9px] font-bold text-primary">{{ produto.categoria }}</span></td>
+                    <td class="px-2 py-1.5 font-bold text-primary text-right preco-cell">{{ produto.unit_reais }}</td>
+                    {% if projeto %}
+                    <td class="px-2 py-1.5 text-center">
+                        <input type="number" min="1" value="1" data-produto-id="{{ produto.pk }}" class="item-qty w-14 h-7 bg-surface-container-high border-none rounded text-xs text-center focus:ring-1 focus:ring-primary" onchange="recalcular()">
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr><td colspan="10" class="px-4 py-12 text-center text-on-surface-variant">
+                    <span class="material-symbols-outlined text-4xl block opacity-30 mb-2">inventory_2</span>
+                    <p class="font-bold">Nenhum produto encontrado</p>
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- POP-UP DETALHE COM ABAS -->
+<div id="modal-detalhe" class="hidden fixed inset-0 bg-on-surface/40 backdrop-blur-[2px] z-50 flex items-center justify-center px-4">
+    <div class="w-full max-w-3xl bg-white rounded-xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
+        <div class="flex items-center justify-between px-6 py-3 border-b border-outline-variant/20 shrink-0">
+            <h2 id="modal-titulo" class="font-headline font-bold text-primary text-lg">Detalhes do Produto</h2>
+            <button onclick="fecharDetalhe()" class="p-1.5 hover:bg-surface-container-high rounded-full transition-all">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="flex border-b border-outline-variant/20 px-4 shrink-0" id="popup-tabs">
+            <button class="popup-tab popup-tab-active" onclick="showPopupTab('cadastro', this)">Cadastro</button>
+            <button class="popup-tab" onclick="showPopupTab('fiscal', this)">Fiscal</button>
+            <button class="popup-tab" onclick="showPopupTab('compras', this)">Compras</button>
+        </div>
+        <div id="modal-detalhe-body" class="p-6 overflow-y-auto flex-1">
+            <p class="text-on-surface-variant text-center py-8">Carregando...</p>
         </div>
     </div>
-</section>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const custoProjeto = {{ custo_projeto|default:"0" }};
+const itensProjeto = {{ total_itens_projeto|default:"0" }};
+
+function onCheckChange(cb) {
+    cb.closest('tr').classList.toggle('row-selected', cb.checked);
+    recalcular();
+}
+
+function recalcular() {
+    let count = 0, custoNovo = 0;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const check = row.querySelector('.item-check');
+        const qty = row.querySelector('.item-qty');
+        if (check && check.checked) {
+            const preco = parseFloat(row.getAttribute('data-preco')) || 0;
+            const q = parseInt(qty ? qty.value : 1) || 1;
+            count++;
+            custoNovo += preco * q;
+        }
+    });
+    const totalCusto = custoProjeto + custoNovo;
+    const c = document.getElementById('count-selected');
+    const vc = document.getElementById('valor-custo');
+    const vv = document.getElementById('valor-venda');
+    if (c) c.textContent = count;
+    if (vc) vc.textContent = 'R$ ' + totalCusto.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    if (vv) vv.textContent = 'R$ ' + totalCusto.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function enviarItens(finalizar) {
+    const formItens = document.getElementById('form-itens');
+    formItens.innerHTML = '';
+    let count = 0;
+
+    document.querySelectorAll('.item-row').forEach(row => {
+        const check = row.querySelector('.item-check');
+        const qty = row.querySelector('.item-qty');
+        if (check && check.checked) {
+            const pid = check.getAttribute('data-produto-id');
+            const q = qty ? qty.value : '1';
+            formItens.innerHTML += '<input type="hidden" name="produto_ids" value="' + pid + '">';
+            formItens.innerHTML += '<input type="hidden" name="qtds" value="' + q + '">';
+            count++;
+        }
+    });
+
+    if (count === 0 && !finalizar) {
+        alert('Selecione pelo menos um item.');
+        return;
+    }
+
+    document.getElementById('input-finalizar').value = finalizar ? '1' : '0';
+    document.getElementById('form-bom').submit();
+}
+
+// Popup com abas
+let popupProdutoId = null;
+
+function abrirDetalhe(id) {
+    popupProdutoId = id;
+    document.getElementById('modal-detalhe').classList.remove('hidden');
+    showPopupTab('cadastro', document.querySelector('#popup-tabs .popup-tab'));
+}
+
+function showPopupTab(tab, btn) {
+    document.querySelectorAll('#popup-tabs .popup-tab').forEach(t => t.classList.remove('popup-tab-active'));
+    if (btn) btn.classList.add('popup-tab-active');
+
+    const body = document.getElementById('modal-detalhe-body');
+    body.innerHTML = '<p class="text-on-surface-variant text-center py-8">Carregando...</p>';
+
+    fetch('/produto/' + popupProdutoId + '/').then(r => r.text()).then(html => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        let content = doc.getElementById('t-' + tab);
+
+        if (content) {
+            body.innerHTML = content.innerHTML;
+            body.querySelectorAll('input, select, textarea').forEach(el => {
+                el.setAttribute('readonly', true);
+                if (el.tagName === 'SELECT') el.setAttribute('disabled', true);
+                el.style.opacity = '0.7';
+                el.style.cursor = 'not-allowed';
+            });
+        } else {
+            body.innerHTML = '<p class="text-on-surface-variant text-center py-8">Conteúdo não encontrado.</p>';
+        }
+
+        const nome = doc.querySelector('input[name="nome"]');
+        if (nome && nome.value) document.getElementById('modal-titulo').textContent = nome.value;
+    }).catch(() => {
+        body.innerHTML = '<p class="text-error text-center py-8">Erro ao carregar.</p>';
+    });
+}
+
+function fecharDetalhe() { document.getElementById('modal-detalhe').classList.add('hidden'); popupProdutoId = null; }
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') fecharDetalhe(); });
+
+// Formatar preços
+document.querySelectorAll('.preco-cell').forEach(cell => {
+    const v = parseFloat(cell.textContent);
+    if (!isNaN(v)) cell.textContent = v.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+});
+</script>
 {% endblock %}

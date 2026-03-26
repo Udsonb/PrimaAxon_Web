@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Prisma Axon - Gestão de Empresas{% endblock %}
+{% block page_title %}Gestão de Empresas{% endblock %}
+
+{% block header_extra %}
+<div class="h-6 w-[1px] bg-outline-variant/30 mx-2 hidden md:block"></div>
+<nav class="hidden md:flex gap-4 items-center">
+    <a class="text-on-surface-variant hover:text-primary text-sm font-semibold transition-colors" href="{% url 'cadastro_empresa' %}">Nova Empresa</a>
+    <a class="text-primary font-bold border-b-2 border-primary text-sm pb-1" href="{% url 'gestao_empresas' %}">Lista de Entidades</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+<section class="flex-1 p-4 md:p-8">
+    <div class="max-w-[1200px] mx-auto space-y-6">
+        <!-- Header -->
+        <div class="flex justify-between items-end">
+            <div>
+                <h2 class="text-3xl font-extrabold text-primary font-headline tracking-tight">Gestão de Empresas</h2>
+                <p class="text-on-surface-variant text-sm mt-1">Controle e auditoria de entidades corporativas no ecossistema Prisma Axon.</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{% url 'cadastro_empresa' %}" class="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg font-bold text-xs uppercase tracking-widest shadow-lg hover:opacity-90 transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-sm">add</span>Adicionar Empresa
+                </a>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="relative flex items-center bg-surface-container-low rounded-lg px-4 py-2 max-w-sm">
+            <span class="material-symbols-outlined text-outline text-lg">search</span>
+            <input id="busca-empresa" class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-outline/60 ml-2" placeholder="Buscar empresa..." type="text" onkeyup="filtrarEmpresas()"/>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="tabela-empresas">
+                    <thead>
+                        <tr class="bg-surface-container-low">
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Nome Fantasia</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Razão Social</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">CNPJ</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Logo</th>
+                            <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant text-center">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-surface-container-low">
+                        {% for empresa in empresas %}
+                        <tr class="hover:bg-surface-container-low/30 transition-colors linha-empresa">
+                            <td class="px-6 py-4 text-sm font-medium text-on-surface">{{ empresa.nome_fantasia }}</td>
+                            <td class="px-6 py-4 text-sm text-on-surface-variant">{{ empresa.razao_social }}</td>
+                            <td class="px-6 py-4 text-sm text-on-surface-variant font-mono">{{ empresa.cnpj }}</td>
+                            <td class="px-6 py-4">
+                                {% if empresa.logo %}
+                                <div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/10 flex items-center justify-center">
+                                    <img alt="{{ empresa.nome_fantasia }}" class="w-full h-full object-contain p-0.5" src="{{ empresa.logo.url }}"/>
+                                </div>
+                                {% else %}
+                                <div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant/10 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-outline text-sm">business</span>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <a href="{% url 'editar_empresa' empresa_id=empresa.id %}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-primary text-primary text-[10px] font-bold uppercase tracking-wider hover:bg-primary hover:text-white transition-all">
+                                    <span class="material-symbols-outlined text-sm">edit</span>Editar
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-on-surface-variant">
+                                <span class="material-symbols-outlined text-4xl block opacity-30 mb-2">domain</span>
+                                <p class="font-bold">Nenhuma empresa cadastrada</p>
+                                <p class="text-xs mt-1"><a href="{% url 'cadastro_empresa' %}" class="text-primary underline">Cadastre a primeira empresa</a></p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- Footer -->
+            <div class="px-6 py-4 bg-surface-container-low flex justify-between items-center border-t border-outline-variant/10">
+                <p class="text-xs font-medium text-on-surface-variant">{{ empresas|length }} empresa(s) cadastrada(s)</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function filtrarEmpresas() {
+    const q = document.getElementById('busca-empresa').value.toLowerCase();
+    document.querySelectorAll('.linha-empresa').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

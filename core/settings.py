@@ -9,16 +9,23 @@ import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-b6^(%qu(%bn@8qvl_isg7=z@uiq$=gnmp=w287#*fm1yfr0568')
+# Segurança
+SECRET_KEY = os.environ.get('SECRET_KEY')  # Obrigatório em produção, sem fallback
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    'prisma-axon-system-nh8lz.ondigitalocean.app',
+    '.ondigitalocean.app',
+]
 
-ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = [
-    'https://primaaxon-web.onrender.com',
+    'https://prisma-axon-system-nh8lz.ondigitalocean.app',
     'https://*.ondigitalocean.app',
 ]
 
+# Aplicações
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -62,12 +69,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database: usa PostgreSQL se DATABASE_URL existir, senão SQLite local
+# Database
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
-    }
+    DATABASES = {'default': dj_database_url.parse(DATABASE_URL)}
 else:
     DATABASES = {
         'default': {
@@ -76,6 +81,7 @@ else:
         }
     }
 
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -83,6 +89,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+# Internacionalização
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
@@ -90,9 +97,10 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # <-- FALTAVA ESTA LINHA AQUI!
+STATICFILES_DIRS = [BASE_DIR / 'static'] if (BASE_DIR / 'static').exists() else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # Media files
 # Uploads e Midia (Cloudinary)
@@ -102,4 +110,4 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': 'MK2SmduK8ak0wQnx2qOtLYzc8Dk'
 }
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-MEDIA_URL = '/media/'
+
