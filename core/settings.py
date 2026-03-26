@@ -18,6 +18,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '.ondigitalocean.app',
     '.onrender.com',
+    '.run.app',
+    'primaaxon-web-355616728924.southamerica-east1.run.app',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
