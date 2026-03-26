@@ -1,27 +1,18 @@
-# --- Núcleo do Django ---
 Django
 asgiref
 sqlparse
-
-# --- Servidor e Banco de Dados ---
 gunicorn
 psycopg2-binary
 dj-database-url
 whitenoise
-
-# --- Google Cloud Storage (Imagens e Uploads) ---
 django-storages[google]
 google-cloud-storage
-
-# --- Processamento de Dados e Planilhas (Suas ferramentas) ---
 pandas
 numpy
 openpyxl
 python-docx
 lxml
 et_xmlfile
-
-# --- Ferramentas Extras e Utilidades ---
 pillow
 python-dotenv
 python-dateutil
