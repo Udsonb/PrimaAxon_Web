@@ -551,8 +551,20 @@ def status_diagnostico(request):
             if Produto.objects.exists():
                 carga_produtos_resultado = f'Produtos já existem ({Produto.objects.count()}), ignorado'
             else:
-                call_command('loaddata', fixture_path, verbosity=0)
-                carga_produtos_resultado = f'OK — {Produto.objects.count()} produtos carregados'
+                # Carrega apenas os modelos que ainda não existem
+                ONLY_PRODUCTS = {'core.produto', 'core.projeto', 'core.itemprojeto'}
+                with open(fixture_path, encoding='utf-8') as f:
+                    all_data = json.load(f)
+                products_data = [o for o in all_data if o['model'] in ONLY_PRODUCTS]
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.json',
+                                                 delete=False, encoding='utf-8') as tmp:
+                    json.dump(products_data, tmp, ensure_ascii=False)
+                    tmp_path = tmp.name
+                try:
+                    call_command('loaddata', tmp_path, verbosity=0)
+                    carga_produtos_resultado = f'OK — {Produto.objects.count()} produtos carregados'
+                finally:
+                    os.unlink(tmp_path)
         except Exception as e:
             carga_produtos_resultado = f'ERRO: {e}'
 
