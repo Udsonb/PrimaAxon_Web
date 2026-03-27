@@ -528,7 +528,34 @@ from django.http import JsonResponse
 
 def status_diagnostico(request):
     from django.conf import settings
-    import os
+    import os, json, tempfile
+    from django.core.management import call_command
+
+    fixture_path = os.path.join(settings.BASE_DIR, 'fixtures', 'initial_data.json')
+    fixture_existe = os.path.exists(fixture_path)
+
+    # Carga manual via ?load=1
+    carga_resultado = None
+    if request.GET.get('load') == '1' and fixture_existe:
+        try:
+            if not Empresa.objects.exists():
+                with open(fixture_path, encoding='utf-8') as f:
+                    all_data = json.load(f)
+                priority_data = [o for o in all_data
+                                 if o['model'] in ('core.empresa', 'auth.user', 'core.perfil')]
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.json',
+                                                 delete=False, encoding='utf-8') as tmp:
+                    json.dump(priority_data, tmp, ensure_ascii=False)
+                    tmp_path = tmp.name
+                try:
+                    call_command('loaddata', tmp_path, verbosity=0)
+                    carga_resultado = f'OK — {len(priority_data)} registros carregados'
+                finally:
+                    os.unlink(tmp_path)
+            else:
+                carga_resultado = 'Empresas já existem, carga ignorada'
+        except Exception as e:
+            carga_resultado = f'ERRO: {e}'
 
     # Contagem do banco
     try:
@@ -543,7 +570,6 @@ def status_diagnostico(request):
         db_erro = str(e)
         db_empresas = db_usuarios = db_produtos = db_projetos = 0
 
-    # Lista de empresas
     empresas_lista = []
     if db_ok:
         for e in Empresa.objects.all():
@@ -576,6 +602,11 @@ def status_diagnostico(request):
             'projetos': db_projetos,
         },
         'empresas_cadastradas': empresas_lista,
+        'fixture': {
+            'path': fixture_path,
+            'existe': fixture_existe,
+        },
+        'carga_manual': carga_resultado,
         'gcs': {
             'ativo': getattr(settings, 'USE_GCS', False),
             'bucket': getattr(settings, 'GS_BUCKET_NAME', None),
