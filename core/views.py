@@ -544,6 +544,18 @@ def status_diagnostico(request):
         except Exception as e:
             upload_resultado = f'ERRO: {e}'
 
+    # Carga de produtos via ?load_products=1
+    carga_produtos_resultado = None
+    if request.GET.get('load_products') == '1' and fixture_existe:
+        try:
+            if Produto.objects.exists():
+                carga_produtos_resultado = f'Produtos já existem ({Produto.objects.count()}), ignorado'
+            else:
+                call_command('loaddata', fixture_path, verbosity=0)
+                carga_produtos_resultado = f'OK — {Produto.objects.count()} produtos carregados'
+        except Exception as e:
+            carga_produtos_resultado = f'ERRO: {e}'
+
     # Carga manual via ?load=1
     carga_resultado = None
     if request.GET.get('load') == '1' and fixture_existe:
@@ -617,6 +629,7 @@ def status_diagnostico(request):
             'existe': fixture_existe,
         },
         'carga_manual': carga_resultado,
+        'carga_produtos': carga_produtos_resultado,
         'upload_logos': upload_resultado,
         'gcs': {
             'ativo': getattr(settings, 'USE_GCS', False),
