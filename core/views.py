@@ -534,6 +534,16 @@ def status_diagnostico(request):
     fixture_path = os.path.join(settings.BASE_DIR, 'fixtures', 'initial_data.json')
     fixture_existe = os.path.exists(fixture_path)
 
+    # Upload de logos via ?upload=1
+    upload_resultado = None
+    if request.GET.get('upload') == '1':
+        try:
+            from django.core.management import call_command as _cc
+            _cc('upload_media_to_gcs', verbosity=0)
+            upload_resultado = 'OK'
+        except Exception as e:
+            upload_resultado = f'ERRO: {e}'
+
     # Carga manual via ?load=1
     carga_resultado = None
     if request.GET.get('load') == '1' and fixture_existe:
@@ -607,6 +617,7 @@ def status_diagnostico(request):
             'existe': fixture_existe,
         },
         'carga_manual': carga_resultado,
+        'upload_logos': upload_resultado,
         'gcs': {
             'ativo': getattr(settings, 'USE_GCS', False),
             'bucket': getattr(settings, 'GS_BUCKET_NAME', None),
