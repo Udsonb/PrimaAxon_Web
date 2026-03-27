@@ -20,4 +20,8 @@ RUN python manage.py collectstatic --noinput || true
 
 EXPOSE 8080
 
-CMD sh -c "python manage.py migrate --noinput && python manage.py upload_media_to_gcs && python manage.py load_initial_data && gunicorn --bind 0.0.0.0:8080 --workers 4 --timeout 120 core.wsgi:application"
+CMD sh -c "\
+  python manage.py migrate --noinput && \
+  (python manage.py upload_media_to_gcs || echo '[AVISO] upload_media_to_gcs falhou') && \
+  (python manage.py load_initial_data || echo '[AVISO] load_initial_data falhou') && \
+  exec gunicorn --bind 0.0.0.0:8080 --workers 4 --timeout 120 core.wsgi:application"
