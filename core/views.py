@@ -519,3 +519,68 @@ def editar_usuario(request, user_id):
             messages.error(request, f'Erro: {e}')
 
     return render(request, 'cadastro_usuario.html', {'edit_user': edit_user, 'perfil': perfil, 'empresas': empresas})
+
+
+# ============================================================
+# DIAGNÓSTICO (sem login — apenas para verificar o sistema)
+# ============================================================
+from django.http import JsonResponse
+
+def status_diagnostico(request):
+    from django.conf import settings
+    import os
+
+    # Contagem do banco
+    try:
+        db_empresas = Empresa.objects.count()
+        db_usuarios = User.objects.count()
+        db_produtos = Produto.objects.count()
+        db_projetos = Projeto.objects.count()
+        db_ok = True
+        db_erro = None
+    except Exception as e:
+        db_ok = False
+        db_erro = str(e)
+        db_empresas = db_usuarios = db_produtos = db_projetos = 0
+
+    # Lista de empresas
+    empresas_lista = []
+    if db_ok:
+        for e in Empresa.objects.all():
+            empresas_lista.append({
+                'id': e.id,
+                'nome': e.nome_fantasia,
+                'logo': str(e.logo) if e.logo else None,
+                'is_sistema': e.is_sistema,
+            })
+
+    # GCS
+    gcs_ok = False
+    gcs_erro = None
+    if getattr(settings, 'USE_GCS', False):
+        try:
+            from google.cloud import storage as gcs
+            client = gcs.Client()
+            bucket = client.bucket(settings.GS_BUCKET_NAME)
+            gcs_ok = bucket.exists()
+        except Exception as e:
+            gcs_erro = str(e)
+
+    return JsonResponse({
+        'banco': {
+            'ok': db_ok,
+            'erro': db_erro,
+            'empresas': db_empresas,
+            'usuarios': db_usuarios,
+            'produtos': db_produtos,
+            'projetos': db_projetos,
+        },
+        'empresas_cadastradas': empresas_lista,
+        'gcs': {
+            'ativo': getattr(settings, 'USE_GCS', False),
+            'bucket': getattr(settings, 'GS_BUCKET_NAME', None),
+            'bucket_existe': gcs_ok,
+            'erro': gcs_erro,
+        },
+        'debug': settings.DEBUG,
+    }, json_dumps_params={'ensure_ascii': False, 'indent': 2})
