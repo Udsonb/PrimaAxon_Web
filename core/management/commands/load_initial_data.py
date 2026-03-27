@@ -15,7 +15,7 @@ from core.models import Empresa, Produto
 from django.conf import settings as _settings
 FIXTURE_PATH = os.path.join(_settings.BASE_DIR, 'fixtures', 'initial_data.json')
 
-PRIORITY_MODELS = {'core.empresa', 'auth.user', 'core.perfil'}
+PRIORITY_MODELS = {'auth.group', 'core.empresa', 'auth.user', 'core.perfil'}
 
 
 class Command(BaseCommand):

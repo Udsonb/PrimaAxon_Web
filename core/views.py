@@ -542,7 +542,7 @@ def status_diagnostico(request):
                 with open(fixture_path, encoding='utf-8') as f:
                     all_data = json.load(f)
                 priority_data = [o for o in all_data
-                                 if o['model'] in ('core.empresa', 'auth.user', 'core.perfil')]
+                                 if o['model'] in ('auth.group', 'core.empresa', 'auth.user', 'core.perfil')]
                 with tempfile.NamedTemporaryFile(mode='w', suffix='.json',
                                                  delete=False, encoding='utf-8') as tmp:
                     json.dump(priority_data, tmp, ensure_ascii=False)
