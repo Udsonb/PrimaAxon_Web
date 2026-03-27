@@ -26,6 +26,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://prisma-axon-system-nh8lz.ondigitalocean.app',
     'https://*.ondigitalocean.app',
     'https://primaaxon-web.onrender.com',
+    'https://*.run.app',
+    'https://primaaxon-web-git-355616728924.southamerica-east1.run.app',
+    'https://primaaxon-web-git-6tt7m7k6sq-rj.a.run.app',
 ]
 
 INSTALLED_APPS = [
