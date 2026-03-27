@@ -12,9 +12,8 @@ from django.core.management import call_command
 from core.models import Empresa, Produto
 
 
-FIXTURE_PATH = os.path.normpath(os.path.join(
-    os.path.dirname(__file__), '..', '..', '..', 'fixtures', 'initial_data.json'
-))
+from django.conf import settings as _settings
+FIXTURE_PATH = os.path.join(_settings.BASE_DIR, 'fixtures', 'initial_data.json')
 
 PRIORITY_MODELS = {'core.empresa', 'auth.user', 'core.perfil'}
 
