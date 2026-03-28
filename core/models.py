@@ -137,16 +137,22 @@ class ItemMO(models.Model):
     ]
     UNIDADE_CHOICES = [
         ('Meses', 'Meses'), ('Dias', 'Dias'), ('Horas', 'Horas'),
-        ('Un', 'Un'), ('Vb', 'Vb'),
+        ('Un', 'Un'), ('Vb', 'Vb'), ('Evento', 'Evento'),
+    ]
+    STATUS_CHOICES = [
+        ('ativo', 'Ativo'), ('pendente', 'Pendente'), ('critico', 'Crítico'),
     ]
 
     projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name='itens_mo')
     aba = models.CharField(max_length=20, choices=ABA_CHOICES)
     descricao = models.CharField("Descrição", max_length=255)
+    especificacao = models.CharField("Especificação", max_length=255, blank=True, default='')
     quantidade = models.DecimalField("Quantidade", max_digits=10, decimal_places=2, default=1)
     tempo = models.DecimalField("Tempo", max_digits=10, decimal_places=2, default=1)
     unidade = models.CharField("Unidade", max_length=10, choices=UNIDADE_CHOICES, default='Meses')
     custo_unitario = models.DecimalField("Custo Unitário", max_digits=14, decimal_places=2, default=0)
+    ativo = models.BooleanField("Ativo", default=True)
+    status = models.CharField("Status", max_length=10, choices=STATUS_CHOICES, default='ativo')
 
     @property
     def custo_total(self):

@@ -697,6 +697,56 @@ ABAS_MO = [
     ('terceiros',     'Terceirizados',          'handshake'),
 ]
 
+FUNCAO_ICONS = {
+    'Engenheiro Residente': 'engineering',
+    'Coordenador Técnico': 'manage_accounts',
+    'Supervisor': 'supervisor_account',
+    'Projetista': 'architecture',
+    'Técnico de T.I': 'computer',
+    'Eletricista': 'electrical_services',
+    'Dupla Técnica': 'groups',
+}
+
+FROTA_TRANSPORTE = [
+    ('Veículo Passeio',  'directions_car',   2700),
+    ('Utilitário',       'airport_shuttle',   3500),
+    ('Caçamba',          'local_shipping',    4000),
+    ('Veículo Próprio',  'local_taxi',        1500),
+    ('Motocicleta',      'two_wheeler',        800),
+]
+
+ITENS_DEMAIS_CUSTOS_DEFAULT = [
+    # (descricao, tipo_custo, custo_unit, unidade, tempo_default)
+    ('Plano de Saúde',             'Meses',  175.00, 'Meses', 12),
+    ('Plano Odontológico',         'Meses',   25.00, 'Meses', 12),
+    ('Seguro de Vida',             'Meses',   15.00, 'Meses', 12),
+    ('Uniforme',                   'Meses',  120.00, 'Meses',  1),
+    ('NR10 / Treinamento',         'Meses',  250.00, 'Meses',  1),
+    ('Alimentação Convencional',   'Meses',  450.00, 'Meses', 12),
+    ('Alimentação (Diária)',       'Dias',    45.00, 'Dias',  22),
+    ('Hospedagem',                 'Dias',   180.00, 'Dias',  15),
+    ('Pedágio',                    'Dias',    32.00, 'Dias',  22),
+    ('PPRA/PCMSO',                 'Meses',   45.00, 'Meses',  1),
+]
+
+ITENS_TERCEIROS_DEFAULT = [
+    # (descricao, especificacao, custo_unit)
+    ('Instalação Ponto Câmera', 'Por ponto instalado',   80.00),
+    ('Instalação Alarme',       'Por sensor instalado',  80.00),
+    ('Instalação Acesso',       'Por leitor instalado',  80.00),
+    ('Base / Cancela',          'Por unidade',          400.00),
+    ('Poste Plantado',          'Poste 6m + escav.',    500.00),
+    ('Poste com Base',          'Poste + base conc.',   700.00),
+    ('Montagem de Painel',      'Painel elétrico',      160.00),
+    ('Infra Aparente',          'Por metro linear',      30.00),
+    ('Infra Subterrânea',       'Por metro linear',      51.00),
+    ('Infra Envelopada',        'Por metro linear',     120.00),
+    ('Cabeamento Tubulação',    'Por metro linear',       1.50),
+    ('Projeto Executivo',       'Verba global',        3500.00),
+    ('Comissionamento',         'Por sistema',         2000.00),
+    ('Certificação de Rede',    'Por certificado',      800.00),
+]
+
 FUNCOES_MO = {
     'operacional':   ['Engenheiro Residente', 'Coordenador Técnico', 'Supervisor', 'Projetista', 'Técnico de T.I', 'Eletricista', 'Dupla Técnica'],
     'ferramentas':   ['Maleta de Ferramentas', 'Equipamento de Medição', 'Insumos Perecíveis', 'EPI', 'Andaime/Escada', 'Escritório de Obra'],
@@ -760,69 +810,167 @@ CONFIG_ABA = {
 
 @login_required(login_url='/')
 def gestao_mo(request, projeto_id, aba):
+    from decimal import Decimal, InvalidOperation
+
     if aba not in [a[0] for a in ABAS_MO]:
         return redirect('gestao_mo', projeto_id=projeto_id, aba='operacional')
     projeto = get_object_or_404(Projeto, pk=projeto_id)
 
+    def _dec(val, default=0):
+        try:
+            return Decimal(str(val).replace(',', '.'))
+        except (InvalidOperation, TypeError):
+            return Decimal(str(default))
+
+    # ── Auto-populate demais_custos on first visit ──────────────────────────
+    if aba == 'demais_custos' and not ItemMO.objects.filter(projeto=projeto, aba='demais_custos').exists():
+        headcount = int(sum(
+            i.quantidade for i in ItemMO.objects.filter(projeto=projeto, aba='operacional', ativo=True)
+        )) or 1
+        for desc, unid, custo, unidade, tempo in ITENS_DEMAIS_CUSTOS_DEFAULT:
+            ItemMO.objects.create(
+                projeto=projeto, aba='demais_custos',
+                descricao=desc, quantidade=headcount, tempo=tempo,
+                unidade=unidade, custo_unitario=Decimal(str(custo)), ativo=True,
+            )
+
+    # ── Auto-populate terceiros on first visit ───────────────────────────────
+    if aba == 'terceiros' and not ItemMO.objects.filter(projeto=projeto, aba='terceiros').exists():
+        for desc, espec, custo in ITENS_TERCEIROS_DEFAULT:
+            ItemMO.objects.create(
+                projeto=projeto, aba='terceiros',
+                descricao=desc, especificacao=espec,
+                quantidade=0, tempo=1, unidade='Un',
+                custo_unitario=Decimal(str(custo)), ativo=False, status='pendente',
+            )
+
     if request.method == 'POST':
         acao = request.POST.get('acao')
+
         if acao == 'add':
             descricao = request.POST.get('descricao', '').strip()
             if descricao:
-                from decimal import Decimal, InvalidOperation
-                def _dec(val, default=0):
-                    try:
-                        return Decimal(str(val).replace(',', '.'))
-                    except (InvalidOperation, TypeError):
-                        return Decimal(default)
                 ItemMO.objects.create(
                     projeto=projeto, aba=aba, descricao=descricao,
+                    especificacao=request.POST.get('especificacao', '').strip(),
                     quantidade=_dec(request.POST.get('quantidade', 1), 1),
                     tempo=_dec(request.POST.get('tempo', 1), 1),
                     unidade=request.POST.get('unidade', 'Meses'),
                     custo_unitario=_dec(request.POST.get('custo_unitario', 0)),
+                    ativo=True,
                 )
+
         elif acao == 'delete':
             ItemMO.objects.filter(pk=request.POST.get('item_id'), projeto=projeto).delete()
+
         elif acao == 'update':
             item = get_object_or_404(ItemMO, pk=request.POST.get('item_id'), projeto=projeto)
-            from decimal import Decimal, InvalidOperation
-            def _dec(val, default=0):
-                try:
-                    return Decimal(str(val).replace(',', '.'))
-                except (InvalidOperation, TypeError):
-                    return Decimal(default)
             item.quantidade = _dec(request.POST.get('quantidade', item.quantidade), item.quantidade)
             item.tempo = _dec(request.POST.get('tempo', item.tempo), item.tempo)
             item.unidade = request.POST.get('unidade', item.unidade)
             item.custo_unitario = _dec(request.POST.get('custo_unitario', item.custo_unitario), item.custo_unitario)
+            item.especificacao = request.POST.get('especificacao', item.especificacao)
+            item.status = request.POST.get('status', item.status)
+            item.ativo = request.POST.get('ativo') == '1'
             item.save()
+
+        elif acao == 'toggle_ativo':
+            item = get_object_or_404(ItemMO, pk=request.POST.get('item_id'), projeto=projeto)
+            item.ativo = not item.ativo
+            if item.ativo and item.status == 'pendente':
+                item.status = 'ativo'
+            elif not item.ativo:
+                item.status = 'pendente'
+            item.save()
+
+        elif acao == 'frota_update':
+            # Transporte: salva/atualiza cada veículo da frota
+            # template usa {{ label|cut:" " }} → removes ALL spaces, no underscore
+            for label, icon, custo_base in FROTA_TRANSPORTE:
+                field_key = 'frota_' + label.replace(' ', '')
+                qtd_raw = request.POST.get(field_key, '0')
+                qtd = _dec(qtd_raw, 0)
+                custo_base_dec = Decimal(str(custo_base))
+                if qtd > 0:
+                    obj, _ = ItemMO.objects.get_or_create(
+                        projeto=projeto, aba='transporte', descricao=label,
+                        defaults={'custo_unitario': custo_base_dec, 'tempo': 1, 'unidade': 'Meses'},
+                    )
+                    obj.quantidade = qtd
+                    obj.custo_unitario = custo_base_dec
+                    obj.ativo = True
+                    obj.save()
+                else:
+                    ItemMO.objects.filter(projeto=projeto, aba='transporte', descricao=label).delete()
+            # Viagem longa e deslocamento diário ficam como items separados
+            for campo, desc in [('km_viagem', 'Combustível - Viagem Longa'), ('km_diario', 'Combustível - Deslocamento Diário')]:
+                val = _dec(request.POST.get(campo, 0))
+                if val > 0:
+                    ItemMO.objects.update_or_create(
+                        projeto=projeto, aba='transporte', descricao=desc,
+                        defaults={'quantidade': 1, 'tempo': 1, 'unidade': 'Vb', 'custo_unitario': val, 'ativo': True},
+                    )
+
         elif acao == 'aplicar_bom':
-            # Calcula total M.O (todas as abas) e atualiza todos os ItemProjeto com preco_variavel=True
-            from decimal import Decimal
-            total_mo = sum(i.custo_total for i in ItemMO.objects.filter(projeto=projeto))
+            total_mo = sum(
+                i.custo_total for i in ItemMO.objects.filter(projeto=projeto, ativo=True)
+            )
             for item_proj in ItemProjeto.objects.filter(projeto=projeto, produto__preco_variavel=True):
                 qtd = item_proj.quantidade or 1
                 item_proj.preco_unitario = (total_mo / qtd).quantize(Decimal('0.01'))
                 item_proj.save(update_fields=['preco_unitario'])
             return redirect('bom_selector_projeto', projeto_id=projeto_id)
+
         return redirect('gestao_mo', projeto_id=projeto_id, aba=aba)
 
+    # ── Context ──────────────────────────────────────────────────────────────
     itens = list(ItemMO.objects.filter(projeto=projeto, aba=aba))
-    total_aba = sum(i.custo_total for i in itens)
+    total_aba = sum(i.custo_total for i in itens if i.ativo)
     total_mo = sum(
-        i.custo_total for i in ItemMO.objects.filter(projeto=projeto)
+        i.custo_total for i in ItemMO.objects.filter(projeto=projeto, ativo=True)
     )
-    return render(request, 'gestao_mo.html', {
+
+    # Total de horas (operacional)
+    total_horas = Decimal('0')
+    if aba == 'operacional':
+        for i in itens:
+            if i.unidade == 'Horas':
+                total_horas += i.quantidade * i.tempo
+            elif i.unidade == 'Dias':
+                total_horas += i.quantidade * i.tempo * 8
+            elif i.unidade == 'Meses':
+                total_horas += i.quantidade * i.tempo * 176
+
+    # % M.O no projeto
+    total_bom = sum(
+        ip.preco_unitario * ip.quantidade
+        for ip in ItemProjeto.objects.filter(projeto=projeto)
+    )
+    pct_mo = round((total_mo / total_bom * 100), 1) if total_bom > 0 else 0
+
+    # Frota transporte: lista de (label, icon, custo_base, qtd_atual)
+    frota_lista = []
+    if aba == 'transporte':
+        for label, icon, custo_base in FROTA_TRANSPORTE:
+            item_fr = ItemMO.objects.filter(projeto=projeto, aba='transporte', descricao=label).first()
+            qtd_atual = int(item_fr.quantidade) if item_fr else 0
+            frota_lista.append((label, icon, custo_base, qtd_atual))
+
+    ctx = {
         'projeto': projeto,
         'aba': aba,
         'abas_mo': ABAS_MO,
         'itens': itens,
         'total_aba': total_aba,
         'total_mo': total_mo,
+        'total_horas': int(total_horas),
+        'pct_mo': pct_mo,
+        'total_bom': total_bom,
         'funcoes_aba': FUNCOES_MO.get(aba, []),
         'cfg': CONFIG_ABA.get(aba, CONFIG_ABA['operacional']),
-    })
+        'frota_lista': frota_lista,
+    }
+    return render(request, 'gestao_mo.html', ctx)
 
 
 # ============================================================
