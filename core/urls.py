@@ -13,6 +13,7 @@ urlpatterns = [
     path('projeto/novo/', views.novo_projeto, name='novo_projeto'),
     path('projeto/consultar/', views.consultar_projeto, name='consultar_projeto'),
     path('projeto/<int:projeto_id>/cancelar/', views.cancelar_projeto, name='cancelar_projeto'),
+    path('projeto/<int:projeto_id>/exportar/', views.exportar_projeto, name='exportar_projeto'),
     path('projeto/<int:projeto_id>/bom/', views.bom_selector, name='bom_selector_projeto'),
     path('projeto/<int:projeto_id>/fluxo/', views.fluxo_projeto, name='fluxo_projeto'),
     path('catalogo/', views.bom_selector, name='bom_selector'),

@@ -11,15 +11,14 @@
         <span class="text-primary">{{ projeto.nome_cliente }}</span>
     </div>
     <div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
-    <div class="hidden md:flex items-center gap-2">
-        <button class="w-8 h-8 flex items-center justify-center bg-surface-container-high rounded-md hover:bg-surface-container-highest text-error transition-all" title="Exportar PDF">
-            <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+    <div class="hidden md:flex items-center gap-1.5">
+        <button type="button" onclick="abrirExport('xlsx')"
+                class="flex items-center gap-1 px-2.5 py-1.5 bg-surface-container-high rounded-md hover:bg-green-50 hover:text-green-700 text-secondary transition-all text-[11px] font-bold">
+            <span class="material-symbols-outlined text-base">table_view</span>Excel
         </button>
-        <button class="w-8 h-8 flex items-center justify-center bg-surface-container-high rounded-md hover:bg-surface-container-highest text-secondary transition-all" title="Exportar Excel">
-            <span class="material-symbols-outlined text-lg">description</span>
-        </button>
-        <button class="w-8 h-8 flex items-center justify-center bg-surface-container-high rounded-md hover:bg-surface-container-highest text-primary transition-all" title="Exportar Precificação">
-            <span class="material-symbols-outlined text-lg">attach_money</span>
+        <button type="button" onclick="abrirExport('docx')"
+                class="flex items-center gap-1 px-2.5 py-1.5 bg-surface-container-high rounded-md hover:bg-blue-50 hover:text-blue-700 text-primary transition-all text-[11px] font-bold">
+            <span class="material-symbols-outlined text-base">description</span>Word
         </button>
     </div>
     <div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
@@ -183,6 +182,90 @@
     <input type="hidden" name="item_id" id="excluir-item-id" value="">
 </form>
 
+<!-- POP-UP EXPORTAÇÃO -->
+<div id="modal-export" class="hidden fixed inset-0 bg-on-surface/50 backdrop-blur-[2px] z-50 flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+        <!-- Header -->
+        <div class="bg-[#000666] px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-white text-2xl" id="export-fmt-icon">table_view</span>
+                <div>
+                    <p class="text-white font-bold text-base">Exportar Projeto</p>
+                    <p class="text-indigo-200 text-xs" id="export-fmt-label">Formato Excel (.xlsx)</p>
+                </div>
+            </div>
+            <button onclick="fecharExport()" class="p-1.5 rounded-lg hover:bg-white/20 text-white transition-all">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <!-- Info do projeto -->
+        <div class="bg-indigo-50 px-6 py-2 flex items-center justify-between">
+            <span class="text-xs text-primary font-bold">{{ projeto.id_projeto_manual }} — {{ projeto.nome_cliente }}</span>
+            <span class="text-xs text-on-surface-variant">Desconto: <span id="export-desc-show">0</span>%</span>
+        </div>
+        <!-- Botões de modo -->
+        <div class="px-6 py-5 flex flex-col gap-3">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Selecione o tipo de exportação</p>
+
+            <button onclick="baixar('tecnica')"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl border border-outline-variant/20 hover:bg-primary/5 hover:border-primary/30 transition-all group text-left">
+                <span class="material-symbols-outlined text-2xl text-primary/60 group-hover:text-primary" style="font-variation-settings:'FILL' 1">engineering</span>
+                <div>
+                    <p class="font-bold text-sm text-on-surface">Exportar Técnica</p>
+                    <p class="text-xs text-on-surface-variant">Item, Descrição, Modelo, Fabricante, Quantidade</p>
+                </div>
+            </button>
+
+            <button onclick="baixar('comercial')"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl border border-outline-variant/20 hover:bg-primary/5 hover:border-primary/30 transition-all group text-left">
+                <span class="material-symbols-outlined text-2xl text-green-600/60 group-hover:text-green-700" style="font-variation-settings:'FILL' 1">receipt_long</span>
+                <div>
+                    <p class="font-bold text-sm text-on-surface">Exportar Comercial</p>
+                    <p class="text-xs text-on-surface-variant">Técnica + preços + locação (24/36/48/60 meses)</p>
+                </div>
+            </button>
+
+            <button onclick="baixar('locacao')"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl border border-outline-variant/20 hover:bg-primary/5 hover:border-primary/30 transition-all group text-left">
+                <span class="material-symbols-outlined text-2xl text-amber-600/60 group-hover:text-amber-700" style="font-variation-settings:'FILL' 1">payments</span>
+                <div>
+                    <p class="font-bold text-sm text-on-surface">Exportar Locação e Manutenção</p>
+                    <p class="text-xs text-on-surface-variant">Tabela de mensalidades por prazo + manutenção</p>
+                </div>
+            </button>
+
+            <button onclick="baixar('extenso')"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl border border-outline-variant/20 hover:bg-primary/5 hover:border-primary/30 transition-all group text-left">
+                <span class="material-symbols-outlined text-2xl text-blue-600/60 group-hover:text-blue-700" style="font-variation-settings:'FILL' 1">article</span>
+                <div>
+                    <p class="font-bold text-sm text-on-surface">Exportar Extenso</p>
+                    <p class="text-xs text-on-surface-variant">Texto completo da proposta com valores por extenso</p>
+                </div>
+            </button>
+
+            <button onclick="baixar('filtro')"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl border border-outline-variant/20 hover:bg-primary/5 hover:border-primary/30 transition-all group text-left">
+                <span class="material-symbols-outlined text-2xl text-on-surface-variant/60 group-hover:text-on-surface" style="font-variation-settings:'FILL' 1">filter_list</span>
+                <div>
+                    <p class="font-bold text-sm text-on-surface">Exportar Filtro Atual</p>
+                    <p class="text-xs text-on-surface-variant">Exporta exatamente o que está visível na tela</p>
+                </div>
+            </button>
+
+            <div class="border-t border-outline-variant/20 pt-3 mt-1">
+                <button onclick="baixar('projeto')"
+                        class="flex items-center gap-4 px-4 py-3 rounded-xl border-2 border-dashed border-primary/30 hover:bg-primary/5 hover:border-primary/60 transition-all group text-left w-full">
+                    <span class="material-symbols-outlined text-2xl text-primary/60 group-hover:text-primary" style="font-variation-settings:'FILL' 1">save_as</span>
+                    <div>
+                        <p class="font-bold text-sm text-primary">Exportar Projeto (Template)</p>
+                        <p class="text-xs text-on-surface-variant">Excel para importar em projeto similar</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- POP-UP DETALHE -->
 <div id="modal-detalhe" class="hidden fixed inset-0 bg-on-surface/40 backdrop-blur-[2px] z-50 flex items-center justify-center px-4">
     <div class="w-full max-w-3xl bg-white rounded-xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
@@ -344,5 +427,27 @@ document.querySelectorAll('.unit-cell').forEach(cell => {
 // Init
 popularFiltros();
 recalcFooter();
+
+// Export popup
+let _exportFmt = 'xlsx';
+function abrirExport(fmt) {
+    _exportFmt = fmt;
+    document.getElementById('export-fmt-icon').textContent = fmt === 'xlsx' ? 'table_view' : 'description';
+    document.getElementById('export-fmt-label').textContent = fmt === 'xlsx' ? 'Formato Excel (.xlsx)' : 'Formato Word (.docx)';
+    document.getElementById('export-desc-show').textContent = document.getElementById('desconto-input').value || '0';
+    document.getElementById('modal-export').classList.remove('hidden');
+}
+function fecharExport() {
+    document.getElementById('modal-export').classList.add('hidden');
+}
+function baixar(modo) {
+    const desconto = document.getElementById('desconto-input').value || '0';
+    const url = '{% url "exportar_projeto" projeto_id=projeto.id %}?modo=' + modo + '&fmt=' + _exportFmt + '&desconto=' + desconto;
+    window.location.href = url;
+    fecharExport();
+}
+document.getElementById('modal-export').addEventListener('click', function(e) {
+    if (e.target === this) fecharExport();
+});
 </script>
 {% endblock %}

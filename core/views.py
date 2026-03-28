@@ -330,6 +330,460 @@ def fluxo_projeto(request, projeto_id):
 
 
 # ============================================================
+# EXPORTAÇÃO DO PROJETO
+# ============================================================
+
+# Multiplicadores de locação: custo_total × fator = mensalidade
+FATORES_LOCACAO = {24: 0.111111111, 36: 0.092165899, 48: 0.078740157, 60: 0.071684588}
+FATOR_MANUTENCAO = 0.02 * 1.111   # manutenção = preço_venda × fator
+
+
+def _numero_por_extenso(valor):
+    """Converte valor Decimal/float para extenso em pt-BR."""
+    try:
+        from num2words import num2words
+        reais = int(valor)
+        centavos = round((float(valor) - reais) * 100)
+        txt_reais = num2words(reais, lang='pt_BR').title()
+        txt_real = 'Real' if reais == 1 else 'Reais'
+        if centavos > 0:
+            txt_cent = num2words(centavos, lang='pt_BR').title()
+            txt_cent_label = 'Centavo' if centavos == 1 else 'Centavos'
+            return f'{txt_reais} {txt_real} e {txt_cent} {txt_cent_label}'
+        return f'{txt_reais} {txt_real}'
+    except Exception:
+        return str(valor)
+
+
+def _formatar_brl(valor):
+    from decimal import Decimal
+    v = float(valor) if valor else 0.0
+    return f'R$ {v:_.2f}'.replace('.', ',').replace('_', '.')
+
+
+def _agrupar_infra(itens, desconto_pct=0):
+    """Separa itens normais de infra; devolve (itens_normais, item_infra_ou_None)."""
+    CATS_INFRA = {'INFRA', 'INFRAESTRUTURA', 'INFRA ESTRUTURA'}
+    normais = []
+    infra_total = 0
+    for item in itens:
+        cat = (item.produto.categoria or '').upper().strip()
+        valor = float(item.preco_unitario) * item.quantidade
+        if cat in CATS_INFRA:
+            infra_total += valor
+        else:
+            normais.append(item)
+    infra_item = None
+    if infra_total > 0:
+        desconto = desconto_pct / 100
+        infra_item = {
+            'nome': 'Infraestrutura',
+            'modelo': '',
+            'fabricante': '',
+            'pn': '',
+            'unidade': 'Vb',
+            'quantidade': 1,
+            'preco_unit': infra_total * (1 - desconto),
+            'preco_total': infra_total * (1 - desconto),
+        }
+    return normais, infra_item
+
+
+def _itens_para_linhas(itens, desconto_pct=0, incluir_infra=True):
+    """Converte queryset em lista de dicts com desconto aplicado."""
+    normais, infra = _agrupar_infra(itens, desconto_pct)
+    linhas = []
+    desconto = desconto_pct / 100
+    seq = 1
+    for item in normais:
+        punit = float(item.preco_unitario) * (1 - desconto)
+        ptotal = punit * item.quantidade
+        linhas.append({
+            'seq': seq,
+            'id': item.produto.id_planilha,
+            'nome': item.produto.nome,
+            'modelo': item.produto.modelo or '',
+            'fabricante': item.produto.fabricante or '',
+            'pn': item.produto.part_number or '',
+            'unidade': item.produto.unidade or 'Un',
+            'quantidade': item.quantidade,
+            'preco_unit': punit,
+            'preco_total': ptotal,
+            'servico': item.faturar_servico,
+        })
+        seq += 1
+    if incluir_infra and infra:
+        infra['seq'] = seq
+        linhas.append(infra)
+    return linhas
+
+
+def _calcular_totais(itens, desconto_pct=0):
+    desconto = desconto_pct / 100
+    custo = sum(float(i.preco_unitario) * i.quantidade for i in itens)
+    venda = custo * (1 - desconto)
+    locacao = {p: custo * f for p, f in FATORES_LOCACAO.items()}
+    manutencao = venda * FATOR_MANUTENCAO
+    return {'custo': custo, 'venda': venda, 'desconto': desconto_pct,
+            'locacao': locacao, 'manutencao': manutencao}
+
+
+def _excel_tecnica(projeto, itens, desconto_pct, incluir_precos=False, modo='tecnica'):
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    import io
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Técnica' if not incluir_precos else 'Comercial'
+
+    # Cores
+    AZUL = '000666'
+    BRANCO = 'FFFFFF'
+    CINZA = 'F2F2F2'
+    VERDE = 'E8F5E9'
+
+    def celula(row, col, valor, bold=False, bg=None, cor=None, align='left', wrap=False, numero=False):
+        c = ws.cell(row=row, column=col, value=valor)
+        c.font = Font(bold=bold, color=cor or '000000', size=9)
+        if bg:
+            c.fill = PatternFill('solid', fgColor=bg)
+        c.alignment = Alignment(horizontal=align, vertical='center', wrap_text=wrap)
+        if numero and isinstance(valor, (int, float)):
+            c.number_format = '#,##0.00'
+        return c
+
+    # Linha 1: Empresa
+    empresa_nome = projeto.empresa_executora or 'PRISMA AXON'
+    ws.merge_cells('A1:G1') if not incluir_precos else ws.merge_cells('A1:I1')
+    c = ws.cell(row=1, column=1, value=f'{empresa_nome} — PROPOSTA TÉCNICA')
+    c.font = Font(bold=True, color=BRANCO, size=12)
+    c.fill = PatternFill('solid', fgColor=AZUL)
+    c.alignment = Alignment(horizontal='center', vertical='center')
+    ws.row_dimensions[1].height = 28
+
+    # Linha 2: Info do projeto
+    ws.merge_cells('A2:G2') if not incluir_precos else ws.merge_cells('A2:I2')
+    c2 = ws.cell(row=2, column=1,
+                 value=f'Projeto: {projeto.id_projeto_manual} | Cliente: {projeto.nome_cliente} | {projeto.municipio_obra}/{projeto.estado_obra} | {projeto.revisao_label}')
+    c2.font = Font(bold=False, color='444444', size=9)
+    c2.fill = PatternFill('solid', fgColor='E8EAF6')
+    c2.alignment = Alignment(horizontal='center', vertical='center')
+    ws.row_dimensions[2].height = 16
+
+    # Linha 3: cabeçalho
+    headers = ['Nº', 'Descrição', 'Modelo', 'Fabricante', 'P/N', 'Unid.', 'Qtd.']
+    if incluir_precos:
+        headers += ['Unit. (R$)', 'Total (R$)']
+    for col, h in enumerate(headers, 1):
+        celula(3, col, h, bold=True, bg=AZUL, cor=BRANCO, align='center')
+    ws.row_dimensions[3].height = 18
+
+    # Larguras
+    ws.column_dimensions['A'].width = 6
+    ws.column_dimensions['B'].width = 55
+    ws.column_dimensions['C'].width = 22
+    ws.column_dimensions['D'].width = 16
+    ws.column_dimensions['E'].width = 14
+    ws.column_dimensions['F'].width = 7
+    ws.column_dimensions['G'].width = 7
+    if incluir_precos:
+        ws.column_dimensions['H'].width = 14
+        ws.column_dimensions['I'].width = 16
+
+    linhas = _itens_para_linhas(itens, desconto_pct)
+    for i, ln in enumerate(linhas):
+        row = 4 + i
+        bg = CINZA if i % 2 == 0 else BRANCO
+        eh_infra = ln.get('nome') == 'Infraestrutura'
+        if eh_infra:
+            bg = VERDE
+        celula(row, 1, ln['seq'], align='center', bg=bg)
+        celula(row, 2, ln['nome'] + (f' — {ln["modelo"]}' if ln.get('modelo') else ''), bg=bg, wrap=True)
+        celula(row, 3, ln.get('modelo', ''), bg=bg)
+        celula(row, 4, ln.get('fabricante', ''), bg=bg)
+        celula(row, 5, ln.get('pn', ''), bg=bg)
+        celula(row, 6, ln.get('unidade', 'Un'), align='center', bg=bg)
+        celula(row, 7, ln['quantidade'], align='center', bg=bg)
+        if incluir_precos:
+            celula(row, 8, ln['preco_unit'], align='right', bg=bg, numero=True)
+            celula(row, 9, ln['preco_total'], align='right', bg=bg, numero=True)
+        ws.row_dimensions[row].height = 28 if eh_infra else 15
+
+    # Rodapé comercial
+    if incluir_precos:
+        totais = _calcular_totais(itens, desconto_pct)
+        row_ini = 4 + len(linhas) + 1
+        ws.merge_cells(f'A{row_ini}:H{row_ini}')
+        ws.cell(row=row_ini, column=1, value='').fill = PatternFill('solid', fgColor=CINZA)
+
+        def rod(r, label, valor, fmt_brl=True):
+            ws.merge_cells(f'A{r}:H{r}')
+            c = ws.cell(row=r, column=1, value=label)
+            c.font = Font(bold=True, size=9, color='444444')
+            c.alignment = Alignment(horizontal='right')
+            cv = ws.cell(row=r, column=9, value=valor)
+            cv.font = Font(bold=True, size=9, color=AZUL)
+            cv.alignment = Alignment(horizontal='right')
+            if fmt_brl and isinstance(valor, float):
+                cv.number_format = '#,##0.00'
+
+        rod(row_ini + 1, 'Custo Total:', totais['custo'])
+        rod(row_ini + 2, f'Desconto ({desconto_pct}%):', totais['custo'] - totais['venda'])
+        rod(row_ini + 3, 'Preço de Venda:', totais['venda'])
+        r = row_ini + 4
+        ws.merge_cells(f'A{r}:I{r}')
+        ws.cell(row=r, column=1).fill = PatternFill('solid', fgColor=CINZA)
+
+        rod2_start = r + 1
+        ws.cell(row=rod2_start, column=1, value='Locação').font = Font(bold=True, size=9)
+        for idx, (prazo, val) in enumerate(totais['locacao'].items()):
+            rr = rod2_start + idx
+            ws.merge_cells(f'A{rr}:H{rr}')
+            ws.cell(row=rr, column=1, value=f'  {prazo} meses — mensalidade:').font = Font(size=9)
+            cv = ws.cell(row=rr, column=9, value=val)
+            cv.font = Font(bold=True, size=9, color='1B5E20')
+            cv.number_format = '#,##0.00'
+            cv.alignment = Alignment(horizontal='right')
+
+        rr = rod2_start + len(totais['locacao'])
+        ws.merge_cells(f'A{rr}:H{rr}')
+        ws.cell(row=rr, column=1, value='  Manutenção (opcional) — mensalidade:').font = Font(size=9, italic=True)
+        cv = ws.cell(row=rr, column=9, value=totais['manutencao'])
+        cv.font = Font(bold=True, size=9, italic=True, color='E65100')
+        cv.number_format = '#,##0.00'
+        cv.alignment = Alignment(horizontal='right')
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf
+
+
+def _excel_projeto(projeto, itens):
+    """Excel de template para importar projeto similar."""
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment
+    import io
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Projeto'
+
+    AZUL = '000666'
+    BRANCO = 'FFFFFF'
+    CINZA = 'F2F2F2'
+
+    headers = ['ID Produto', 'Nome', 'Modelo', 'P/N', 'Fabricante', 'Unidade', 'Quantidade', 'Preço Unit (R$)', 'Preço Total (R$)']
+    for col, h in enumerate(headers, 1):
+        c = ws.cell(row=1, column=col, value=h)
+        c.font = Font(bold=True, color=BRANCO, size=9)
+        c.fill = PatternFill('solid', fgColor=AZUL)
+        c.alignment = Alignment(horizontal='center', vertical='center')
+
+    larguras = [12, 50, 22, 16, 16, 8, 8, 16, 16]
+    for i, w in enumerate(larguras, 1):
+        ws.column_dimensions[ws.cell(row=1, column=i).column_letter].width = w
+
+    for row, item in enumerate(itens, 2):
+        bg = CINZA if row % 2 == 0 else BRANCO
+        vals = [
+            item.produto.id_planilha,
+            item.produto.nome,
+            item.produto.modelo or '',
+            item.produto.part_number or '',
+            item.produto.fabricante or '',
+            item.produto.unidade or 'Un',
+            item.quantidade,
+            float(item.preco_unitario),
+            float(item.preco_unitario) * item.quantidade,
+        ]
+        for col, val in enumerate(vals, 1):
+            c = ws.cell(row=row, column=col, value=val)
+            c.font = Font(size=9)
+            c.fill = PatternFill('solid', fgColor=bg)
+            if col in (8, 9) and isinstance(val, float):
+                c.number_format = '#,##0.00'
+                c.alignment = Alignment(horizontal='right')
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return buf
+
+
+def _texto_extenso(projeto, itens, desconto_pct):
+    totais = _calcular_totais(itens, desconto_pct)
+    cliente = projeto.nome_cliente.upper()
+    estado = projeto.estado_obra.upper()
+    empresa = projeto.empresa_executora or 'EMIVE'
+
+    v_capex = totais['venda']
+    v_manut = totais['manutencao']
+    v_36 = totais['locacao'][36]
+    v_60 = totais['locacao'][60]
+
+    def brl(v): return _formatar_brl(v)
+    def ext(v): return _numero_por_extenso(round(v, 2))
+
+    return f"""11.\tValores da Nossa Proposta
+
+Para atender de forma ideal às necessidades e à estratégia financeira da {cliente}, apresentamos a seguir duas modalidades de contratação:
+
+Aquisição (CAPEX): Esta opção permite a compra completa dos equipamentos e da infraestrutura. É um modelo de investimento de capital que oferece a propriedade total do sistema. A proposta de aquisição pode ser complementada com um contrato de manutenção opcional, garantindo o suporte técnico e a preservação do sistema após a implantação.
+
+Locação (OPEX): Um modelo de serviço completo, com contratos de 36 ou 60 meses, que inclui a instalação, os equipamentos, a manutenção e o suporte técnico e inclusive troca de equipamentos em caso de defeito ao longo do contrato. Essa opção permite que a {cliente} transforme um custo de capital (CAPEX) em uma despesa operacional (OPEX), liberando recursos para outros investimentos e garantindo que o sistema esteja sempre atualizado e em pleno funcionamento.
+
+Esses modelos foram elaborados para oferecer a máxima flexibilidade, permitindo à {cliente} selecionar a opção que melhor se alinhe com seus objetivos estratégicos e planejamento orçamentário.
+
+Aquisição do Sistema (CAPEX).
+I.\tValor para a Aquisição de Todos os Equipamentos e Sistema de Software Licenciado (inclui garantia balcão de 12 meses dos equipamentos instalados em caso de defeitos de fábrica):
+{brl(v_capex)} ({ext(v_capex)})
+*Condições Comerciais Item 13.
+
+II.\tOPCIONAL » Valor Mensal para Manutenção Preventiva e Corretiva (Inclui substituição de peças e acessórios, limpeza, atualizações de Hardware e Software, Suporte Técnico, Manutenção Preventiva, Manutenção Corretiva, deslocamentos e visitas técnicas de acordo com SLA):
+{brl(v_manut)} ({ext(v_manut)})
+*Este Valor deverá ser disponibilizado mensalmente pela Manutenção dos Equipamentos.
+
+
+Locação do Sistema (OPEX).
+
+36 MESES
+I.\tValor Mensal para Locação dos Novos Equipamentos de todas as áreas do CD {cliente}/{estado} (Inclui Garantia Total do Sistema, Substituição de Peças, Atualizações de Hardware e Software, Suporte Técnico, Manutenção Preventiva, Manutenção Corretiva):
+{brl(v_36)} ({ext(v_36)}).
+*Condições Comerciais no item 14.
+
+60 MESES
+II.\tValor Mensal para Locação dos Novos Equipamentos de todas as áreas do CD {cliente}/{estado} (Inclui Garantia Total do Sistema, Substituição de Peças, Atualizações de Hardware e Software, Suporte Técnico, Manutenção Preventiva, Manutenção Corretiva):
+{brl(v_60)} ({ext(v_60)}).
+*Condições Comerciais no item 14.
+
+Benefícios da solução LOCAÇÃO {empresa}:
+\t• Equipamentos sempre atualizados;
+\t• Economia com suporte técnico;
+\t• Garantia total de todos os equipamentos cobertos pelo contrato;
+\t• Não há depreciação, desvalorização ou obsolescência dos equipamentos;
+\t• Fim do problema com a vida útil dos equipamentos (Equipamentos eletrônicos de 3 a 5 anos);
+\t• Benefícios fiscais para empresas no regime de lucro real (Abatimento no IRPJ e CSLL);
+\t• Previsibilidade do investimento para manutenção de todo o parque de equipamentos;
+\t• Equipamentos de backup para agilidade das manutenções e reparos;
+\t• Soluções dos problemas e defeitos dos equipamentos em um tempo muito mais rápido;
+"""
+
+
+@login_required(login_url='/')
+def exportar_projeto(request, projeto_id):
+    """Endpoint único de exportação. Parâmetros: modo (tecnica/comercial/locacao/extenso/projeto/filtro) e fmt (xlsx/docx)."""
+    from django.http import HttpResponse
+    import io
+
+    projeto = get_object_or_404(Projeto, pk=projeto_id)
+    modo = request.GET.get('modo', 'tecnica')
+    fmt = request.GET.get('fmt', 'xlsx')
+    desconto_pct = float(request.GET.get('desconto', '0') or '0')
+
+    itens = list(ItemProjeto.objects.filter(projeto=projeto).select_related('produto').order_by('produto__categoria', 'produto__nome'))
+    nome_arquivo = f'{projeto.id_projeto_manual}_{modo}'
+
+    # ── Excel ──────────────────────────────────────────────────────────────
+    if fmt == 'xlsx':
+        if modo in ('tecnica', 'filtro'):
+            buf = _excel_tecnica(projeto, itens, desconto_pct, incluir_precos=False)
+        elif modo == 'comercial':
+            buf = _excel_tecnica(projeto, itens, desconto_pct, incluir_precos=True)
+        elif modo == 'locacao':
+            buf = _excel_tecnica(projeto, itens, desconto_pct, incluir_precos=True)
+        elif modo == 'projeto':
+            buf = _excel_projeto(projeto, itens)
+        elif modo == 'extenso':
+            # Extenso em Excel = planilha de locação/comercial sem o texto
+            buf = _excel_tecnica(projeto, itens, desconto_pct, incluir_precos=True)
+        else:
+            buf = _excel_tecnica(projeto, itens, desconto_pct, incluir_precos=False)
+
+        resp = HttpResponse(buf.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        resp['Content-Disposition'] = f'attachment; filename="{nome_arquivo}.xlsx"'
+        return resp
+
+    # ── Word ───────────────────────────────────────────────────────────────
+    if fmt == 'docx':
+        from docx import Document
+        from docx.shared import Pt, RGBColor, Cm
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        from docx.enum.table import WD_TABLE_ALIGNMENT
+
+        doc = Document()
+        # Margens menores
+        for section in doc.sections:
+            section.top_margin = Cm(1.5)
+            section.bottom_margin = Cm(1.5)
+            section.left_margin = Cm(2)
+            section.right_margin = Cm(2)
+
+        # Cabeçalho
+        h = doc.add_heading(f'{projeto.empresa_executora or "PRISMA AXON"} — PROPOSTA TÉCNICA', 0)
+        h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_info = doc.add_paragraph(f'Projeto: {projeto.id_projeto_manual} | Cliente: {projeto.nome_cliente} | {projeto.municipio_obra}/{projeto.estado_obra} | {projeto.revisao_label}')
+        p_info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        if modo == 'extenso':
+            texto = _texto_extenso(projeto, itens, desconto_pct)
+            for linha in texto.split('\n'):
+                p = doc.add_paragraph(linha)
+                p.paragraph_format.space_after = Pt(2)
+        else:
+            incluir_precos = modo in ('comercial', 'locacao')
+            linhas = _itens_para_linhas(itens, desconto_pct)
+            headers = ['Nº', 'Descrição', 'Modelo', 'Fabricante', 'Qtd.']
+            if incluir_precos:
+                headers += ['Unit. (R$)', 'Total (R$)']
+
+            table = doc.add_table(rows=1, cols=len(headers))
+            table.style = 'Table Grid'
+            hdr_cells = table.rows[0].cells
+            for i, h_txt in enumerate(headers):
+                hdr_cells[i].text = h_txt
+                hdr_cells[i].paragraphs[0].runs[0].font.bold = True
+                hdr_cells[i].paragraphs[0].runs[0].font.size = Pt(8)
+
+            for ln in linhas:
+                row_cells = table.add_row().cells
+                vals = [str(ln['seq']), ln['nome'], ln.get('modelo',''), ln.get('fabricante',''), str(ln['quantidade'])]
+                if incluir_precos:
+                    vals += [_formatar_brl(ln['preco_unit']).replace('R$ ',''), _formatar_brl(ln['preco_total']).replace('R$ ','')]
+                for i, v in enumerate(vals):
+                    row_cells[i].text = v
+                    row_cells[i].paragraphs[0].runs[0].font.size = Pt(8)
+
+            if incluir_precos:
+                totais = _calcular_totais(itens, desconto_pct)
+                doc.add_paragraph()
+                for label, val in [
+                    ('Custo Total', totais['custo']),
+                    (f'Desconto ({desconto_pct}%)', totais['custo'] - totais['venda']),
+                    ('Preço de Venda', totais['venda']),
+                ]:
+                    p = doc.add_paragraph()
+                    p.add_run(f'{label}: ').bold = True
+                    p.add_run(_formatar_brl(val))
+
+                doc.add_paragraph('Locação Mensal:').runs[0].bold = True
+                for prazo, val in totais['locacao'].items():
+                    doc.add_paragraph(f'  {prazo} meses: {_formatar_brl(val)}')
+                doc.add_paragraph(f'  Manutenção (opcional): {_formatar_brl(totais["manutencao"])}')
+
+        buf = io.BytesIO()
+        doc.save(buf)
+        buf.seek(0)
+        resp = HttpResponse(buf.read(), content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+        resp['Content-Disposition'] = f'attachment; filename="{nome_arquivo}.docx"'
+        return resp
+
+    return HttpResponse('Formato inválido', status=400)
+
+
+# ============================================================
 # CANCELAR PRÉ-PROJETO
 # ============================================================
 @login_required(login_url='/')

@@ -14,3 +14,4 @@ et_xmlfile
 pillow
 python-dotenv
 requests
+num2words
