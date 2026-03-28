@@ -22,9 +22,17 @@
 
 {% block sidebar_extra %}
 <div class="pt-3 mt-auto border-t border-outline-variant/20 flex flex-col gap-1.5 mb-2">
-    <p class="text-[8px] font-bold text-on-surface-variant uppercase tracking-widest px-1 mb-1">Ações</p>
+    <p class="text-[8px] font-bold text-on-surface-variant uppercase tracking-widest px-1 mb-1">Ações M.O</p>
+    <!-- Aplicar ao BoM: atualiza o preco_variavel e volta ao BoM Selector -->
+    <form method="POST" action="{% url 'gestao_mo' projeto_id=projeto.id aba=aba %}">
+        {% csrf_token %}
+        <input type="hidden" name="acao" value="aplicar_bom">
+        <button type="submit" class="w-full px-2 py-2 rounded-lg bg-secondary text-white font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-sm">check_circle</span>Salvar e Ir ao BoM
+        </button>
+    </form>
     <a href="{% url 'fluxo_projeto' projeto_id=projeto.id %}" class="w-full px-2 py-2 rounded-lg bg-primary text-white font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-1">
-        <span class="material-symbols-outlined text-sm">receipt_long</span>Ver BoM
+        <span class="material-symbols-outlined text-sm">receipt_long</span>Ver BoM (Fluxo)
     </a>
     <a href="{% url 'consultar_projeto' %}" class="w-full px-2 py-2 rounded-lg bg-surface-container-highest text-on-surface-variant font-bold text-[10px] uppercase tracking-wider hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 mt-1">
         <span class="material-symbols-outlined text-sm">arrow_back</span>Projetos

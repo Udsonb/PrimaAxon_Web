@@ -695,6 +695,17 @@ def gestao_mo(request, projeto_id, aba):
             item.unidade = request.POST.get('unidade', item.unidade)
             item.custo_unitario = _dec(request.POST.get('custo_unitario', item.custo_unitario), item.custo_unitario)
             item.save()
+        elif acao == 'aplicar_bom':
+            # Calcula total M.O (todas as abas) e atualiza todos os ItemProjeto com preco_variavel=True
+            from decimal import Decimal
+            total_mo = sum(i.custo_total for i in ItemMO.objects.filter(projeto=projeto))
+            itens_variavel = ItemProjeto.objects.filter(projeto=projeto, produto__preco_variavel=True)
+            if itens_variavel.exists():
+                for item_proj in itens_variavel:
+                    qtd = item_proj.quantidade or 1
+                    item_proj.preco_unitario = (total_mo / qtd).quantize(Decimal('0.01'))
+                    item_proj.save(update_fields=['preco_unitario'])
+            return redirect('bom_selector_projeto', projeto_id=projeto_id)
         return redirect('gestao_mo', projeto_id=projeto_id, aba=aba)
 
     itens = list(ItemMO.objects.filter(projeto=projeto, aba=aba))
