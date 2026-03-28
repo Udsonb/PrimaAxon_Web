@@ -748,35 +748,39 @@ FROTA_TRANSPORTE = [
 ]
 
 ITENS_DEMAIS_CUSTOS_DEFAULT = [
-    # (descricao, tipo_custo, custo_unit, unidade, tempo_default)
-    ('Plano de Saúde',             'Meses',  175.00, 'Meses', 12),
-    ('Plano Odontológico',         'Meses',   25.00, 'Meses', 12),
-    ('Seguro de Vida',             'Meses',   15.00, 'Meses', 12),
-    ('Uniforme',                   'Meses',  120.00, 'Meses',  1),
-    ('NR10 / Treinamento',         'Meses',  250.00, 'Meses',  1),
-    ('Alimentação Convencional',   'Meses',  450.00, 'Meses', 12),
-    ('Alimentação (Diária)',       'Dias',    45.00, 'Dias',  22),
-    ('Hospedagem',                 'Dias',   180.00, 'Dias',  15),
-    ('Pedágio',                    'Dias',    32.00, 'Dias',  22),
-    ('PPRA/PCMSO',                 'Meses',   45.00, 'Meses',  1),
+    # (descricao, _unused, custo_unit, unidade, tempo_default, ativo_default)
+    # ativo_default=False → só ativa se houver viagem longa no Transporte
+    ('Plano de Saúde',                   'Meses', 175.00, 'Meses', 12, True),
+    ('Plano Odontológico',               'Meses',  12.00, 'Meses', 12, True),
+    ('Seguro de Vida',                   'Meses',  12.00, 'Meses', 12, True),
+    ('Uniforme',                         'Meses',  31.67, 'Meses',  1, True),
+    ('Uniforme NR10',                    'Meses',  63.33, 'Meses',  1, True),
+    ('Alimentação Convencional Técnico', 'Meses', 440.00, 'Meses', 12, True),
+    ('Alimentação (Diária)',             'Dias',   20.00, 'Dias',  22, False),
+    ('Hospedagem',                       'Dias',  220.00, 'Dias',  15, False),
+    ('Pedágio',                          'Dias',    0.00, 'Dias',  22, False),
+    ('PPRA/PCMSO',                       'Meses',  45.00, 'Meses',  1, True),
 ]
 
 ITENS_TERCEIROS_DEFAULT = [
     # (descricao, especificacao, custo_unit)
-    ('Instalação Ponto Câmera', 'Por ponto instalado',   80.00),
-    ('Instalação Alarme',       'Por sensor instalado',  80.00),
-    ('Instalação Acesso',       'Por leitor instalado',  80.00),
-    ('Base / Cancela',          'Por unidade',          400.00),
-    ('Poste Plantado',          'Poste 6m + escav.',    500.00),
-    ('Poste com Base',          'Poste + base conc.',   700.00),
-    ('Montagem de Painel',      'Painel elétrico',      160.00),
-    ('Infra Aparente',          'Por metro linear',      30.00),
-    ('Infra Subterrânea',       'Por metro linear',      51.00),
-    ('Infra Envelopada',        'Por metro linear',     120.00),
-    ('Cabeamento Tubulação',    'Por metro linear',       1.50),
-    ('Projeto Executivo',       'Verba global',        3500.00),
-    ('Comissionamento',         'Por sistema',         2000.00),
-    ('Certificação de Rede',    'Por certificado',      800.00),
+    ('Instalação de Ponto de Câmera',                   'Por ponto',     80.00),
+    ('Instalação de Ponto de Alarme',                   'Por sensor',    80.00),
+    ('Instalação de Ponto de Controle de Acesso',       'Por leitor',    80.00),
+    ('Instalação de Base de Cancela / Catraca',         'Por unidade',  400.00),
+    ('Instalação de Poste Plantado',                    'Poste 6m',     500.00),
+    ('Instalação de Poste com Base',                    'Poste+base',   700.00),
+    ('Instalação e Montagem de Painel',                 'Por painel',   160.00),
+    ('Instalação de Infra Aparente (m)',                'Por metro',     30.00),
+    ('Instalação de Infra Subterrânea (m)',             'Por metro',     51.00),
+    ('Instalação de Infra Subterrânea Envelopada (m)',  'Por metro',    120.00),
+    ('Lançamento de Cabeamento em Tubulação (m)',       'Por metro',      1.50),
+    ('Lançamento de Cabeamento Aéreo (m)',              'Por metro',      3.00),
+    ('Alimentação (Diária)',                            'Por dia',       75.00),
+    ('Hospedagem',                                      'Por dia',      220.00),
+    ('Km de Deslocamento',                              'Por km',         1.40),
+    ('Deslocamento Aéreo',                              'Passagem',       0.00),
+    ('Deslocamento Ônibus',                             'Passagem',       0.00),
 ]
 
 FUNCOES_MO = {
@@ -996,6 +1000,16 @@ EQUIPS_FERR = [
 ]
 
 
+def _headcount_demais_custos(projeto):
+    """Conta cabeças para benefícios: Dupla Técnica = 2 pessoas, demais = 1 por unidade."""
+    itens_op = ItemMO.objects.filter(projeto=projeto, aba='operacional', ativo=True)
+    total = 0
+    for item in itens_op:
+        mult = 2 if item.descricao in ('Dupla Técnica', 'Dupla Técnica (Civil)') else 1
+        total += int(item.quantidade) * mult
+    return max(total, 1)
+
+
 def _ultimo_preco_ativo(descricao, projeto_atual):
     """Retorna o último custo_unitario para um item da Lista de Ativos, priorizando
     mesmo município → mesmo estado → qualquer projeto. Exclui o projeto atual."""
@@ -1048,14 +1062,17 @@ def gestao_mo(request, projeto_id, aba):
 
     # ── Auto-populate demais_custos on first visit ──────────────────────────
     if aba == 'demais_custos' and not ItemMO.objects.filter(projeto=projeto, aba='demais_custos').exists():
-        headcount = int(sum(
-            i.quantidade for i in ItemMO.objects.filter(projeto=projeto, aba='operacional', ativo=True)
-        )) or 1
-        for desc, unid, custo, unidade, tempo in ITENS_DEMAIS_CUSTOS_DEFAULT:
+        headcount_dc = _headcount_demais_custos(projeto)
+        tem_viagem = ItemMO.objects.filter(
+            projeto=projeto, aba='transporte', descricao='Combustível - Viagem Longa', ativo=True
+        ).exists()
+        VIAGEM_ITENS = {'Alimentação (Diária)', 'Hospedagem'}
+        for desc, _, custo, unidade, tempo, ativo_def in ITENS_DEMAIS_CUSTOS_DEFAULT:
+            ativo_real = ativo_def if desc not in VIAGEM_ITENS else (ativo_def and tem_viagem)
             ItemMO.objects.create(
                 projeto=projeto, aba='demais_custos',
-                descricao=desc, quantidade=headcount, tempo=tempo,
-                unidade=unidade, custo_unitario=Decimal(str(custo)), ativo=True,
+                descricao=desc, quantidade=headcount_dc, tempo=tempo,
+                unidade=unidade, custo_unitario=Decimal(str(custo)), ativo=ativo_real,
             )
 
     # ── Auto-populate ferramentas lista de ativos on first visit ────────────
@@ -1261,11 +1278,17 @@ def gestao_mo(request, projeto_id, aba):
 
     # Frota transporte: lista de (label, icon, custo_base, qtd_atual)
     frota_lista = []
+    comb_viagem_custo = 0.0
+    comb_diario_custo = 0.0
     if aba == 'transporte':
         for label, icon, custo_base in FROTA_TRANSPORTE:
             item_fr = ItemMO.objects.filter(projeto=projeto, aba='transporte', descricao=label).first()
             qtd_atual = int(item_fr.quantidade) if item_fr else 0
             frota_lista.append((label, icon, custo_base, qtd_atual))
+        comb_v = ItemMO.objects.filter(projeto=projeto, aba='transporte', descricao='Combustível - Viagem Longa').first()
+        comb_d = ItemMO.objects.filter(projeto=projeto, aba='transporte', descricao='Combustível - Deslocamento Diário').first()
+        comb_viagem_custo = float(comb_v.custo_unitario) if comb_v else 0.0
+        comb_diario_custo = float(comb_d.custo_unitario) if comb_d else 0.0
 
     # ── Kits e Equipamentos (só para aba ferramentas) ────────────────────────
     kits_data = {}
@@ -1344,6 +1367,8 @@ def gestao_mo(request, projeto_id, aba):
         'funcao_icons_json': funcao_icons_json,
         'cfg': CONFIG_ABA.get(aba, CONFIG_ABA['operacional']),
         'frota_lista': frota_lista,
+        'comb_viagem_custo': comb_viagem_custo,
+        'comb_diario_custo': comb_diario_custo,
         'kits_data': kits_data,
         'equips_data': equips_data,
         'kits_ferr_json': _json.dumps({k: v['label'] for k, v in KITS_FERR.items()}),

@@ -690,61 +690,58 @@
     </div>
 
     <div class="flex gap-5 items-start">
-        <!-- Left: Fleet + extra -->
-        <div class="flex-1 space-y-5">
+        <!-- Left: Fleet + Combustível (único form) -->
+        <form method="POST" action="{% url 'gestao_mo' projeto_id=projeto.id aba='transporte' %}" id="form-frota" class="flex-1 space-y-5">
+        {% csrf_token %}<input type="hidden" name="acao" value="frota_update">
+        <!-- Hidden: valores finais de combustível (R$) calculados pelo JS antes do submit -->
+        <input type="hidden" name="km_viagem" id="hidden-km-viagem" value="{{ comb_viagem_custo }}">
+        <input type="hidden" name="km_diario" id="hidden-km-diario" value="{{ comb_diario_custo }}">
 
             <!-- Fleet Table -->
-            <form method="POST" action="{% url 'gestao_mo' projeto_id=projeto.id aba='transporte' %}">
-                {% csrf_token %}<input type="hidden" name="acao" value="frota_update">
-                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
-                    <div class="bg-surface-container-low/50 px-5 py-3 border-b border-outline-variant/10 flex justify-between items-center">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-lg text-primary" style="font-variation-settings:'FILL' 1">directions_car</span>
-                            <span class="font-bold text-on-surface text-sm">Seleção de Frota Operacional</span>
-                        </div>
-                        <span class="text-[9px] font-bold bg-primary/10 text-primary px-2 py-1 rounded-full uppercase tracking-widest">Mensal</span>
+            <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+                <div class="bg-surface-container-low/50 px-5 py-3 border-b border-outline-variant/10 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg text-primary" style="font-variation-settings:'FILL' 1">directions_car</span>
+                        <span class="font-bold text-on-surface text-sm">Seleção de Frota Operacional</span>
                     </div>
-                    <table class="w-full text-left border-collapse">
-                        <thead class="border-b border-outline-variant/10">
-                            <tr>
-                                <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-8"></th>
-                                <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tipo de Veículo</th>
-                                <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Custo de Locação/Manutenção</th>
-                                <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Unidades</th>
-                                <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-outline-variant/10" id="frota-tbody">
-                        {% for label, icon, custo_base, qtd_atual in frota_lista %}
-                        <tr class="hover:bg-surface-container-low transition-colors" id="frota-row-{{ forloop.counter }}">
-                            <td class="px-5 py-4">
-                                <span class="material-symbols-outlined text-xl text-primary/60" style="font-variation-settings:'FILL' 1">{{ icon }}</span>
-                            </td>
-                            <td class="px-5 py-4 font-bold text-on-surface text-sm">{{ label }}</td>
-                            <td class="px-5 py-4 text-sm text-on-surface-variant">R$ {{ custo_base|floatformat:2 }}</td>
-                            <td class="px-5 py-4">
-                                <input type="number" name="frota_{{ label|cut:" " }}" min="0" max="20"
-                                       value="{{ qtd_atual }}"
-                                       onchange="atualizarFrotaRow(this, {{ custo_base }})"
-                                       class="w-16 bg-surface-container-high border-none rounded-lg text-sm px-2 py-1 text-center">
-                            </td>
-                            <td class="px-5 py-4 text-right font-bold text-primary text-sm" id="sub-{{ forloop.counter }}">
-                                R$ {{ custo_base|floatformat:2 }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class="px-5 py-3 border-t border-outline-variant/10 flex justify-end">
-                        <button type="submit" class="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-xs hover:opacity-90">
-                            <span class="material-symbols-outlined text-sm">save</span>Salvar Frota
-                        </button>
-                    </div>
+                    <span class="text-[9px] font-bold bg-primary/10 text-primary px-2 py-1 rounded-full uppercase tracking-widest">Mensal</span>
                 </div>
-            </form>
+                <table class="w-full text-left border-collapse">
+                    <thead class="border-b border-outline-variant/10">
+                        <tr>
+                            <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-8"></th>
+                            <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tipo de Veículo</th>
+                            <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Custo Locação/Manutenção</th>
+                            <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Unid.</th>
+                            <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/10" id="frota-tbody">
+                    {% for label, icon, custo_base, qtd_atual in frota_lista %}
+                    <tr class="hover:bg-surface-container-low transition-colors" id="frota-row-{{ forloop.counter }}">
+                        <td class="px-5 py-4">
+                            <span class="material-symbols-outlined text-xl text-primary/60" style="font-variation-settings:'FILL' 1">{{ icon }}</span>
+                        </td>
+                        <td class="px-5 py-4 font-bold text-on-surface text-sm">{{ label }}</td>
+                        <td class="px-5 py-4 text-sm text-on-surface-variant">R$ {{ custo_base|floatformat:2 }}</td>
+                        <td class="px-5 py-4">
+                            <input type="number" name="frota_{{ label|cut:" " }}" min="0" max="20"
+                                   value="{{ qtd_atual }}"
+                                   onchange="frotaRowChange(this, {{ custo_base }}, {{ forloop.counter }})"
+                                   class="w-16 bg-surface-container-high border-none rounded-lg text-sm px-2 py-1 text-center text-on-surface">
+                        </td>
+                        <td class="px-5 py-4 text-right font-bold text-primary text-sm" id="sub-{{ forloop.counter }}">
+                            R$ {{ custo_base|floatformat:2 }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-            <!-- Viagem Longa + Deslocamento Diário -->
+            <!-- Viagem Longa + Deslocamento Diário (dentro do mesmo form) -->
             <div class="grid grid-cols-2 gap-4">
+                <!-- Viagem Longa -->
                 <div class="bg-teal-50 rounded-xl p-5 border border-teal-100">
                     <div class="flex justify-between items-center mb-3">
                         <div>
@@ -755,42 +752,58 @@
                     </div>
                     <div class="space-y-2">
                         <div>
-                            <label class="text-[10px] font-bold uppercase tracking-widest text-teal-700">Quilometragem total (Ida/Volta)</label>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-teal-700">Km total (Ida/Volta)</label>
                             <input type="number" id="km-viagem" value="0" min="0"
-                                   class="mt-1 w-full bg-white border-none rounded-lg text-sm px-3 py-2 font-bold text-teal-800" oninput="calcCombustivel()">
+                                   class="mt-1 w-full bg-white border-none rounded-lg text-sm px-3 py-2 font-bold text-teal-800"
+                                   oninput="calcViagem()">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold uppercase tracking-widest text-teal-700">Número de Viagens / Mês</label>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-teal-700">Nº de Viagens / Mês</label>
                             <input type="number" id="viagens-mes" value="0" min="0"
-                                   class="mt-1 w-full bg-white border-none rounded-lg text-sm px-3 py-2 font-bold text-teal-800" oninput="calcCombustivel()">
+                                   class="mt-1 w-full bg-white border-none rounded-lg text-sm px-3 py-2 font-bold text-teal-800"
+                                   oninput="calcViagem()">
                         </div>
-                        <p class="text-xs text-teal-700 mt-2">Total Combustível Previsto: <span id="comb-viagem" class="font-bold">R$ 0,00</span></p>
+                        <p class="text-xs text-teal-700 mt-2">Combustível Viagem:
+                            <span id="comb-viagem" class="font-bold">{% if comb_viagem_custo > 0 %}R$ {{ comb_viagem_custo }}{% else %}R$ 0,00{% endif %}</span>
+                        </p>
                     </div>
                 </div>
-                <div class="bg-blue-50 rounded-xl p-5 border border-blue-100">
+                <!-- Deslocamento Diário — ativado automaticamente ao marcar veículo -->
+                <div class="bg-blue-50 rounded-xl p-5 border border-blue-100" id="card-diario">
                     <div class="flex justify-between items-center mb-3">
                         <div>
                             <p class="font-bold text-blue-800 text-sm">Deslocamento Diário</p>
-                            <p class="text-xs text-blue-600">Logística urbana e rotina local</p>
+                            <p class="text-xs text-blue-600">Logística urbana — sugestão 50 km/dia</p>
                         </div>
                         <span class="material-symbols-outlined text-xl text-blue-500" style="font-variation-settings:'FILL' 1">schedule</span>
                     </div>
                     <div class="space-y-2">
                         <div>
-                            <label class="text-[10px] font-bold uppercase tracking-widest text-blue-700">Tempo em Trânsito (Mês)</label>
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-blue-700">Dias úteis / Mês</label>
                             <input type="number" id="tempo-diario" value="22" min="0"
-                                   class="mt-1 w-full bg-white border-none rounded-lg text-sm px-3 py-2 font-bold text-blue-800" oninput="calcDiario()">
+                                   class="mt-1 w-full bg-white border-none rounded-lg text-sm px-3 py-2 font-bold text-blue-800"
+                                   oninput="calcDiario()">
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold uppercase tracking-widest text-blue-700">Média km / Dia</label>
-                            <input type="number" id="km-dia" value="0" min="0"
-                                   class="mt-1 w-full bg-white border-none rounded-lg text-sm px-3 py-2 font-bold text-blue-800" oninput="calcDiario()">
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-blue-700">Km / Dia</label>
+                            <input type="number" id="km-dia" value="50" min="0"
+                                   class="mt-1 w-full bg-white border-none rounded-lg text-sm px-3 py-2 font-bold text-blue-800"
+                                   oninput="calcDiario()">
                         </div>
-                        <p class="text-xs text-blue-700 mt-2">Gasto Médio Combustível: <span id="comb-diario" class="font-bold">R$ 0,00</span></p>
+                        <p class="text-xs text-blue-700 mt-2">Combustível Diário:
+                            <span id="comb-diario" class="font-bold">{% if comb_diario_custo > 0 %}R$ {{ comb_diario_custo }}{% else %}R$ 0,00{% endif %}</span>
+                        </p>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Botão Salvar -->
+            <div class="flex justify-end">
+                <button type="submit" class="flex items-center gap-2 bg-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow hover:opacity-90 active:scale-95 transition-all">
+                    <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">save</span>Salvar Transporte
+                </button>
+            </div>
+        </form>
 
         <!-- Right: Sumário Financeiro -->
         <div class="w-64 flex-shrink-0 space-y-4">
@@ -968,7 +981,14 @@
                         </button>
                     </form>
                 </td>
-                <td class="px-4 py-3 font-bold text-on-surface text-sm">{{ item.descricao }}</td>
+                <td class="px-4 py-3">
+                    <span class="font-bold text-on-surface text-sm">{{ item.descricao }}</span>
+                    {% if item.descricao == "Hospedagem" or item.descricao == "Alimentação (Diária)" %}
+                    <span class="ml-1 text-[9px] text-blue-500 uppercase font-bold tracking-wide flex items-center gap-0.5 mt-0.5">
+                        <span class="material-symbols-outlined" style="font-size:11px">local_shipping</span>só viagem longa
+                    </span>
+                    {% endif %}
+                </td>
                 <td class="px-4 py-3 text-center">
                     <form method="POST" class="inline" onchange="this.submit()">
                         {% csrf_token %}<input type="hidden" name="acao" value="update">
@@ -1089,14 +1109,40 @@
     <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
         <div class="px-5 py-3 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/50">
             <h3 class="font-bold text-on-surface text-sm">Detalhamento de Terceirizados</h3>
-            <div class="flex gap-2">
-                <button class="flex items-center gap-1 px-3 py-1.5 border border-outline-variant/30 text-on-surface-variant text-xs font-bold rounded-lg hover:bg-surface-container-high">
-                    <span class="material-symbols-outlined text-sm">filter_list</span>Filtrar
-                </button>
-                <button class="flex items-center gap-1 px-3 py-1.5 border border-outline-variant/30 text-on-surface-variant text-xs font-bold rounded-lg hover:bg-surface-container-high">
-                    <span class="material-symbols-outlined text-sm">download</span>Exportar
-                </button>
-            </div>
+            <button onclick="document.getElementById('add-form-terc').classList.toggle('hidden')"
+                    class="flex items-center gap-1 px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90">
+                <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">add_circle</span>Outros
+            </button>
+        </div>
+        <!-- Add Form Terceirizados -->
+        <div id="add-form-terc" class="hidden p-5 border-b border-outline-variant/10 bg-surface-container-low/30">
+            <form method="POST" class="flex flex-wrap gap-3 items-end">
+                {% csrf_token %}<input type="hidden" name="acao" value="add">
+                <input type="hidden" name="unidade" value="Vb">
+                <input type="hidden" name="tempo" value="1">
+                <input type="hidden" name="ativo" value="0">
+                <div class="space-y-1 flex-1 min-w-40">
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Descrição do Serviço</label>
+                    <input name="descricao" type="text" required placeholder="Ex: Cabeamento estruturado..."
+                           class="w-full bg-white border border-outline-variant/20 px-3 py-2 rounded-lg text-sm">
+                </div>
+                <div class="space-y-1 w-32">
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Especificação</label>
+                    <input name="especificacao" type="text" placeholder="Por ponto, m..."
+                           class="w-full bg-white border border-outline-variant/20 px-3 py-2 rounded-lg text-sm">
+                </div>
+                <div class="space-y-1 w-28">
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Valor Unit. (R$)</label>
+                    <input name="custo_unitario" type="number" step="0.01" value="0"
+                           class="w-full bg-white border border-outline-variant/20 px-3 py-2 rounded-lg text-sm">
+                </div>
+                <div class="space-y-1 w-20">
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Quant.</label>
+                    <input name="quantidade" type="number" value="0" min="0"
+                           class="w-full bg-white border border-outline-variant/20 px-3 py-2 rounded-lg text-sm">
+                </div>
+                <button type="submit" class="px-4 py-2 bg-primary text-white font-bold text-sm rounded-lg hover:opacity-90">Incluir</button>
+            </form>
         </div>
         <table class="w-full text-left border-collapse">
             <thead class="border-b border-outline-variant/10">
@@ -1285,66 +1331,80 @@ function confirmarAdd(comboId, hiddenDescId, formId) {
     combo.closest('form').submit();
 }
 
-// ── Transporte: Fleet row subtotal ─────────────────────────────────────────
-function atualizarFrotaRow(input, custo) {
-    const row = input.closest('tr');
-    const idx = row.id.replace('frota-row-', '');
-    const subtotalEl = document.getElementById('sub-' + idx);
-    if (subtotalEl) {
+// ── Transporte: Fleet row subtotal + auto-link combustível ─────────────────
+const CUSTO_KM = 6.50 / 10; // R$/km  (gasolina R$6,50 / consumo 10km/L)
+
+function frotaRowChange(input, custo, idx) {
+    const sub = document.getElementById('sub-' + idx);
+    if (sub) {
         const val = (parseFloat(input.value) || 0) * custo;
-        subtotalEl.textContent = 'R$ ' + val.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+        sub.textContent = 'R$ ' + val.toLocaleString('pt-BR', {minimumFractionDigits: 2});
     }
     atualizarSumTransporte();
+    // Se algum veículo foi adicionado → recalcula combustível diário automaticamente
+    calcDiario();
 }
 function atualizarSumTransporte() {
     let total = 0;
     document.querySelectorAll('#frota-tbody tr').forEach(row => {
         const idx = row.id.replace('frota-row-', '');
         const el = document.getElementById('sub-' + idx);
-        if (el) total += parseFloat(el.textContent.replace('R$','').replace('.','').replace(',','.').trim()) || 0;
+        if (el) total += parseFloat(el.textContent.replace('R$','').replace(/\./g,'').replace(',','.').trim()) || 0;
     });
     const el = document.getElementById('sum-locacao');
     if (el) el.textContent = 'R$ ' + total.toLocaleString('pt-BR', {minimumFractionDigits: 2});
 }
+function parseBRL(txt) {
+    return parseFloat((txt || '').replace('R$','').replace(/\./g,'').replace(',','.').trim()) || 0;
+}
 // Combustível Viagem Longa
-function calcCombustivel() {
+function calcViagem() {
     const km = parseFloat(document.getElementById('km-viagem')?.value) || 0;
-    const v = parseFloat(document.getElementById('viagens-mes')?.value) || 0;
-    const litros = (km * v) / 10;
-    const custo = litros * 6.50;
+    const v  = parseFloat(document.getElementById('viagens-mes')?.value) || 0;
+    const custo = km * v * CUSTO_KM;
     const el = document.getElementById('comb-viagem');
     if (el) el.textContent = 'R$ ' + custo.toLocaleString('pt-BR', {minimumFractionDigits: 2});
     atualizarCombTotal();
 }
-// Combustível Deslocamento Diário
+// Combustível Deslocamento Diário — ativado automaticamente ao marcar veículo
 function calcDiario() {
-    const dias = parseFloat(document.getElementById('tempo-diario')?.value) || 0;
-    const km = parseFloat(document.getElementById('km-dia')?.value) || 0;
-    const litros = (dias * km) / 10;
-    const custo = litros * 6.50;
+    const dias  = parseFloat(document.getElementById('tempo-diario')?.value) || 0;
+    const kmDia = parseFloat(document.getElementById('km-dia')?.value) || 0;
+    const custo = kmDia * dias * CUSTO_KM;
     const el = document.getElementById('comb-diario');
     if (el) el.textContent = 'R$ ' + custo.toLocaleString('pt-BR', {minimumFractionDigits: 2});
     atualizarCombTotal();
 }
 function atualizarCombTotal() {
-    const c1 = parseFloat(document.getElementById('comb-viagem')?.textContent.replace('R$ ','').replace('.','').replace(',','.')) || 0;
-    const c2 = parseFloat(document.getElementById('comb-diario')?.textContent.replace('R$ ','').replace('.','').replace(',','.')) || 0;
+    const c1 = parseBRL(document.getElementById('comb-viagem')?.textContent);
+    const c2 = parseBRL(document.getElementById('comb-diario')?.textContent);
     const el = document.getElementById('sum-comb');
     if (el) el.textContent = 'R$ ' + (c1 + c2).toLocaleString('pt-BR', {minimumFractionDigits: 2});
 }
-// Init frota subtotals on load
+// Antes de salvar: preenche hidden inputs com os valores computados
+const formFrota = document.getElementById('form-frota');
+if (formFrota) {
+    formFrota.addEventListener('submit', () => {
+        const c1 = parseBRL(document.getElementById('comb-viagem')?.textContent);
+        const c2 = parseBRL(document.getElementById('comb-diario')?.textContent);
+        document.getElementById('hidden-km-viagem').value = c1.toFixed(2);
+        document.getElementById('hidden-km-diario').value = c2.toFixed(2);
+    });
+}
+// Init on load
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#frota-tbody input[type=number]').forEach(inp => {
         const row = inp.closest('tr');
         if (!row) return;
         const idx = row.id.replace('frota-row-','');
         const sub = document.getElementById('sub-' + idx);
-        // The custo is stored as data from the for loop — reconstruct from text
         const custoTxt = row.querySelector('td:nth-child(3)')?.textContent.replace('R$','').replace(',','.').trim();
         const custo = parseFloat(custoTxt) || 0;
         const qtd = parseFloat(inp.value) || 0;
         if (sub) sub.textContent = 'R$ ' + (qtd * custo).toLocaleString('pt-BR', {minimumFractionDigits:2});
     });
+    atualizarSumTransporte();
+    calcDiario();
 });
 </script>
 {% endblock %}
