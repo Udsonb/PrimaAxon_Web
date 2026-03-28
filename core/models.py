@@ -125,3 +125,32 @@ class ItemProjeto(models.Model):
 
     def __str__(self):
         return f"{self.produto.nome} x{self.quantidade}"
+
+
+class ItemMO(models.Model):
+    ABA_CHOICES = [
+        ('operacional', 'Mão de Obra'),
+        ('ferramentas', 'Equipamentos/Insumos'),
+        ('transporte', 'Transporte'),
+        ('demais_custos', 'Demais Custos'),
+        ('terceiros', 'Terceirizados'),
+    ]
+    UNIDADE_CHOICES = [
+        ('Meses', 'Meses'), ('Dias', 'Dias'), ('Horas', 'Horas'),
+        ('Un', 'Un'), ('Vb', 'Vb'),
+    ]
+
+    projeto = models.ForeignKey(Projeto, on_delete=models.CASCADE, related_name='itens_mo')
+    aba = models.CharField(max_length=20, choices=ABA_CHOICES)
+    descricao = models.CharField("Descrição", max_length=255)
+    quantidade = models.DecimalField("Quantidade", max_digits=10, decimal_places=2, default=1)
+    tempo = models.DecimalField("Tempo", max_digits=10, decimal_places=2, default=1)
+    unidade = models.CharField("Unidade", max_length=10, choices=UNIDADE_CHOICES, default='Meses')
+    custo_unitario = models.DecimalField("Custo Unitário", max_digits=14, decimal_places=2, default=0)
+
+    @property
+    def custo_total(self):
+        return self.quantidade * self.tempo * self.custo_unitario
+
+    def __str__(self):
+        return f"{self.projeto.id_projeto_manual} - {self.aba} - {self.descricao}"

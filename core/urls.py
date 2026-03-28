@@ -27,6 +27,11 @@ urlpatterns = [
     path('gestao/empresas/<int:empresa_id>/editar/', views.editar_empresa, name='editar_empresa'),
     path('gestao/usuarios/<int:user_id>/reset-senha/', views.reset_senha_usuario, name='reset_senha_usuario'),
     path('gestao/programa/', views.gestao_programa, name='gestao_programa'),
+    path('projeto/<int:projeto_id>/mo/<str:aba>/', views.gestao_mo, name='gestao_mo'),
+    path('dash/gerencial/', views.dash_gerencial, name='dash_gerencial'),
+    path('dash/analista/', views.dash_analista, name='dash_analista'),
+    path('dash/orcamentista/', views.dash_orcamentista, name='dash_orcamentista'),
+    path('validacao/', views.validacao_orcamento, name='validacao_orcamento'),
 ]
 
 if settings.DEBUG:

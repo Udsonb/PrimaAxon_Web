@@ -51,13 +51,11 @@
         <a href="{% url 'inicio' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name == 'inicio' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
             <span class="material-symbols-outlined text-xl">home</span><span class="text-sm">Início</span>
         </a>
-        <a href="#" class="flex items-center gap-2 px-3 py-2.5 text-on-surface-variant hover:bg-surface-container-highest rounded transition-all opacity-50 cursor-not-allowed">
+        <a href="{% url 'dash_gerencial' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name in 'dash_gerencial,dash_analista,dash_orcamentista' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
             <span class="material-symbols-outlined text-xl">dashboard</span><span class="text-sm">Dashboard</span>
-            <span class="ml-auto text-[7px] bg-outline-variant/30 px-1 py-0.5 rounded font-bold uppercase">Breve</span>
         </a>
-        <a href="#" class="flex items-center gap-2 px-3 py-2.5 text-on-surface-variant hover:bg-surface-container-highest rounded transition-all opacity-50 cursor-not-allowed">
-            <span class="material-symbols-outlined text-xl">shield</span><span class="text-sm">Gestão</span>
-            <span class="ml-auto text-[7px] bg-outline-variant/30 px-1 py-0.5 rounded font-bold uppercase">Breve</span>
+        <a href="{% url 'validacao_orcamento' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name == 'validacao_orcamento' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
+            <span class="material-symbols-outlined text-xl">verified</span><span class="text-sm">Validação</span>
         </a>
     </nav>
 

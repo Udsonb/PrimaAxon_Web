@@ -1,0 +1,103 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: primaaxon-web-git
+  namespace: '355616728924'
+  selfLink: /apis/serving.knative.dev/v1/namespaces/355616728924/services/primaaxon-web-git
+  uid: 10c2d02b-33bb-4149-9f2f-026732e0bb93
+  resourceVersion: AAZN/3MvMn8
+  generation: 22
+  creationTimestamp: '2026-03-27T01:09:03.825473Z'
+  labels:
+    commit-sha: 7d90b91d2d07f3a5c463c1d00a75500a902484ee
+    gcb-build-id: e50130d9-4410-41a7-8c29-4aac732c31a1
+    gcb-trigger-id: 2b188df0-cbc5-48d6-b533-ffeee503b1d2
+    gcb-trigger-region: europe-west1
+    managed-by: gcp-cloud-build-deploy-cloud-run
+    run.googleapis.com/satisfiesPzs: 'true'
+    cloud.googleapis.com/location: southamerica-east1
+  annotations:
+    serving.knative.dev/creator: udsonb@gmail.com
+    serving.knative.dev/lastModifier: 355616728924-compute@developer.gserviceaccount.com
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 562.0.0
+    run.googleapis.com/operation-id: d9a5461e-1f33-40e2-8d4c-4649700f4d48
+    run.googleapis.com/ingress: all
+    run.googleapis.com/ingress-status: all
+    run.googleapis.com/invoker-iam-disabled: 'true'
+    run.googleapis.com/maxScale: '5'
+    run.googleapis.com/urls: '["https://primaaxon-web-git-355616728924.southamerica-east1.run.app","https://primaaxon-web-git-6tt7m7k6sq-rj.a.run.app"]'
+spec:
+  template:
+    metadata:
+      labels:
+        client.knative.dev/nonce: nrtmjonfml
+        commit-sha: 7d90b91d2d07f3a5c463c1d00a75500a902484ee
+        gcb-build-id: e50130d9-4410-41a7-8c29-4aac732c31a1
+        gcb-trigger-id: 2b188df0-cbc5-48d6-b533-ffeee503b1d2
+        gcb-trigger-region: europe-west1
+        managed-by: gcp-cloud-build-deploy-cloud-run
+        run.googleapis.com/startupProbeType: Default
+      annotations:
+        autoscaling.knative.dev/maxScale: '3'
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 562.0.0
+        run.googleapis.com/cloudsql-instances: project-1987df83-e06f-476f-adb:southamerica-east1:prisma-axon-db
+        run.googleapis.com/startup-cpu-boost: 'true'
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      serviceAccountName: 355616728924-compute@developer.gserviceaccount.com
+      containers:
+      - name: placeholder-1
+        image: southamerica-east1-docker.pkg.dev/project-1987df83-e06f-476f-adb/cloud-run-source-deploy/udsonb-primaaxon_web/primaaxon-web-git:7d90b91d2d07f3a5c463c1d00a75500a902484ee
+        ports:
+        - name: http1
+          containerPort: 8080
+        env:
+        - name: SECRET_KEY
+          value: django-insecure-b6^(%qu(%bn@8qvl_isg7=z@uiq$=gnmp=w287#*fm1yfr0568
+        - name: DATABASE_URL
+          value: postgres://postgres:MINHASENHA_AQUI@/postgres?host=/cloudsql/project-1987df83-e06f-476f-adb:southamerica-east1:prisma-axon-db
+        - name: DEBUG
+          value: 'True'
+        - name: USE_GCS
+          value: 'True'
+        - name: RUN_MIGRATIONS
+          value: 'True'
+        - name: GS_BUCKET_NAME
+          value: primaaxon-media-files
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+        startupProbe:
+          timeoutSeconds: 240
+          periodSeconds: 240
+          failureThreshold: 1
+          tcpSocket:
+            port: 8080
+  traffic:
+  - percent: 100
+    latestRevision: true
+status:
+  observedGeneration: 22
+  conditions:
+  - type: Ready
+    status: 'True'
+    lastTransitionTime: '2026-03-27T11:03:24.736127Z'
+  - type: ConfigurationsReady
+    status: 'True'
+    lastTransitionTime: '2026-03-27T11:03:19.279549Z'
+  - type: RoutesReady
+    status: 'True'
+    lastTransitionTime: '2026-03-27T11:03:24.698036Z'
+  latestReadyRevisionName: primaaxon-web-git-00021-dpw
+  latestCreatedRevisionName: primaaxon-web-git-00021-dpw
+  traffic:
+  - revisionName: primaaxon-web-git-00021-dpw
+    percent: 100
+    latestRevision: true
+  url: https://primaaxon-web-git-6tt7m7k6sq-rj.a.run.app
+  address:
+    url: https://primaaxon-web-git-6tt7m7k6sq-rj.a.run.app

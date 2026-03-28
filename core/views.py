@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from .models import Produto, Projeto, Empresa, Perfil, ItemProjeto
+from .models import Produto, Projeto, Empresa, Perfil, ItemProjeto, ItemMO
 
 
 FAIXAS_CATEGORIA = {
@@ -643,6 +643,93 @@ def reset_senha_usuario(request, user_id):
     edit_user.save()
     messages.success(request, f'Senha redefinida para: {nova_senha}')
     return redirect('editar_usuario', user_id=user_id)
+
+
+# ============================================================
+# GESTÃO DE MÃO DE OBRA (abas por projeto)
+# ============================================================
+ABAS_MO = [
+    ('operacional',   'Mão de Obra',          'engineering'),
+    ('ferramentas',   'Equipamentos/Insumos',  'construction'),
+    ('transporte',    'Transporte',             'local_shipping'),
+    ('demais_custos', 'Demais Custos',          'payments'),
+    ('terceiros',     'Terceirizados',          'handshake'),
+]
+
+@login_required(login_url='/')
+def gestao_mo(request, projeto_id, aba):
+    if aba not in [a[0] for a in ABAS_MO]:
+        return redirect('gestao_mo', projeto_id=projeto_id, aba='operacional')
+    projeto = get_object_or_404(Projeto, pk=projeto_id)
+
+    if request.method == 'POST':
+        acao = request.POST.get('acao')
+        if acao == 'add':
+            descricao = request.POST.get('descricao', '').strip()
+            if descricao:
+                from decimal import Decimal, InvalidOperation
+                def _dec(val, default=0):
+                    try:
+                        return Decimal(str(val).replace(',', '.'))
+                    except (InvalidOperation, TypeError):
+                        return Decimal(default)
+                ItemMO.objects.create(
+                    projeto=projeto, aba=aba, descricao=descricao,
+                    quantidade=_dec(request.POST.get('quantidade', 1), 1),
+                    tempo=_dec(request.POST.get('tempo', 1), 1),
+                    unidade=request.POST.get('unidade', 'Meses'),
+                    custo_unitario=_dec(request.POST.get('custo_unitario', 0)),
+                )
+        elif acao == 'delete':
+            ItemMO.objects.filter(pk=request.POST.get('item_id'), projeto=projeto).delete()
+        elif acao == 'update':
+            item = get_object_or_404(ItemMO, pk=request.POST.get('item_id'), projeto=projeto)
+            from decimal import Decimal, InvalidOperation
+            def _dec(val, default=0):
+                try:
+                    return Decimal(str(val).replace(',', '.'))
+                except (InvalidOperation, TypeError):
+                    return Decimal(default)
+            item.quantidade = _dec(request.POST.get('quantidade', item.quantidade), item.quantidade)
+            item.tempo = _dec(request.POST.get('tempo', item.tempo), item.tempo)
+            item.unidade = request.POST.get('unidade', item.unidade)
+            item.custo_unitario = _dec(request.POST.get('custo_unitario', item.custo_unitario), item.custo_unitario)
+            item.save()
+        return redirect('gestao_mo', projeto_id=projeto_id, aba=aba)
+
+    itens = list(ItemMO.objects.filter(projeto=projeto, aba=aba))
+    total_aba = sum(i.custo_total for i in itens)
+    total_mo = sum(
+        i.custo_total for i in ItemMO.objects.filter(projeto=projeto)
+    )
+    return render(request, 'gestao_mo.html', {
+        'projeto': projeto,
+        'aba': aba,
+        'abas_mo': ABAS_MO,
+        'itens': itens,
+        'total_aba': total_aba,
+        'total_mo': total_mo,
+    })
+
+
+# ============================================================
+# DASHBOARDS
+# ============================================================
+@login_required(login_url='/')
+def dash_gerencial(request):
+    return render(request, 'dash_Gerencial.html')
+
+@login_required(login_url='/')
+def dash_analista(request):
+    return render(request, 'dash_analista.html')
+
+@login_required(login_url='/')
+def dash_orcamentista(request):
+    return render(request, 'dash_orçamentista.html')
+
+@login_required(login_url='/')
+def validacao_orcamento(request):
+    return render(request, 'validacao_de_orcamento.html')
 
 
 # ============================================================

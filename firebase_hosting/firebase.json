@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*"],
+    "redirects": [
+      {
+        "source": "**",
+        "destination": "https://primaaxon-web-git-6tt7m7k6sq-rj.a.run.app",
+        "type": 302
+      }
+    ]
+  }
+}

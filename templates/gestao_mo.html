@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% block title %}Prisma Axon - Gestão M.O — {{ projeto.id_projeto_manual }}{% endblock %}
+{% block page_title %}Mão de Obra{% endblock %}
+
+{% block header_extra %}
+<div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
+<nav class="hidden md:flex gap-3 items-center">
+    {% for slug, label, icon in abas_mo %}
+    <a href="{% url 'gestao_mo' projeto_id=projeto.id aba=slug %}"
+       class="text-sm {% if aba == slug %}text-primary font-bold border-b-2 border-primary pb-0.5{% else %}text-on-surface-variant hover:text-primary{% endif %}">{{ label }}</a>
+    {% endfor %}
+</nav>
+<div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
+<div class="hidden md:flex items-center gap-2 text-sm">
+    <span class="text-primary font-bold">{{ projeto.id_projeto_manual }}</span>
+    <span class="text-on-surface-variant">—</span>
+    <span class="text-primary">{{ projeto.nome_cliente }}</span>
+</div>
+<div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
+<span class="bg-green-600 text-white text-[9px] font-bold px-2 py-1 rounded-full">{{ projeto.revisao_label }}</span>
+{% endblock %}
+
+{% block sidebar_extra %}
+<div class="pt-3 mt-auto border-t border-outline-variant/20 flex flex-col gap-1.5 mb-2">
+    <p class="text-[8px] font-bold text-on-surface-variant uppercase tracking-widest px-1 mb-1">Ações</p>
+    <a href="{% url 'fluxo_projeto' projeto_id=projeto.id %}" class="w-full px-2 py-2 rounded-lg bg-primary text-white font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-all flex items-center justify-center gap-1">
+        <span class="material-symbols-outlined text-sm">receipt_long</span>Ver BoM
+    </a>
+    <a href="{% url 'consultar_projeto' %}" class="w-full px-2 py-2 rounded-lg bg-surface-container-highest text-on-surface-variant font-bold text-[10px] uppercase tracking-wider hover:bg-surface-container-high transition-all flex items-center justify-center gap-1 mt-1">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>Projetos
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="flex-1 p-6 md:p-8">
+    <div class="max-w-5xl mx-auto space-y-6">
+
+        {% if messages %}
+        <div>{% for message in messages %}
+            <div class="{% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} p-3 rounded-lg mb-2 text-xs font-bold uppercase">{{ message }}</div>
+        {% endfor %}</div>
+        {% endif %}
+
+        <!-- Header -->
+        <div class="flex justify-between items-end">
+            <div>
+                <h2 class="text-3xl font-extrabold text-primary font-headline tracking-tight">
+                    {% for slug, label, icon in abas_mo %}{% if aba == slug %}{{ label }}{% endif %}{% endfor %}
+                </h2>
+                <p class="text-on-surface-variant mt-1 text-sm">Configure os custos para este projeto.</p>
+            </div>
+            <!-- Add item form trigger -->
+            <button onclick="document.getElementById('add-form').classList.toggle('hidden')"
+                    class="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow hover:opacity-90 active:scale-95 transition-all">
+                <span class="material-symbols-outlined text-sm">add</span>Adicionar Item
+            </button>
+        </div>
+
+        <!-- Add Item Form -->
+        <div id="add-form" class="hidden bg-white rounded-xl border border-outline-variant/15 shadow-sm p-6">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="add">
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Descrição</label>
+                        <input name="descricao" type="text" required placeholder="Ex: Engenheiro, Dupla Técnica..."
+                               class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Qtd</label>
+                        <input name="quantidade" type="number" step="0.01" value="1" min="0"
+                               class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Tempo</label>
+                        <input name="tempo" type="number" step="0.01" value="1" min="0"
+                               class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Unidade</label>
+                        <select name="unidade" class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm cursor-pointer">
+                            <option>Meses</option><option>Dias</option><option>Horas</option><option>Un</option><option>Vb</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Custo Unit. (R$)</label>
+                        <input name="custo_unitario" type="number" step="0.01" value="0" min="0"
+                               class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 mt-4">
+                    <button type="button" onclick="document.getElementById('add-form').classList.add('hidden')"
+                            class="px-4 py-2 text-sm font-bold text-on-surface-variant hover:text-primary rounded-lg transition-all">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">check_circle</span>Confirmar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Items Table -->
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-surface-container-low/50 border-b border-outline-variant/10">
+                    <tr>
+                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Descrição</th>
+                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Qtd</th>
+                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tempo</th>
+                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Unidade</th>
+                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Custo Unit.</th>
+                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Custo Total</th>
+                        <th class="px-5 py-3"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant/10">
+                {% for item in itens %}
+                <tr class="hover:bg-surface-container-low transition-colors group" id="row-{{ item.id }}">
+                    <td class="px-5 py-4">
+                        <span class="font-bold text-on-surface text-sm">{{ item.descricao }}</span>
+                    </td>
+                    <td class="px-5 py-4">
+                        <form method="POST" class="inline" onchange="this.submit()">
+                            {% csrf_token %}
+                            <input type="hidden" name="acao" value="update">
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <input type="hidden" name="tempo" value="{{ item.tempo }}">
+                            <input type="hidden" name="unidade" value="{{ item.unidade }}">
+                            <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
+                            <input name="quantidade" type="number" step="0.01" value="{{ item.quantidade }}"
+                                   class="w-20 bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20 px-2 py-1">
+                        </form>
+                    </td>
+                    <td class="px-5 py-4">
+                        <form method="POST" class="inline" onchange="this.submit()">
+                            {% csrf_token %}
+                            <input type="hidden" name="acao" value="update">
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <input type="hidden" name="quantidade" value="{{ item.quantidade }}">
+                            <input type="hidden" name="unidade" value="{{ item.unidade }}">
+                            <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
+                            <input name="tempo" type="number" step="0.01" value="{{ item.tempo }}"
+                                   class="w-20 bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20 px-2 py-1">
+                        </form>
+                    </td>
+                    <td class="px-5 py-4">
+                        <form method="POST" class="inline" onchange="this.submit()">
+                            {% csrf_token %}
+                            <input type="hidden" name="acao" value="update">
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <input type="hidden" name="quantidade" value="{{ item.quantidade }}">
+                            <input type="hidden" name="tempo" value="{{ item.tempo }}">
+                            <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
+                            <select name="unidade" onchange="this.form.submit()"
+                                    class="bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20 cursor-pointer px-2 py-1">
+                                <option {% if item.unidade == "Meses" %}selected{% endif %}>Meses</option>
+                                <option {% if item.unidade == "Dias" %}selected{% endif %}>Dias</option>
+                                <option {% if item.unidade == "Horas" %}selected{% endif %}>Horas</option>
+                                <option {% if item.unidade == "Un" %}selected{% endif %}>Un</option>
+                                <option {% if item.unidade == "Vb" %}selected{% endif %}>Vb</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td class="px-5 py-4 text-right">
+                        <form method="POST" class="inline" onchange="this.submit()">
+                            {% csrf_token %}
+                            <input type="hidden" name="acao" value="update">
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <input type="hidden" name="quantidade" value="{{ item.quantidade }}">
+                            <input type="hidden" name="tempo" value="{{ item.tempo }}">
+                            <input type="hidden" name="unidade" value="{{ item.unidade }}">
+                            <input name="custo_unitario" type="number" step="0.01" value="{{ item.custo_unitario }}"
+                                   class="w-28 bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20 px-2 py-1 text-right">
+                        </form>
+                    </td>
+                    <td class="px-5 py-4 text-right font-bold text-primary text-sm">
+                        R$ {{ item.custo_total|floatformat:2 }}
+                    </td>
+                    <td class="px-5 py-4 text-center">
+                        <form method="POST" class="inline" onsubmit="return confirm('Remover item?')">
+                            {% csrf_token %}
+                            <input type="hidden" name="acao" value="delete">
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <button type="submit" class="p-1.5 text-outline hover:text-error transition-colors opacity-0 group-hover:opacity-100">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-5 py-12 text-center">
+                        <span class="material-symbols-outlined text-4xl text-outline/30 block mb-2">inbox</span>
+                        <p class="text-on-surface-variant text-sm">Nenhum item cadastrado. Clique em "Adicionar Item" para começar.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Summary Footer -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="md:col-span-2 bg-primary-container rounded-2xl p-7 text-white relative overflow-hidden">
+                <div class="absolute -right-8 -bottom-8 opacity-10">
+                    <span class="material-symbols-outlined text-[10rem]">payments</span>
+                </div>
+                <span class="text-on-primary-container font-bold text-xs uppercase tracking-widest">Total desta Aba</span>
+                <h3 class="text-4xl font-extrabold mt-2 font-headline">R$ {{ total_aba|floatformat:2 }}</h3>
+                <p class="text-primary-fixed-dim text-sm mt-3">Soma de todos os itens de {{ abas_mo|length }} abas desta categoria.</p>
+            </div>
+            <div class="flex flex-col gap-4">
+                <div class="bg-secondary-container/30 rounded-2xl p-5 border border-secondary-container/20 flex-1">
+                    <span class="text-on-secondary-container/70 font-bold text-xs uppercase tracking-widest">Total M.O (Projeto)</span>
+                    <div class="flex items-end gap-2 mt-1">
+                        <span class="text-2xl font-bold text-on-secondary-container">R$ {{ total_mo|floatformat:2 }}</span>
+                    </div>
+                    <p class="text-[10px] text-on-secondary-container/60 mt-1">Soma de todas as abas</p>
+                </div>
+                <div class="bg-surface-container-high rounded-2xl p-5 flex items-center justify-between">
+                    <div>
+                        <span class="text-on-surface-variant font-bold text-xs uppercase tracking-widest">Itens nesta aba</span>
+                        <p class="text-on-surface font-bold text-2xl">{{ itens|length }}</p>
+                    </div>
+                    <span class="material-symbols-outlined text-3xl text-outline/40">list_alt</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

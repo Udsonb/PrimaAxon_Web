@@ -1,181 +1,73 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block title %}Prisma Axon - Gestão do Programa{% endblock %}
+{% block page_title %}Gestão do Programa{% endblock %}
 
-<html lang="pt-br"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "tertiary": "#2a1700",
-              "surface-variant": "#e2e1ed",
-              "primary-fixed": "#e0e0ff",
-              "inverse-surface": "#2f3038",
-              "on-tertiary-container": "#d68500",
-              "on-error-container": "#93000a",
-              "on-secondary-container": "#006f62",
-              "primary-fixed-dim": "#bdc2ff",
-              "on-error": "#ffffff",
-              "on-secondary": "#ffffff",
-              "on-surface-variant": "#454652",
-              "surface-container-low": "#f3f2fe",
-              "secondary-fixed-dim": "#7ad7c6",
-              "secondary-fixed": "#97f3e2",
-              "tertiary-fixed-dim": "#ffb865",
-              "surface-tint": "#4c56af",
-              "on-tertiary": "#ffffff",
-              "on-primary-container": "#8690ee",
-              "background": "#fbf8ff",
-              "secondary": "#006b5e",
-              "on-surface": "#1a1b23",
-              "on-secondary-fixed-variant": "#005047",
-              "primary": "#000666",
-              "tertiary-fixed": "#ffddba",
-              "inverse-on-surface": "#f1f0fb",
-              "primary-container": "#1a237e",
-              "outline-variant": "#c6c5d4",
-              "on-primary-fixed": "#000767",
-              "on-primary": "#ffffff",
-              "surface-container-high": "#e8e7f2",
-              "on-tertiary-fixed-variant": "#663d00",
-              "surface-container-highest": "#e2e1ed",
-              "on-primary-fixed-variant": "#343d96",
-              "surface": "#fbf8ff",
-              "error-container": "#ffdad6",
-              "error": "#ba1a1a",
-              "on-tertiary-fixed": "#2b1700",
-              "outline": "#767683",
-              "inverse-primary": "#bdc2ff",
-              "surface-container": "#eeedf8",
-              "surface-dim": "#dad9e4",
-              "on-secondary-fixed": "#00201b",
-              "on-background": "#1a1b23",
-              "tertiary-container": "#472900",
-              "surface-container-lowest": "#ffffff",
-              "surface-bright": "#fbf8ff",
-              "secondary-container": "#94f0df"
-            },
-            fontFamily: {
-              "headline": ["Manrope"],
-              "body": ["Inter"],
-              "label": ["Inter"]
-            },
-            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
-          },
-        },
-      }
-    </script>
-<style>
-      .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      }
-      .glass-effect {
-        background: rgba(251, 248, 255, 0.8);
-        backdrop-filter: blur(20px);
-      }
-    </style>
-</head>
-<body class="bg-background font-body text-on-surface min-h-screen">
-<!-- Dashboard Background (Mocked for Modal Context) -->
-<div class="fixed inset-0 overflow-hidden flex pointer-events-none opacity-40 grayscale">
-<aside class="w-64 bg-surface-container-low flex flex-col py-8 px-6">
-<div class="font-headline text-lg font-extrabold text-primary mb-12">Sentinel Ledger</div>
-<div class="space-y-6">
-<div class="h-4 w-3/4 bg-surface-variant rounded"></div>
-<div class="h-4 w-1/2 bg-surface-variant rounded"></div>
-<div class="h-4 w-2/3 bg-surface-variant rounded"></div>
-</div>
-</aside>
-<main class="flex-1 p-12 space-y-8">
-<div class="h-8 w-1/4 bg-primary-container rounded"></div>
-<div class="grid grid-cols-3 gap-6">
-<div class="h-32 bg-surface-container-highest rounded-xl"></div>
-<div class="h-32 bg-surface-container-highest rounded-xl"></div>
-<div class="h-32 bg-surface-container-highest rounded-xl"></div>
-</div>
-<div class="h-64 bg-surface-container-low rounded-xl"></div>
-</main>
-</div>
-<!-- Modal Overlay -->
-<div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/20 backdrop-blur-sm">
-<!-- Modal Content -->
-<div class="relative w-full max-w-2xl bg-surface-container-lowest shadow-[0px_12px_32px_rgba(26,27,35,0.06)] rounded-xl overflow-hidden animate-in fade-in zoom-in duration-300">
-<!-- Modal Header -->
-<div class="flex items-center justify-between px-8 pt-8 pb-4">
-<div>
-<h2 class="font-headline text-2xl font-extrabold tracking-tight text-primary">Gestão do Programa</h2>
-<p class="font-body text-sm text-on-surface-variant mt-1">Configure as integrações críticas e gerencie o stack técnico do Sentinel.</p>
-</div>
-<button class="flex items-center gap-2 px-3 py-2 text-on-surface-variant hover:bg-surface-container-highest rounded-lg transition-all active:scale-95">
-<span class="font-label text-xs font-semibold uppercase tracking-widest">Fechar</span>
-<span class="material-symbols-outlined text-xl">close</span>
-</button>
-</div>
-<!-- Modal Content Area: Bento Grid Layout -->
-<div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-<!-- Card 1: Google Cloud -->
-<button class="group relative flex flex-col items-start p-6 bg-surface-container-low hover:bg-surface-container-highest rounded-xl transition-all duration-300 text-left overflow-hidden border border-transparent hover:border-primary/10">
-<div class="w-12 h-12 flex items-center justify-center rounded-lg bg-surface-container-lowest text-primary mb-4 shadow-sm group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined text-3xl" data-icon="cloud">cloud</span>
-</div>
-<span class="font-headline text-lg font-bold text-primary">Console Google Cloud</span>
-<span class="font-body text-xs text-on-surface-variant mt-2 leading-relaxed">Gerencie instâncias de computação e buckets de armazenamento seguro.</span>
-<div class="mt-4 flex items-center text-xs font-bold text-primary uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
+{% block content %}
+<section class="flex-1 p-6 md:p-10">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl border border-outline-variant/10 overflow-hidden">
+            <!-- Header -->
+            <div class="px-8 pt-8 pb-4 border-b border-outline-variant/10">
+                <h2 class="font-headline text-2xl font-extrabold tracking-tight text-primary">Gestão do Programa</h2>
+                <p class="text-sm text-on-surface-variant mt-1">Integrações críticas e gerenciamento do stack técnico do sistema.</p>
+            </div>
+            <!-- Bento Grid -->
+            <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Card 1: Google Cloud -->
+                <a href="https://console.cloud.google.com" target="_blank" rel="noopener noreferrer"
+                   class="group flex flex-col items-start p-6 bg-surface-container-low hover:bg-surface-container-highest rounded-xl transition-all duration-300 border border-transparent hover:border-primary/10">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-white text-primary mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl">cloud</span>
+                    </div>
+                    <span class="font-headline text-lg font-bold text-primary">Console Google Cloud</span>
+                    <span class="text-xs text-on-surface-variant mt-2 leading-relaxed">Gerencie instâncias de computação, Cloud Run e buckets de armazenamento.</span>
+                    <div class="mt-4 flex items-center text-xs font-bold text-primary uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
                         Acessar Console <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
-</div>
-</button>
-<!-- Card 2: Firebase -->
-<button class="group relative flex flex-col items-start p-6 bg-surface-container-low hover:bg-surface-container-highest rounded-xl transition-all duration-300 text-left overflow-hidden border border-transparent hover:border-primary/10">
-<div class="w-12 h-12 flex items-center justify-center rounded-lg bg-surface-container-lowest text-tertiary-fixed-dim mb-4 shadow-sm group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined text-3xl" data-icon="local_fire_department">local_fire_department</span>
-</div>
-<span class="font-headline text-lg font-bold text-primary">Console Firebase</span>
-<span class="font-body text-xs text-on-surface-variant mt-2 leading-relaxed">Monitore autenticação de usuários e bases de dados em tempo real.</span>
-<div class="mt-4 flex items-center text-xs font-bold text-primary uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                </a>
+                <!-- Card 2: Firebase -->
+                <a href="https://console.firebase.google.com" target="_blank" rel="noopener noreferrer"
+                   class="group flex flex-col items-start p-6 bg-surface-container-low hover:bg-surface-container-highest rounded-xl transition-all duration-300 border border-transparent hover:border-primary/10">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-white text-tertiary-fixed-dim mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl">local_fire_department</span>
+                    </div>
+                    <span class="font-headline text-lg font-bold text-primary">Console Firebase</span>
+                    <span class="text-xs text-on-surface-variant mt-2 leading-relaxed">Monitore autenticação de usuários e bases de dados em tempo real.</span>
+                    <div class="mt-4 flex items-center text-xs font-bold text-primary uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
                         Acessar Console <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
-</div>
-</button>
-<!-- Card 3: Django -->
-<button class="group relative flex flex-col items-start p-6 bg-surface-container-low hover:bg-surface-container-highest rounded-xl transition-all duration-300 text-left overflow-hidden border border-transparent hover:border-primary/10">
-<div class="w-12 h-12 flex items-center justify-center rounded-lg bg-surface-container-lowest text-secondary mb-4 shadow-sm group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined text-3xl" data-icon="admin_panel_settings">admin_panel_settings</span>
-</div>
-<span class="font-headline text-lg font-bold text-primary">Console Django</span>
-<span class="font-body text-xs text-on-surface-variant mt-2 leading-relaxed">Acesse o painel administrativo para controle granular de permissões ERP.</span>
-<div class="mt-4 flex items-center text-xs font-bold text-primary uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                </a>
+                <!-- Card 3: Django Admin -->
+                <a href="/admin/" target="_blank" rel="noopener noreferrer"
+                   class="group flex flex-col items-start p-6 bg-surface-container-low hover:bg-surface-container-highest rounded-xl transition-all duration-300 border border-transparent hover:border-primary/10">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-white text-secondary mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl">admin_panel_settings</span>
+                    </div>
+                    <span class="font-headline text-lg font-bold text-primary">Console Django</span>
+                    <span class="text-xs text-on-surface-variant mt-2 leading-relaxed">Acesse o painel administrativo para controle granular de permissões e dados.</span>
+                    <div class="mt-4 flex items-center text-xs font-bold text-primary uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
                         Acessar Console <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
-</div>
-</button>
-<!-- Card 4: GitHub -->
-<button class="group relative flex flex-col items-start p-6 bg-surface-container-low hover:bg-surface-container-highest rounded-xl transition-all duration-300 text-left overflow-hidden border border-transparent hover:border-primary/10">
-<div class="w-12 h-12 flex items-center justify-center rounded-lg bg-surface-container-lowest text-on-surface mb-4 shadow-sm group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined text-3xl" data-icon="terminal">terminal</span>
-</div>
-<span class="font-headline text-lg font-bold text-primary">Console GitHub</span>
-<span class="font-body text-xs text-on-surface-variant mt-2 leading-relaxed">Gerencie repositórios, pipelines de CI/CD e auditoria de código-fonte.</span>
-<div class="mt-4 flex items-center text-xs font-bold text-primary uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                </a>
+                <!-- Card 4: GitHub -->
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer"
+                   class="group flex flex-col items-start p-6 bg-surface-container-low hover:bg-surface-container-highest rounded-xl transition-all duration-300 border border-transparent hover:border-primary/10">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-lg bg-white text-on-surface mb-4 shadow-sm group-hover:scale-110 transition-transform">
+                        <span class="material-symbols-outlined text-3xl">terminal</span>
+                    </div>
+                    <span class="font-headline text-lg font-bold text-primary">Console GitHub</span>
+                    <span class="text-xs text-on-surface-variant mt-2 leading-relaxed">Gerencie repositórios, pipelines de CI/CD e auditoria de código-fonte.</span>
+                    <div class="mt-4 flex items-center text-xs font-bold text-primary uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
                         Acessar Console <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
-</div>
-</button>
-</div>
-<!-- Modal Footer -->
-<div class="px-8 py-6 bg-surface-container-low/50 flex items-center justify-between border-t border-surface-variant/20">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-secondary"></span>
-<span class="font-label text-[10px] uppercase font-bold tracking-widest text-secondary">System Status: Secure</span>
-</div>
-<div class="flex gap-3">
-<button class="px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-on-primary font-headline text-sm font-bold rounded-md shadow-lg shadow-primary/10 active:scale-[0.98] transition-all">
-                        Salvar Alterações
-                    </button>
-</div>
-</div>
-</div>
-</div>
-</body></html>
+                    </div>
+                </a>
+            </div>
+            <!-- Footer -->
+            <div class="px-8 py-5 bg-surface-container-low/50 border-t border-outline-variant/10 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-secondary inline-block"></span>
+                <span class="text-[10px] uppercase font-bold tracking-widest text-secondary">System Status: Secure</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
