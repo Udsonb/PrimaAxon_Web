@@ -1364,10 +1364,13 @@ def gestao_mo(request, projeto_id, aba):
     encargos_valor = (total_aba * Decimal(str(ENCARGOS_PERCENT)) / 100).quantize(Decimal('0.01'))
     total_com_encargos = total_aba + encargos_valor
 
+    total_itens_projeto = ItemProjeto.objects.filter(projeto=projeto).count()
+
     ctx = {
         'projeto': projeto,
         'aba': aba,
         'abas_mo': ABAS_MO,
+        'total_itens_projeto': total_itens_projeto,
         'itens': itens,
         'total_aba': total_aba,
         'encargos_percent': ENCARGOS_PERCENT,

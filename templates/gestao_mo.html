@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}Prisma Axon - M.O — {{ projeto.id_projeto_manual }}{% endblock %}
-{% block page_title %}Mão de Obra{% endblock %}
+{% block page_title %}BoM Selector{% endblock %}
 
 {% block header_extra %}
 <div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
 <nav class="hidden md:flex gap-3 items-center">
-    {% for slug, label, icon in abas_mo %}
-    <a href="{% url 'gestao_mo' projeto_id=projeto.id aba=slug %}"
-       class="text-sm {% if aba == slug %}text-primary font-bold border-b-2 border-primary pb-0.5{% else %}text-on-surface-variant hover:text-primary{% endif %}">{{ label }}</a>
-    {% endfor %}
+    <a class="text-on-surface-variant hover:text-primary text-sm" href="{% url 'bom_selector_projeto' projeto_id=projeto.id %}">Materiais</a>
+    <a class="text-primary font-bold border-b-2 border-primary text-sm pb-0.5" href="#">M.O</a>
 </nav>
 <div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
 <div class="hidden md:flex items-center gap-2 text-sm">
@@ -17,7 +15,19 @@
     <span class="text-primary">{{ projeto.nome_cliente }}</span>
 </div>
 <div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
-<span class="bg-green-600 text-white text-[9px] font-bold px-2 py-1 rounded-full">{{ projeto.revisao_label }}</span>
+<div class="hidden md:flex items-center gap-1">
+    <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+    <span class="text-[10px] font-bold uppercase text-red-600">Em progresso</span>
+</div>
+<div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden lg:block"></div>
+<div class="hidden lg:flex items-center gap-1 bg-primary-fixed/50 px-2 py-1 rounded-lg">
+    <span class="text-[10px] font-bold text-primary uppercase">Itens:</span>
+    <span class="text-sm font-extrabold text-primary">{{ total_itens_projeto }}</span>
+</div>
+<div class="hidden lg:flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-lg">
+    <span class="text-[10px] font-bold text-blue-700 uppercase">M.O:</span>
+    <span class="text-sm font-extrabold text-blue-700">R$ {{ total_mo|floatformat:2 }}</span>
+</div>
 {% endblock %}
 
 {% block sidebar_extra %}
@@ -37,6 +47,19 @@
 {% endblock %}
 
 {% block content %}
+<!-- Sub-nav: abas M.O -->
+<div class="bg-surface-container border-b border-outline-variant/20 px-5 md:px-7">
+    <nav class="flex gap-1 overflow-x-auto">
+        {% for slug, label, icon in abas_mo %}
+        <a href="{% url 'gestao_mo' projeto_id=projeto.id aba=slug %}"
+           class="shrink-0 px-4 py-3 text-sm font-medium border-b-2 transition-colors
+                  {% if aba == slug %}text-primary font-bold border-primary{% else %}text-on-surface-variant border-transparent hover:text-primary hover:border-primary/30{% endif %}">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </nav>
+</div>
+
 <section class="flex-1 p-5 md:p-7 overflow-auto">
 
 {% if messages %}
