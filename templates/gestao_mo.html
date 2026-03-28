@@ -312,66 +312,136 @@
                 <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Total Mensal</p>
                 <p class="text-xl font-extrabold text-primary">R$ {{ total_aba|floatformat:2 }}</p>
             </div>
-            <span class="bg-teal-100 text-teal-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">check_circle</span>Margem Segura
-            </span>
         </div>
     </div>
 
-    <!-- 3 Category Cards (toggle) -->
+    <!-- 3 Kit Cards dinâmicos -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {% for slug_card, label_card, desc_card, custo_card, icon_card in cat_cards_ferramentas %}
-        <div class="bg-white rounded-xl p-5 border-l-4 border-primary shadow-sm flex flex-col gap-2">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">Item Gerenciado</span>
-                    <p class="font-bold text-on-surface text-base mt-0.5">{{ label_card }}</p>
-                    <p class="text-xs text-on-surface-variant">{{ desc_card }}</p>
+    {% for kit_key, kit_data in kits_data.items %}
+        <!-- Kit Card -->
+        <div class="bg-white rounded-xl p-5 border-l-4 {{ kit_data.cor_borda }} shadow-sm flex flex-col gap-3 relative">
+            <!-- Checkbox toggle -->
+            <form method="POST" action="{% url 'gestao_mo' projeto_id=projeto.id aba='ferramentas' %}" class="absolute top-3 right-3">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="kit_toggle">
+                <input type="hidden" name="kit_key" value="{{ kit_key }}">
+                <button type="submit"
+                        class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all {% if kit_data.is_active %}bg-primary border-primary{% else %}border-outline-variant hover:border-primary{% endif %}">
+                    {% if kit_data.is_active %}<span class="material-symbols-outlined text-white text-[10px]" style="font-size:12px">check</span>{% endif %}
+                </button>
+            </form>
+            <!-- Botão abre popup -->
+            <button type="button" onclick="document.getElementById('modal-kit-{{ kit_key }}').classList.remove('hidden')"
+                    class="text-left flex flex-col gap-1 group">
+                <div class="flex items-start justify-between pr-6">
+                    <div>
+                        <span class="text-[9px] font-bold {{ kit_data.cor_label }} uppercase tracking-widest">Kit de Recursos</span>
+                        <p class="font-bold text-on-surface text-base mt-0.5 group-hover:text-primary transition-colors">{{ kit_data.label }}</p>
+                        <p class="text-xs text-on-surface-variant">{{ kit_data.desc }}</p>
+                    </div>
+                    <span class="material-symbols-outlined text-2xl {{ kit_data.cor_label }} opacity-40 mt-1">{{ kit_data.icon }}</span>
                 </div>
-                <span class="material-symbols-outlined text-2xl text-primary/40">{{ icon_card }}</span>
-            </div>
-            <p class="text-primary font-bold text-lg">R$ {{ custo_card|floatformat:2 }}<span class="text-xs font-normal text-on-surface-variant">/mês</span></p>
-        </div>
-        {% empty %}
-        <!-- Static cards while no dynamic data -->
-        <div class="bg-white rounded-xl p-5 border-l-4 border-primary shadow-sm flex flex-col gap-2">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest">Item Gerenciado</span>
-                    <p class="font-bold text-on-surface text-base mt-0.5">Maleta Ferramentas</p>
-                    <p class="text-xs text-on-surface-variant">Alocação por equipe operativa</p>
+                <div class="flex items-center justify-between mt-1">
+                    <p class="{{ kit_data.cor_label }} font-bold text-lg">
+                        R$ {{ kit_data.total|floatformat:2 }}<span class="text-xs font-normal text-on-surface-variant">/mês</span>
+                    </p>
+                    <span class="text-[9px] text-on-surface-variant flex items-center gap-0.5">
+                        <span class="material-symbols-outlined text-xs">edit</span>detalhar
+                    </span>
                 </div>
-                <span class="material-symbols-outlined text-2xl text-primary/40">home_repair_service</span>
-            </div>
-            <p class="text-primary font-bold text-lg">R$ 350,00<span class="text-xs font-normal text-on-surface-variant">/mês</span></p>
+            </button>
         </div>
-        <div class="bg-white rounded-xl p-5 border-l-4 border-amber-500 shadow-sm flex flex-col gap-2">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-[9px] font-bold text-amber-600 uppercase tracking-widest">Consumíveis</span>
-                    <p class="font-bold text-on-surface text-base mt-0.5">Insumos Perecíveis</p>
-                    <p class="text-xs text-on-surface-variant">Gestão de estoque crítico</p>
+
+        <!-- Modal popup do kit -->
+        <div id="modal-kit-{{ kit_key }}" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col" style="max-height:90vh">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-2xl {{ kit_data.cor_label }}" style="font-variation-settings:'FILL' 1">{{ kit_data.icon }}</span>
+                        <div>
+                            <h2 class="font-headline font-bold text-primary text-lg">{{ kit_data.label }}</h2>
+                            <p class="text-xs text-on-surface-variant">{{ kit_data.desc }} — valores mensais por unidade</p>
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('modal-kit-{{ kit_key }}').classList.add('hidden')"
+                            class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
                 </div>
-                <span class="material-symbols-outlined text-2xl text-amber-400">inventory_2</span>
+                <!-- Modal body -->
+                <form method="POST" action="{% url 'gestao_mo' projeto_id=projeto.id aba='ferramentas' %}"
+                      class="flex flex-col flex-1 min-h-0">
+                    {% csrf_token %}
+                    <input type="hidden" name="acao" value="kit_save">
+                    <input type="hidden" name="kit_key" value="{{ kit_key }}">
+                    <div class="overflow-y-auto flex-1 px-6 py-3">
+                        <table class="w-full text-left">
+                            <thead class="sticky top-0 bg-white border-b border-outline-variant/10">
+                                <tr>
+                                    <th class="py-2 w-6"></th>
+                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Item</th>
+                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-12">Grupo</th>
+                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-16 text-center">Qtd</th>
+                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-24 text-right">R$/mês unit</th>
+                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-24 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/5" id="tbody-{{ kit_key }}">
+                            {% for item_kit in kit_data.items_data %}
+                            <tr class="{% if not item_kit.ativo %}opacity-40{% endif %}" id="kit-row-{{ kit_key }}-{{ item_kit.idx }}">
+                                <td class="py-2 pr-2">
+                                    <input type="checkbox" name="item_ativo_{{ item_kit.idx }}" value="1"
+                                           {% if item_kit.ativo %}checked{% endif %}
+                                           onchange="kitRowToggle('{{ kit_key }}',{{ item_kit.idx }},{{ item_kit.custo_base }})"
+                                           class="w-4 h-4 rounded accent-primary cursor-pointer">
+                                </td>
+                                <td class="py-2 text-sm font-medium text-on-surface">{{ item_kit.nome }}</td>
+                                <td class="py-2 text-xs text-on-surface-variant">{{ item_kit.grupo }}</td>
+                                <td class="py-2 text-center">
+                                    <input type="number" name="item_qty_{{ item_kit.idx }}"
+                                           value="{{ item_kit.qty|floatformat:0 }}" min="0" step="1"
+                                           onchange="kitRowCalc('{{ kit_key }}',{{ item_kit.idx }},{{ item_kit.custo_base }})"
+                                           class="w-14 bg-surface-container-high border-none rounded text-xs text-on-surface px-2 py-1 text-center">
+                                </td>
+                                <td class="py-2 text-right text-xs text-on-surface-variant">{{ item_kit.custo_base }}</td>
+                                <td class="py-2 text-right text-xs font-bold text-primary" id="kit-total-{{ kit_key }}-{{ item_kit.idx }}">
+                                    {{ item_kit.total|floatformat:2 }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="px-6 py-4 border-t border-outline-variant/10 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-on-surface-variant uppercase font-bold tracking-widest">Total do Kit</p>
+                            <p class="text-xl font-extrabold text-primary" id="kit-grand-total-{{ kit_key }}">
+                                R$ {{ kit_data.total|floatformat:2 }}
+                            </p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button type="button"
+                                    onclick="document.getElementById('modal-kit-{{ kit_key }}').classList.add('hidden')"
+                                    class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant text-sm font-bold hover:bg-surface-container-high">
+                                Cancelar
+                            </button>
+                            <button type="submit"
+                                    class="px-5 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:opacity-90 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">save</span>Salvar Kit
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
-            <p class="text-amber-700 font-bold text-lg">R$ 700,00<span class="text-xs font-normal text-on-surface-variant"> total</span></p>
         </div>
-        <div class="bg-white rounded-xl p-5 border-l-4 border-teal-500 shadow-sm flex flex-col gap-2">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-[9px] font-bold text-teal-600 uppercase tracking-widest">Infraestrutura</span>
-                    <p class="font-bold text-on-surface text-base mt-0.5">Escritório de Obra</p>
-                    <p class="text-xs text-on-surface-variant">Custo fixo de manutenção</p>
-                </div>
-                <span class="material-symbols-outlined text-2xl text-teal-400">domain</span>
-            </div>
-            <p class="text-teal-700 font-bold text-lg">R$ 200,00<span class="text-xs font-normal text-on-surface-variant">/mês</span></p>
-        </div>
-        {% endfor %}
+    {% endfor %}
     </div>
 
-    <!-- Table header -->
-    <div class="flex justify-between items-center">
+    <!-- Lista de Ativos (itens manuais, não-kit) -->
+    {% with itens_manuais=itens|dictsort:"descricao" %}
+    <div class="flex justify-between items-center mt-2">
         <h3 class="font-bold text-on-surface flex items-center gap-2">
             <span class="material-symbols-outlined text-xl text-primary" style="font-variation-settings:'FILL' 1">table_view</span>
             Lista de Ativos e Insumos
@@ -391,7 +461,7 @@
                 <div class="md:col-span-2 space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Item / Recurso</label>
                     <select id="combo-ferr" onchange="onFuncaoChange(this,'ferr-descricao','modal-outros-ferr')"
-                            class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm cursor-pointer">
+                            class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm text-on-surface cursor-pointer">
                         <option value="">— Selecione —</option>
                         {% for f in funcoes_aba %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
                         <option value="__outros__">Outros...</option>
@@ -400,29 +470,29 @@
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Especificação</label>
                     <input name="especificacao" type="text" placeholder="Tipo, modelo..."
-                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg text-sm text-on-surface">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Val. Unitário (R$)</label>
                     <input name="custo_unitario" id="ferr-custo" type="number" step="0.01" value="0" min="0"
-                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg text-sm text-on-surface">
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mt-4">
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Quantidade</label>
                     <input name="quantidade" type="number" step="1" value="1" min="0"
-                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg text-sm text-on-surface">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Tempo</label>
                     <input name="tempo" type="number" step="0.5" value="1" min="0"
-                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg text-sm text-on-surface">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Unidade</label>
-                    <select name="unidade" class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg text-sm cursor-pointer">
-                        <option selected>Meses</option><option>Dias</option><option>Horas</option><option>Un</option><option>Evento</option>
+                    <select name="unidade" class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg text-sm text-on-surface cursor-pointer">
+                        <option>Meses</option><option>Dias</option><option>Un</option><option>Evento</option>
                     </select>
                 </div>
                 <div class="flex justify-end gap-3 items-end">
@@ -459,137 +529,132 @@
         </div>
     </div>
 
-    <!-- Table + Sumário -->
-    <div class="flex gap-5 items-start">
-        <div class="flex-1 bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-surface-container-low/50 border-b border-outline-variant/10">
-                    <tr>
-                        <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Item / Recurso</th>
-                        <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Especificação</th>
-                        <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Val. Unitário</th>
-                        <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Qtd</th>
-                        <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tempo/Unid</th>
-                        <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Total Previsto</th>
-                        <th class="px-4 py-3"></th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-outline-variant/10">
-                {% for item in itens %}
-                <tr class="hover:bg-surface-container-low transition-colors group">
-                    <td class="px-4 py-3">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-base text-primary/50">add_circle</span>
-                            <span class="font-bold text-on-surface text-sm">{{ item.descricao }}</span>
-                        </div>
-                    </td>
-                    <td class="px-4 py-3 text-xs text-on-surface-variant">{{ item.especificacao }}</td>
-                    <td class="px-4 py-3 text-right">
-                        <form method="POST" class="inline" onchange="this.submit()">
-                            {% csrf_token %}<input type="hidden" name="acao" value="update">
-                            <input type="hidden" name="item_id" value="{{ item.id }}">
-                            <input type="hidden" name="quantidade" value="{{ item.quantidade }}">
-                            <input type="hidden" name="tempo" value="{{ item.tempo }}">
-                            <input type="hidden" name="unidade" value="{{ item.unidade }}">
-                            <input type="hidden" name="especificacao" value="{{ item.especificacao }}">
-                            <input type="hidden" name="ativo" value="1">
-                            <input name="custo_unitario" type="number" step="0.01" value="{{ item.custo_unitario }}"
-                                   class="w-24 bg-surface-container-high border-none rounded-lg text-xs px-2 py-1 text-right">
-                        </form>
-                    </td>
-                    <td class="px-4 py-3">
-                        <form method="POST" class="inline" onchange="this.submit()">
-                            {% csrf_token %}<input type="hidden" name="acao" value="update">
-                            <input type="hidden" name="item_id" value="{{ item.id }}">
-                            <input type="hidden" name="tempo" value="{{ item.tempo }}">
-                            <input type="hidden" name="unidade" value="{{ item.unidade }}">
-                            <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
-                            <input type="hidden" name="especificacao" value="{{ item.especificacao }}">
-                            <input type="hidden" name="ativo" value="1">
-                            <input name="quantidade" type="number" step="1" value="{{ item.quantidade }}"
-                                   class="w-14 bg-surface-container-high border-none rounded-lg text-xs px-2 py-1">
-                        </form>
-                    </td>
-                    <td class="px-4 py-3">
-                        <form method="POST" class="inline" onchange="this.submit()">
-                            {% csrf_token %}<input type="hidden" name="acao" value="update">
-                            <input type="hidden" name="item_id" value="{{ item.id }}">
-                            <input type="hidden" name="quantidade" value="{{ item.quantidade }}">
-                            <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
-                            <input type="hidden" name="especificacao" value="{{ item.especificacao }}">
-                            <input type="hidden" name="ativo" value="1">
-                            <input name="tempo" type="number" step="0.5" value="{{ item.tempo }}" onchange="this.form.submit()"
-                                   style="width:50px" class="bg-surface-container-high border-none rounded text-xs px-1 py-1">
-                            <select name="unidade" onchange="this.form.submit()"
-                                    class="ml-1 bg-surface-container-high border-none rounded text-xs px-1 py-1">
-                                <option {% if item.unidade == "Meses" %}selected{% endif %}>Meses</option>
-                                <option {% if item.unidade == "Dias" %}selected{% endif %}>Dias</option>
-                                <option {% if item.unidade == "Un" %}selected{% endif %}>Un</option>
-                                <option {% if item.unidade == "Evento" %}selected{% endif %}>Evento</option>
-                            </select>
-                        </form>
-                    </td>
-                    <td class="px-4 py-3 text-right font-bold text-primary text-sm">R$ {{ item.custo_total|floatformat:2 }}</td>
-                    <td class="px-4 py-3 text-center">
-                        <form method="POST" class="inline" onsubmit="return confirm('Remover item?')">
-                            {% csrf_token %}<input type="hidden" name="acao" value="delete">
-                            <input type="hidden" name="item_id" value="{{ item.id }}">
-                            <button type="submit" class="p-1 text-outline hover:text-error opacity-0 group-hover:opacity-100 transition-all">
-                                <span class="material-symbols-outlined text-base">delete</span>
-                            </button>
-                        </form>
-                    </td>
+    <!-- Tabela itens manuais (Lista de Ativos e Insumos) -->
+    {% with itens_manual=itens %}
+    <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-surface-container-low/50 border-b border-outline-variant/10">
+                <tr>
+                    <th class="px-3 py-3 w-10"></th>
+                    <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Item / Recurso</th>
+                    <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Vlr. Unit. (R$)</th>
+                    <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Qtd</th>
+                    <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Tempo</th>
+                    <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Unid.</th>
+                    <th class="px-4 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Total</th>
+                    <th class="px-4 py-3 w-8"></th>
                 </tr>
-                {% empty %}
-                <tr><td colspan="7" class="px-5 py-10 text-center">
-                    <span class="material-symbols-outlined text-4xl text-outline/30 block mb-2">construction</span>
-                    <p class="text-on-surface-variant text-sm">Nenhum item. Clique em "Adicionar Item".</p>
-                </td></tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Sumário Executivo -->
-        <div class="w-56 flex-shrink-0 bg-white rounded-xl shadow-sm border border-outline-variant/10 p-5 flex flex-col gap-3">
-            <div class="flex justify-between items-center">
-                <p class="font-bold text-xs uppercase tracking-wider text-on-surface-variant">Sumário Executivo</p>
-                <span class="material-symbols-outlined text-base text-primary/50">summarize</span>
-            </div>
-            <div class="space-y-2 text-xs">
-                <div class="flex justify-between"><span class="text-on-surface-variant">Locações Fixas</span><span class="font-bold">R$ —</span></div>
-                <div class="flex justify-between"><span class="text-on-surface-variant">Itens Gerenciados</span><span class="font-bold">R$ —</span></div>
-                <div class="flex justify-between"><span class="text-on-surface-variant">Insumos/Outros</span><span class="font-bold">R$ —</span></div>
-            </div>
-            <div class="border-t border-outline-variant/10 pt-3">
-                <p class="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant">Budget Alocado</p>
-                <p class="text-xl font-extrabold text-primary mt-1">R$ {{ total_aba|floatformat:2 }}</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- BoM Equipment Buttons -->
-    <div class="bg-white rounded-xl border border-outline-variant/10 p-4">
-        <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-3">Equipamentos Especiais — aparecem no BoM para cotação</p>
-        <div class="flex flex-wrap gap-3">
-            {% for nome, icon in bom_equips_ferr %}
-            <button class="flex items-center gap-2 px-4 py-3 bg-surface-container-high hover:bg-primary/10 text-on-surface text-sm font-bold rounded-xl transition-all border border-outline-variant/10">
-                <span class="material-symbols-outlined text-lg text-primary">{{ icon }}</span>{{ nome }}
-            </button>
-            {% empty %}
-            <button class="flex items-center gap-2 px-4 py-3 bg-surface-container-high hover:bg-primary/10 text-on-surface text-sm font-bold rounded-xl transition-all border border-outline-variant/10">
-                <span class="material-symbols-outlined text-lg text-primary">local_shipping</span>Caminhão Plataforma
-            </button>
-            <button class="flex items-center gap-2 px-4 py-3 bg-surface-container-high hover:bg-primary/10 text-on-surface text-sm font-bold rounded-xl transition-all border border-outline-variant/10">
-                <span class="material-symbols-outlined text-lg text-primary">construction</span>Caminhão Munk
-            </button>
-            <button class="flex items-center gap-2 px-4 py-3 bg-surface-container-high hover:bg-primary/10 text-on-surface text-sm font-bold rounded-xl transition-all border border-outline-variant/10">
-                <span class="material-symbols-outlined text-lg text-primary">cable</span>Fusão / Certificadora
-            </button>
-            <button class="flex items-center gap-2 px-4 py-3 bg-surface-container-high hover:bg-primary/10 text-on-surface text-sm font-bold rounded-xl transition-all border border-outline-variant/10">
-                <span class="material-symbols-outlined text-lg text-primary">history</span>Histórico de Mobilização
-            </button>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/10">
+            {% for item in itens_manual %}
+            {% if not item.especificacao %}
+            <tr class="transition-colors group {% if not item.ativo %}opacity-40 bg-surface-container-low/30{% else %}hover:bg-surface-container-low{% endif %}">
+                <!-- Toggle ativo -->
+                <td class="px-3 py-3">
+                    <form method="POST" class="inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="acao" value="toggle_ativo">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <button type="submit"
+                                class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all {% if item.ativo %}bg-primary border-primary{% else %}border-outline-variant hover:border-primary{% endif %}">
+                            {% if item.ativo %}<span class="material-symbols-outlined text-white" style="font-size:11px">check</span>{% endif %}
+                        </button>
+                    </form>
+                </td>
+                <td class="px-4 py-3">
+                    <span class="font-bold text-on-surface text-sm">{{ item.descricao }}</span>
+                    {% if item.custo_unitario == 0 and item.descricao in lista_ativos_nomes %}
+                    <span class="ml-1 text-[9px] text-amber-500 uppercase font-bold tracking-wide">⚠ informe o valor</span>
+                    {% endif %}
+                </td>
+                <!-- Editar custo unitário -->
+                <td class="px-4 py-3 text-right">
+                    <form method="POST" class="inline" onchange="this.submit()">
+                        {% csrf_token %}<input type="hidden" name="acao" value="update">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <input type="hidden" name="quantidade" value="{{ item.quantidade }}">
+                        <input type="hidden" name="tempo" value="{{ item.tempo }}">
+                        <input type="hidden" name="unidade" value="{{ item.unidade }}">
+                        <input type="hidden" name="ativo" value="{% if item.ativo %}1{% else %}0{% endif %}">
+                        <input name="custo_unitario" type="number" step="0.01" value="{{ item.custo_unitario }}"
+                               class="w-28 bg-surface-container-high border-none rounded text-xs text-on-surface px-2 py-1 text-right">
+                    </form>
+                </td>
+                <!-- Editar quantidade -->
+                <td class="px-4 py-3 text-center">
+                    <form method="POST" class="inline" onchange="this.submit()">
+                        {% csrf_token %}<input type="hidden" name="acao" value="update">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <input type="hidden" name="tempo" value="{{ item.tempo }}">
+                        <input type="hidden" name="unidade" value="{{ item.unidade }}">
+                        <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
+                        <input type="hidden" name="ativo" value="{% if item.ativo %}1{% else %}0{% endif %}">
+                        <input name="quantidade" type="number" step="1" value="{{ item.quantidade|floatformat:0 }}"
+                               class="w-14 bg-surface-container-high border-none rounded text-xs text-on-surface px-2 py-1 text-center">
+                    </form>
+                </td>
+                <!-- Editar tempo -->
+                <td class="px-4 py-3 text-center">
+                    <form method="POST" class="inline" onchange="this.submit()">
+                        {% csrf_token %}<input type="hidden" name="acao" value="update">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <input type="hidden" name="quantidade" value="{{ item.quantidade }}">
+                        <input type="hidden" name="unidade" value="{{ item.unidade }}">
+                        <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
+                        <input type="hidden" name="ativo" value="{% if item.ativo %}1{% else %}0{% endif %}">
+                        <input name="tempo" type="number" step="0.5" value="{{ item.tempo|floatformat:1 }}"
+                               class="w-14 bg-surface-container-high border-none rounded text-xs text-on-surface px-2 py-1 text-center">
+                    </form>
+                </td>
+                <td class="px-4 py-3 text-xs text-on-surface-variant">{{ item.unidade }}</td>
+                <td class="px-4 py-3 text-right font-bold {% if item.ativo %}text-primary{% else %}text-on-surface-variant{% endif %} text-sm">
+                    {% if item.ativo %}R$ {{ item.custo_total|floatformat:2 }}{% else %}—{% endif %}
+                </td>
+                <td class="px-4 py-3">
+                    {% if item.descricao not in lista_ativos_nomes %}
+                    <form method="POST" class="inline" onsubmit="return confirm('Remover?')">
+                        {% csrf_token %}<input type="hidden" name="acao" value="delete">
+                        <input type="hidden" name="item_id" value="{{ item.id }}">
+                        <button type="submit" class="p-1 text-outline hover:text-error opacity-0 group-hover:opacity-100 transition-all">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
             {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endwith %}
+    {% endwith %}
+
+    <!-- Equipamentos Especiais: botões toggle (acrescentam custo) -->
+    <div class="bg-white rounded-xl border border-outline-variant/10 p-4">
+        <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-3">
+            Equipamentos Especiais — clique para incluir custo no projeto
+        </p>
+        <div class="flex flex-wrap gap-3">
+        {% for equip in equips_data %}
+            <form method="POST" action="{% url 'gestao_mo' projeto_id=projeto.id aba='ferramentas' %}" class="inline">
+                {% csrf_token %}
+                <input type="hidden" name="acao" value="equip_toggle">
+                <input type="hidden" name="equip" value="{{ equip.slug }}">
+                <button type="submit"
+                        class="flex items-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all border
+                        {% if equip.is_active %}bg-primary text-white border-primary shadow-md{% else %}bg-surface-container-high text-on-surface border-outline-variant/10 hover:bg-primary/10{% endif %}">
+                    <span class="material-symbols-outlined text-lg {% if equip.is_active %}text-white{% else %}text-primary{% endif %}"
+                          style="{% if equip.is_active %}font-variation-settings:'FILL' 1{% endif %}">{{ equip.icon }}</span>
+                    <span>{{ equip.label }}</span>
+                    {% if equip.custo > 0 %}
+                    <span class="text-[10px] {% if equip.is_active %}text-white/70{% else %}text-on-surface-variant{% endif %}">
+                        R$ {{ equip.custo }}/{{ equip.unidade }}
+                    </span>
+                    {% endif %}
+                </button>
+            </form>
+        {% endfor %}
         </div>
     </div>
 </div>

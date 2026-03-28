@@ -848,6 +848,190 @@ CONFIG_ABA = {
     },
 }
 
+# ── Kits de Ferramentas ──────────────────────────────────────────────────────
+# (nome, grupo, custo_mensal_unit)
+KIT_MALETA_ITEMS = [
+    ('Detector Gas Multigas Lel O2 Co H2s-Lc', 'Equipamento', 209.50),
+    ('Crowcon T4 Portable 4-Gas Detector', 'Equipamento', 136.89),
+    ('Monitor portátil LCD 3.5"', 'Equipamento', 6.94),
+    ('Notebook', 'Equipamento', 69.44),
+    ('Celular', 'Equipamento', 55.56),
+    ('Kit localizador e testador de cabo', 'Equipamento', 4.17),
+    ('Maquita', 'Equipamento', 11.11),
+    ('Multímetro digital cat III', 'Ferramental', 4.44),
+    ('Alicate Amperímetro', 'Ferramental', 6.83),
+    ('Parafusadeira industrial elétrica ou a bateria', 'Ferramental', 31.73),
+    ('Philips e tork', 'Ferramental', 1.21),
+    ('Trena digital', 'Ferramental', 13.06),
+    ('Furadeira', 'Ferramental', 11.11),
+    ('Alicate de bico 6"', 'Ferramental', 0.98),
+    ('Alicate de corte diagonal 6"', 'Ferramental', 0.98),
+    ('Alicate de crimpar terminal tubular 0,5A 6mm Yac', 'Ferramental', 3.37),
+    ('Alicate de crimpar terminal pino 0,25A 6mm Yyt-1', 'Ferramental', 3.37),
+    ('Alicate para rebitar', 'Ferramental', 0.81),
+    ('Alicate de crimpar conector BNC/Rg Yac-3Gs', 'Ferramental', 5.00),
+    ('Alicate de crimpar plug Rg9/11/45 Ht-568R', 'Ferramental', 5.00),
+    ('Decapador universal cabo coaxial Rg6/58/59', 'Ferramental', 1.44),
+    ('Alicate universal isolado 8"', 'Ferramental', 1.45),
+    ('Jogo de chave torx tipo L T10 a T50 9Pcs', 'Ferramental', 0.89),
+    ('Chave de fenda com isolamento 1/8x6', 'Ferramental', 0.31),
+    ('Chave de fenda com isolamento 6/16x6', 'Ferramental', 0.51),
+    ('Chave de fenda com isolamento 1/4x6', 'Ferramental', 0.51),
+    ('Philips 3/16 1-1/2 Philips 1/8x4 Philips 3/16x3', 'Ferramental', 4.76),
+    ('Maleta de ferramentas', 'Ferramental', 6.25),
+    ('Faca desencapadora alfa', 'Ferramental', 3.56),
+    ('Ferro de solda 127V 40w Sc40Pd', 'Ferramental', 1.11),
+    ('Jogo de chave allen 1,5 a 6mm 7 pecas', 'Ferramental', 1.56),
+    ('Pincel 1.16/2"-38mm', 'Ferramental', 0.08),
+    ('Nivel aluminio Gp12"', 'Ferramental', 0.72),
+    ('Trena de aco L516CME-5M LUFKIN', 'Ferramental', 0.65),
+    ('Chave canhao 8x245mm Belzer', 'Ferramental', 0.63),
+    ('Chave canhao 10x245 Belzer', 'Ferramental', 0.83),
+    ('Chave canhao 11x245 Belzer', 'Ferramental', 0.75),
+    ('Chave canhao 12x245 Belzer', 'Ferramental', 0.90),
+    ('Guia passa cabo', 'Ferramental', 0.83),
+    ('Trena', 'Ferramental', 0.65),
+    ('Arco de serra', 'Ferramental', 0.77),
+    ('Jogo de chave catraca Bit para parafusadeira', 'Ferramental', 6.94),
+    ('Escada de fibra tesoura de 04 degraus', 'Ferramental', 12.33),
+    ('Escada de fibra tesoura de 08 degraus', 'Ferramental', 16.89),
+    ('Escada de fibra extensivel 16/32DEG-9,9M', 'Ferramental', 44.42),
+    ('Cones de seguranca pequeno', 'EPC', 0.41),
+    ('Pedestais para corrente de seguranca', 'EPC', 0.83),
+    ('Correntes de seguranca plastica amarela 10m', 'EPC', 0.11),
+]
+
+KIT_INSUMOS_ITEMS = [
+    ('Fita Isolante 19MM x 20 metros 3M Scotch', 'Insumos', 33.00),
+    ('Broca de aco rapido 3,5 MM', 'Insumos', 2.50),
+    ('Broca de aco rapido 4,5 MM', 'Insumos', 2.50),
+    ('Broca de videa 10MM', 'Insumos', 3.33),
+    ('Broca de videa 12MM', 'Insumos', 4.17),
+    ('Broca de videa 6MM', 'Insumos', 1.67),
+    ('Broca de videa 8MM', 'Insumos', 2.50),
+    ('Lamina serra bimetal starrett', 'Insumos', 20.00),
+    ('Serra copa completo 20 25 e 35MM', 'Insumos', 22.50),
+    ('Abracadeira nylon Hellermann T18 R', 'Insumos', 27.00),
+    ('Abracadeira nylon Hellermann T30 L', 'Insumos', 26.00),
+    ('Abracadeira nylon Hellermann T30 R', 'Insumos', 28.00),
+    ('WD-40 300ml oleo anticorrosivo', 'Insumos', 40.00),
+    ('Fita dupla face 3M ou Vonder', 'Insumos', 5.50),
+    ('Parabolt 3/8', 'Insumos', 18.00),
+    ('Parabolt 5/16', 'Insumos', 12.00),
+    ('Trava rosca Loctite 242', 'Insumos', 20.00),
+    ('Alcool Isopropilico', 'Insumos', 9.17),
+    ('Tubo de silicone Sikaflex 295UV', 'Insumos', 30.00),
+    ('Graxa Branca', 'Insumos', 7.33),
+    ('Limpa contato componentes eletronicos Wurtl', 'Insumos', 10.67),
+    ('Tubo de solda com fluxo', 'Insumos', 9.15),
+]
+
+KIT_ESCRITORIO_ITEMS = [
+    ('Mesa para Containers Adm e Almoxarifado', 'Escritorio', 16.67),
+    ('Cadeiras Adm e Almoxarifado', 'Escritorio', 2.78),
+    ('Impressora Multifuncional Adm', 'Escritorio', 22.22),
+    ('Insumos para Impressora', 'Consumiveis', 25.00),
+    ('Armarios Adm', 'Escritorio', 13.89),
+    ('Limpeza dos 2 Containers Adm e Almox', 'Consumiveis', 8.33),
+    ('Material Escritorio', 'Consumiveis', 83.33),
+]
+
+LISTA_ATIVOS_FERR = [
+    # (descricao, unidade) — sem preço fixo; default vem do histórico de orçamentos
+    ('Mobilização',                               'Vb'),
+    ('Desmobilização',                            'Vb'),
+    ('Container',                                 'Meses'),
+    ('Locação de Rádio Comunicador',              'Meses'),
+    ('Locação de Kit de Fusão Óptica',            'Meses'),
+    ('Locação de Certificadora de Cabo Metálico', 'Meses'),
+]
+
+KITS_FERR = {
+    'kit_maleta': {
+        'label': 'Maleta de Ferramentas',
+        'desc': 'Alocação por equipe operativa',
+        'icon': 'home_repair_service',
+        'cor_borda': 'border-primary',
+        'cor_label': 'text-primary',
+        'multiplicador': 'profissional',
+        'items': KIT_MALETA_ITEMS,
+    },
+    'kit_insumos': {
+        'label': 'Insumos Perecíveis',
+        'desc': 'Gestão de estoque crítico',
+        'icon': 'inventory_2',
+        'cor_borda': 'border-amber-500',
+        'cor_label': 'text-amber-600',
+        'multiplicador': 'profissional',
+        'items': KIT_INSUMOS_ITEMS,
+    },
+    'kit_escritorio': {
+        'label': 'Escritório de Obra',
+        'desc': 'Custo fixo de manutenção',
+        'icon': 'domain',
+        'cor_borda': 'border-teal-500',
+        'cor_label': 'text-teal-600',
+        'multiplicador': 'fixo',
+        'items': KIT_ESCRITORIO_ITEMS,
+    },
+}
+
+# Funções operacionais que recebem kit por pessoa (Dupla Técnica = 2 por alocação)
+MULT_KIT_PROFISSIONAL = {
+    'Dupla Técnica': 2, 'Dupla Técnica (Civil)': 2,
+    'Auxiliar de Instalação': 1, 'Eletricista': 1,
+    'Técnico de Manutenção': 1, 'Técnico de TI': 1, 'Técnico de T.I': 1,
+    'Técnico de TI - Ferroport': 1, 'Técnico de Manutenção - Ferroport': 1,
+    'Técnico de Manutenção - Prumo': 1, 'Técnico de Segurança do Trabalho': 1,
+    'Técnico de Manutenção - Samarco': 1, 'Pedreiro': 1, 'Ajudante de Pedreiro': 1,
+}
+
+# (slug, label, icon, custo, unidade)
+# Fusão e Certificação migraram para a Lista de Ativos (preço editável via histórico)
+EQUIPS_FERR = [
+    ('caminhao_plataforma', 'Caminhão Plataforma', 'local_shipping',   1400, 'Dias'),
+    ('caminhao_munk',       'Caminhão Munk',        'construction',    1350, 'Dias'),
+    ('pta_elevatoria',      'PTA Plat. Elevatória', 'elevator',        1500, 'Dias'),
+    ('exames_treinamento',  'Exames e Treinamento', 'health_and_safety',  0, 'Vb'),
+]
+
+
+def _ultimo_preco_ativo(descricao, projeto_atual):
+    """Retorna o último custo_unitario para um item da Lista de Ativos, priorizando
+    mesmo município → mesmo estado → qualquer projeto. Exclui o projeto atual."""
+    from decimal import Decimal
+    base_qs = (
+        ItemMO.objects
+        .filter(aba='ferramentas', descricao=descricao, especificacao='')
+        .exclude(projeto=projeto_atual)
+        .select_related('projeto')
+        .order_by('-projeto__data_criacao')
+    )
+    for filtro in [
+        {'projeto__municipio_obra': projeto_atual.municipio_obra,
+         'projeto__estado_obra':    projeto_atual.estado_obra},
+        {'projeto__estado_obra': projeto_atual.estado_obra},
+        {},
+    ]:
+        hit = base_qs.filter(**filtro).first()
+        if hit:
+            return hit.custo_unitario
+    return Decimal('0')
+
+
+def _kit_qtd_default(projeto, multiplicador_tipo):
+    """Calcula quantidade padrão de kits baseada na equipe operacional."""
+    from decimal import Decimal
+    if multiplicador_tipo == 'fixo':
+        return Decimal('1')
+    itens_op = ItemMO.objects.filter(projeto=projeto, aba='operacional', ativo=True)
+    total = 0
+    for item in itens_op:
+        mult = MULT_KIT_PROFISSIONAL.get(item.descricao, 0)
+        total += int(item.quantidade) * mult
+    return Decimal(str(max(total, 1)))
+
+
 @login_required(login_url='/')
 def gestao_mo(request, projeto_id, aba):
     from decimal import Decimal, InvalidOperation
@@ -872,6 +1056,19 @@ def gestao_mo(request, projeto_id, aba):
                 projeto=projeto, aba='demais_custos',
                 descricao=desc, quantidade=headcount, tempo=tempo,
                 unidade=unidade, custo_unitario=Decimal(str(custo)), ativo=True,
+            )
+
+    # ── Auto-populate ferramentas lista de ativos on first visit ────────────
+    if aba == 'ferramentas' and not ItemMO.objects.filter(
+        projeto=projeto, aba='ferramentas', especificacao=''
+    ).exists():
+        for nome, unidade in LISTA_ATIVOS_FERR:
+            preco = _ultimo_preco_ativo(nome, projeto)
+            ItemMO.objects.create(
+                projeto=projeto, aba='ferramentas',
+                descricao=nome, especificacao='',
+                quantidade=Decimal('1'), tempo=Decimal('1'),
+                unidade=unidade, custo_unitario=preco, ativo=False,
             )
 
     # ── Auto-populate terceiros on first visit ───────────────────────────────
@@ -962,6 +1159,69 @@ def gestao_mo(request, projeto_id, aba):
                         defaults={'quantidade': 1, 'tempo': 1, 'unidade': 'Vb', 'custo_unitario': val, 'ativo': True},
                     )
 
+        elif acao == 'kit_toggle':
+            kit_key = request.POST.get('kit_key', '')
+            if kit_key in KITS_FERR:
+                kit_def = KITS_FERR[kit_key]
+                has_active = ItemMO.objects.filter(
+                    projeto=projeto, aba='ferramentas', especificacao=kit_key, ativo=True
+                ).exists()
+                if has_active:
+                    # Desativar todos os itens do kit
+                    ItemMO.objects.filter(
+                        projeto=projeto, aba='ferramentas', especificacao=kit_key
+                    ).update(ativo=False)
+                else:
+                    # Ativar: criar/reativar itens com qtd baseada na equipe
+                    qtd_default = _kit_qtd_default(projeto, kit_def['multiplicador'])
+                    # Remove os inativos e recria
+                    ItemMO.objects.filter(
+                        projeto=projeto, aba='ferramentas', especificacao=kit_key
+                    ).delete()
+                    for nome, grupo, custo_base in kit_def['items']:
+                        ItemMO.objects.create(
+                            projeto=projeto, aba='ferramentas', especificacao=kit_key,
+                            descricao=nome,
+                            quantidade=qtd_default, tempo=Decimal('1'), unidade='Meses',
+                            custo_unitario=Decimal(str(custo_base)), ativo=True,
+                        )
+
+        elif acao == 'kit_save':
+            kit_key = request.POST.get('kit_key', '')
+            if kit_key in KITS_FERR:
+                kit_def = KITS_FERR[kit_key]
+                # Apaga e recria para evitar duplicatas
+                ItemMO.objects.filter(
+                    projeto=projeto, aba='ferramentas', especificacao=kit_key
+                ).delete()
+                for i, (nome, grupo, custo_base) in enumerate(kit_def['items']):
+                    ativo = request.POST.get(f'item_ativo_{i}') == '1'
+                    qty = _dec(request.POST.get(f'item_qty_{i}', '1'), 1)
+                    ItemMO.objects.create(
+                        projeto=projeto, aba='ferramentas', especificacao=kit_key,
+                        descricao=nome,
+                        quantidade=qty, tempo=Decimal('1'), unidade='Meses',
+                        custo_unitario=Decimal(str(custo_base)), ativo=ativo,
+                    )
+
+        elif acao == 'equip_toggle':
+            equip_slug = request.POST.get('equip', '')
+            equip_def = next((e for e in EQUIPS_FERR if e[0] == equip_slug), None)
+            if equip_def:
+                _, label, _, custo, unidade = equip_def
+                existing = ItemMO.objects.filter(
+                    projeto=projeto, aba='ferramentas', especificacao='equip', descricao=label
+                ).first()
+                if existing:
+                    existing.ativo = not existing.ativo
+                    existing.save(update_fields=['ativo'])
+                else:
+                    ItemMO.objects.create(
+                        projeto=projeto, aba='ferramentas', especificacao='equip',
+                        descricao=label, quantidade=Decimal('1'), tempo=Decimal('1'),
+                        unidade=unidade, custo_unitario=Decimal(str(custo)), ativo=True,
+                    )
+
         elif acao == 'aplicar_bom':
             total_mo = sum(
                 i.custo_total for i in ItemMO.objects.filter(projeto=projeto, ativo=True)
@@ -1007,6 +1267,58 @@ def gestao_mo(request, projeto_id, aba):
             qtd_atual = int(item_fr.quantidade) if item_fr else 0
             frota_lista.append((label, icon, custo_base, qtd_atual))
 
+    # ── Kits e Equipamentos (só para aba ferramentas) ────────────────────────
+    kits_data = {}
+    equips_data = []
+    if aba == 'ferramentas':
+        qtd_prof = _kit_qtd_default(projeto, 'profissional')
+        qtd_fixo = Decimal('1')
+        for kit_key, kit_def in KITS_FERR.items():
+            existing_map = {
+                item.descricao: item
+                for item in ItemMO.objects.filter(
+                    projeto=projeto, aba='ferramentas', especificacao=kit_key
+                )
+            }
+            mult_tipo = kit_def['multiplicador']
+            qtd_default = qtd_prof if mult_tipo == 'profissional' else qtd_fixo
+            kit_items_data = []
+            kit_total = Decimal('0')
+            has_active = False
+            for i, (nome, grupo, custo_base) in enumerate(kit_def['items']):
+                db = existing_map.get(nome)
+                qty = db.quantidade if db else qtd_default
+                ativo = db.ativo if db else False
+                custo = Decimal(str(custo_base))
+                item_total = qty * custo if ativo else Decimal('0')
+                kit_total += item_total
+                if ativo:
+                    has_active = True
+                kit_items_data.append({
+                    'idx': i, 'nome': nome, 'grupo': grupo,
+                    'custo_base': float(custo_base),
+                    'qty': float(qty), 'ativo': ativo, 'total': float(item_total),
+                })
+            kits_data[kit_key] = {
+                'key': kit_key,
+                'label': kit_def['label'], 'desc': kit_def['desc'],
+                'icon': kit_def['icon'],
+                'cor_borda': kit_def['cor_borda'], 'cor_label': kit_def['cor_label'],
+                'items_data': kit_items_data,
+                'total': kit_total,
+                'is_active': has_active,
+            }
+        for slug, label, icon, custo, unidade in EQUIPS_FERR:
+            db = ItemMO.objects.filter(
+                projeto=projeto, aba='ferramentas', especificacao='equip', descricao=label
+            ).first()
+            equips_data.append({
+                'slug': slug, 'label': label, 'icon': icon,
+                'custo': custo, 'unidade': unidade,
+                'is_active': db.ativo if db else False,
+                'item_id': db.id if db else None,
+            })
+
     import json as _json
     # Operacional: lista de (nome, salario_mensal) para auto-fill de custo no JS
     funcoes_op = [
@@ -1032,6 +1344,10 @@ def gestao_mo(request, projeto_id, aba):
         'funcao_icons_json': funcao_icons_json,
         'cfg': CONFIG_ABA.get(aba, CONFIG_ABA['operacional']),
         'frota_lista': frota_lista,
+        'kits_data': kits_data,
+        'equips_data': equips_data,
+        'kits_ferr_json': _json.dumps({k: v['label'] for k, v in KITS_FERR.items()}),
+        'lista_ativos_nomes': [n for n, _ in LISTA_ATIVOS_FERR],
     }
     return render(request, 'gestao_mo.html', ctx)
 
