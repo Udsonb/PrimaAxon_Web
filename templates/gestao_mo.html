@@ -54,14 +54,14 @@
         <div class="flex justify-between items-end">
             <div>
                 <h2 class="text-3xl font-extrabold text-primary font-headline tracking-tight">
-                    {% for slug, label, icon in abas_mo %}{% if aba == slug %}{{ label }}{% endif %}{% endfor %}
+                    {% for slug, label, icon in abas_mo %}{% if aba == slug %}<span class="material-symbols-outlined text-2xl align-middle mr-1" style="font-variation-settings:'FILL' 1">{{ icon }}</span>{{ label }}{% endif %}{% endfor %}
                 </h2>
-                <p class="text-on-surface-variant mt-1 text-sm">Configure os custos para este projeto.</p>
+                <p class="text-on-surface-variant mt-1 text-sm">{{ cfg.dica }}</p>
             </div>
             <!-- Add item form trigger -->
             <button onclick="document.getElementById('add-form').classList.toggle('hidden')"
                     class="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow hover:opacity-90 active:scale-95 transition-all">
-                <span class="material-symbols-outlined text-sm">add</span>Adicionar Item
+                <span class="material-symbols-outlined text-sm">add</span>{{ cfg.add_label }}
             </button>
         </div>
 
@@ -73,7 +73,7 @@
                 <input type="hidden" name="descricao" id="add-descricao">
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                     <div class="md:col-span-2 space-y-1">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Função / Item</label>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">{{ cfg.descricao_label }}</label>
                         <select id="combo-funcao" onchange="onFuncaoChange(this)"
                                 class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm cursor-pointer">
                             <option value="">— Selecione —</option>
@@ -87,20 +87,24 @@
                                class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
                     </div>
                     <div class="space-y-1">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Tempo</label>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">{{ cfg.col_tempo }}</label>
                         <input name="tempo" type="number" step="0.01" value="1" min="0"
                                class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
                     </div>
                     <div class="space-y-1">
                         <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Unidade</label>
                         <select name="unidade" class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm cursor-pointer">
-                            <option>Meses</option><option>Dias</option><option>Horas</option><option>Un</option><option>Vb</option>
+                            <option {% if cfg.unidade_default == "Meses" %}selected{% endif %}>Meses</option>
+                            <option {% if cfg.unidade_default == "Dias" %}selected{% endif %}>Dias</option>
+                            <option {% if cfg.unidade_default == "Horas" %}selected{% endif %}>Horas</option>
+                            <option {% if cfg.unidade_default == "Un" %}selected{% endif %}>Un</option>
+                            <option {% if cfg.unidade_default == "Vb" %}selected{% endif %}>Vb</option>
                         </select>
                     </div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end mt-4">
                     <div class="md:col-span-2 space-y-1">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Custo Unit. (R$/mês ou unit.)</label>
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">{{ cfg.col_custo }}</label>
                         <input name="custo_unitario" type="number" step="0.01" value="0" min="0"
                                class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
                     </div>
@@ -119,10 +123,10 @@
         <!-- Popup "Outros" -->
         <div id="modal-outros" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4">
             <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 flex flex-col gap-5">
-                <h2 class="font-headline font-bold text-primary text-xl">Novo Item</h2>
+                <h2 class="font-headline font-bold text-primary text-xl">{{ cfg.add_label }}</h2>
                 <div class="space-y-1">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Descrição / Cargo</label>
-                    <input id="outros-descricao" type="text" placeholder="Ex: Especialista em CFTV"
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">{{ cfg.descricao_label }}</label>
+                    <input id="outros-descricao" type="text" placeholder="{{ cfg.placeholder }}"
                            class="w-full bg-surface-container-high border-none px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-primary/40">
                 </div>
                 <div class="space-y-1">
@@ -142,11 +146,11 @@
             <table class="w-full text-left border-collapse">
                 <thead class="bg-surface-container-low/50 border-b border-outline-variant/10">
                     <tr>
-                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Descrição</th>
+                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">{{ cfg.col_descricao }}</th>
                         <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Qtd</th>
-                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tempo</th>
+                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">{{ cfg.col_tempo }}</th>
                         <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Unidade</th>
-                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Custo Unit.</th>
+                        <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">{{ cfg.col_custo }}</th>
                         <th class="px-5 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-right">Custo Total</th>
                         <th class="px-5 py-3"></th>
                     </tr>
@@ -245,7 +249,7 @@
                 </div>
                 <span class="text-on-primary-container font-bold text-xs uppercase tracking-widest">Total desta Aba</span>
                 <h3 class="text-4xl font-extrabold mt-2 font-headline">R$ {{ total_aba|floatformat:2 }}</h3>
-                <p class="text-primary-fixed-dim text-sm mt-3">Soma de todos os itens de {{ abas_mo|length }} abas desta categoria.</p>
+                <p class="text-primary-fixed-dim text-sm mt-3">{{ cfg.dica|truncatechars:80 }}</p>
             </div>
             <div class="flex flex-col gap-4">
                 <div class="bg-secondary-container/30 rounded-2xl p-5 border border-secondary-container/20 flex-1">

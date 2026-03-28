@@ -705,6 +705,59 @@ FUNCOES_MO = {
     'terceiros':     ['Instalação Civil', 'Cabeamento Estruturado', 'Montagem de Racks', 'Comissionamento', 'Certificação de Rede', 'Projeto Executivo'],
 }
 
+CONFIG_ABA = {
+    'operacional': {
+        'col_descricao': 'Função / Cargo',
+        'col_tempo': 'Tempo',
+        'col_custo': 'Salário (R$/mês)',
+        'unidade_default': 'Meses',
+        'placeholder': 'Ex: Especialista em CFTV',
+        'add_label': 'Adicionar Profissional',
+        'descricao_label': 'Função / Cargo',
+        'dica': 'Profissionais alocados ao projeto. Qtd = número de pessoas, Tempo = duração em meses.',
+    },
+    'ferramentas': {
+        'col_descricao': 'Equipamento / Item',
+        'col_tempo': 'Período',
+        'col_custo': 'Custo Unit. (R$)',
+        'unidade_default': 'Meses',
+        'placeholder': 'Ex: Serra mármore, Multímetro, EPI...',
+        'add_label': 'Adicionar Equipamento',
+        'descricao_label': 'Equipamento / Item',
+        'dica': 'Equipamentos, ferramentas e insumos consumidos. Qtd = quantidade, Período = meses de uso.',
+    },
+    'transporte': {
+        'col_descricao': 'Tipo de Transporte / Item',
+        'col_tempo': 'Qtd Viagens/Períodos',
+        'col_custo': 'Custo Unit. (R$)',
+        'unidade_default': 'Dias',
+        'placeholder': 'Ex: Passagem Manaus–Brasília...',
+        'add_label': 'Adicionar Transporte',
+        'descricao_label': 'Tipo de Transporte',
+        'dica': 'Veículos, passagens, hospedagem e pedágios. Qtd = nº de pessoas/veículos, Tempo = dias ou viagens.',
+    },
+    'demais_custos': {
+        'col_descricao': 'Benefício / Item',
+        'col_tempo': 'Período (Meses)',
+        'col_custo': 'Custo Unit. (R$/mês)',
+        'unidade_default': 'Meses',
+        'placeholder': 'Ex: Cesta básica, Seguro específico...',
+        'add_label': 'Adicionar Item',
+        'descricao_label': 'Benefício / Item',
+        'dica': 'Benefícios e encargos adicionais. Qtd = nº de beneficiários, Tempo = meses de vigência.',
+    },
+    'terceiros': {
+        'col_descricao': 'Serviço / Fornecedor',
+        'col_tempo': 'Etapas / Parcelas',
+        'col_custo': 'Valor Unitário (R$)',
+        'unidade_default': 'Vb',
+        'placeholder': 'Ex: Empresa de cabeamento estruturado...',
+        'add_label': 'Adicionar Serviço',
+        'descricao_label': 'Serviço / Fornecedor',
+        'dica': 'Serviços subcontratados. Qtd = nº de contratos/unidades, Tempo = etapas ou Vb (verba).',
+    },
+}
+
 @login_required(login_url='/')
 def gestao_mo(request, projeto_id, aba):
     if aba not in [a[0] for a in ABAS_MO]:
@@ -768,6 +821,7 @@ def gestao_mo(request, projeto_id, aba):
         'total_aba': total_aba,
         'total_mo': total_mo,
         'funcoes_aba': FUNCOES_MO.get(aba, []),
+        'cfg': CONFIG_ABA.get(aba, CONFIG_ABA['operacional']),
     })
 
 
