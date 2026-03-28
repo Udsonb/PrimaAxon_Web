@@ -402,22 +402,16 @@
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
-                <!-- Sub-header: seletor de unidade e período -->
-                <div class="px-6 py-3 bg-surface-container-low/40 border-b border-outline-variant/10 flex items-center gap-6 flex-wrap">
-                    <div class="flex items-center gap-2">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Unidade</label>
-                        <select id="kit-unidade-{{ kit_key }}"
-                                onchange="kitUnidadeChange('{{ kit_key }}')"
-                                class="bg-white border border-outline-variant/20 rounded-lg text-sm px-3 py-1.5 cursor-pointer text-on-surface">
-                            <option value="Meses">Meses</option>
-                            <option value="Dias">Dias</option>
-                        </select>
+                <!-- Sub-header: info da equipe (período vem da equipe operacional) -->
+                <div class="px-6 py-3 bg-surface-container-low/40 border-b border-outline-variant/10 flex items-center gap-4 flex-wrap">
+                    <div class="flex items-center gap-1.5 bg-primary/10 px-3 py-1.5 rounded-lg">
+                        <span class="material-symbols-outlined text-sm text-primary" style="font-variation-settings:'FILL' 1">groups</span>
+                        <span class="text-xs font-bold text-primary">{{ equipe_headcount }} pessoa{{ equipe_headcount|pluralize:"s" }}</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant" id="kit-periodo-label-{{ kit_key }}">Período (meses)</label>
-                        <input type="number" id="kit-periodo-{{ kit_key }}" value="1" min="1" step="1"
-                               oninput="kitPeriodoChange('{{ kit_key }}')"
-                               class="w-20 bg-white border border-outline-variant/20 rounded-lg text-sm px-2 py-1.5 text-center text-on-surface">
+                    <div class="flex items-center gap-1.5 bg-teal-50 px-3 py-1.5 rounded-lg">
+                        <span class="material-symbols-outlined text-sm text-teal-600" style="font-variation-settings:'FILL' 1">schedule</span>
+                        <span class="text-xs font-bold text-teal-700">{{ equipe_meses }} mês{{ equipe_meses|pluralize:"es" }}</span>
+                        <span class="text-[10px] text-teal-500">(período da equipe)</span>
                     </div>
                     <div class="ml-auto text-right">
                         <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">Total do Kit</p>
@@ -430,8 +424,8 @@
                     {% csrf_token %}
                     <input type="hidden" name="acao" value="kit_save">
                     <input type="hidden" name="kit_key" value="{{ kit_key }}">
-                    <input type="hidden" name="kit_unidade" id="hidden-kit-unidade-{{ kit_key }}" value="Meses">
-                    <input type="hidden" name="kit_periodo" id="hidden-kit-periodo-{{ kit_key }}" value="1">
+                    <input type="hidden" name="kit_unidade" value="Meses">
+                    <input type="hidden" name="kit_periodo" value="{{ equipe_meses }}">
                     <div class="overflow-y-auto flex-1 px-6 py-2">
                         <table class="w-full text-left">
                             <thead class="sticky top-0 bg-white border-b border-outline-variant/10 z-10">
@@ -722,6 +716,10 @@
         <div>
             <h2 class="text-3xl font-extrabold text-primary font-headline tracking-tight">Cálculo de Transporte</h2>
             <p class="text-on-surface-variant mt-1 text-sm">Dimensionamento de logística e deslocamento para projetos de segurança.</p>
+            <p class="text-xs text-primary/70 mt-1">
+                <span class="material-symbols-outlined text-sm align-middle">info</span>
+                Equipe de <strong>{{ equipe_headcount }}</strong> pessoa{{ equipe_headcount|pluralize:"s" }}, <strong>{{ equipe_meses }}</strong> mês{{ equipe_meses|pluralize:"es" }} — sugestão: <strong>{{ veiculos_sugeridos }}</strong> veículo{{ veiculos_sugeridos|pluralize:"s" }} (máx. 4 por carro)
+            </p>
         </div>
         <div class="flex items-center gap-6">
             <div class="flex items-center gap-2">
@@ -825,14 +823,14 @@
                     <div class="flex justify-between items-center mb-3">
                         <div>
                             <p class="font-bold text-blue-800 text-sm">Deslocamento Diário</p>
-                            <p class="text-xs text-blue-600">Logística urbana — sugestão 50 km/dia</p>
+                            <p class="text-xs text-blue-600">{{ equipe_meses }} mês{{ equipe_meses|pluralize:"es" }} × 22 dias úteis = {{ equipe_dias_uteis }} dias</p>
                         </div>
                         <span class="material-symbols-outlined text-xl text-blue-500" style="font-variation-settings:'FILL' 1">schedule</span>
                     </div>
                     <div class="space-y-2">
                         <div>
-                            <label class="text-[10px] font-bold uppercase tracking-widest text-blue-700">Dias úteis / Mês</label>
-                            <input type="number" id="tempo-diario" value="22" min="0"
+                            <label class="text-[10px] font-bold uppercase tracking-widest text-blue-700">Total de dias úteis</label>
+                            <input type="number" id="tempo-diario" value="{{ equipe_dias_uteis }}" min="0"
                                    class="mt-1 w-full bg-white border-none rounded-lg text-sm px-3 py-2 font-bold text-blue-800"
                                    oninput="calcDiario()">
                         </div>
@@ -1384,12 +1382,9 @@ function confirmarAdd(comboId, hiddenDescId, formId) {
 }
 
 // ── Kit Ferramentas: cálculos dinâmicos no popup ──────────────────────────
-function kitGetPeriodo(kitKey) {
-    return parseFloat(document.getElementById('kit-periodo-' + kitKey)?.value) || 1;
-}
-function kitGetUnidade(kitKey) {
-    return document.getElementById('kit-unidade-' + kitKey)?.value || 'Meses';
-}
+const EQUIPE_MESES = parseInt('{{ equipe_meses }}', 10) || 1;
+function kitGetPeriodo(kitKey) { return EQUIPE_MESES; }
+function kitGetUnidade(kitKey) { return 'Meses'; }
 function kitUnitRate(monthly, unidade) {
     // monthly = custo mensal base; retorna custo unitário para a unidade selecionada
     if (unidade === 'Dias') return monthly / 20;
@@ -1425,31 +1420,7 @@ function kitUpdateGrandTotal(kitKey) {
     const el = document.getElementById('kit-grand-total-' + kitKey);
     if (el) el.textContent = 'R$ ' + grand.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 }
-function kitUnidadeChange(kitKey) {
-    const unidade = kitGetUnidade(kitKey);
-    document.getElementById('hidden-kit-unidade-' + kitKey).value = unidade;
-    const labelEl = document.getElementById('kit-periodo-label-' + kitKey);
-    if (unidade === 'Dias') {
-        document.getElementById('kit-periodo-' + kitKey).value = 22;
-        if (labelEl) labelEl.textContent = 'Período (dias)';
-    } else {
-        document.getElementById('kit-periodo-' + kitKey).value = 1;
-        if (labelEl) labelEl.textContent = 'Período (meses)';
-    }
-    document.getElementById('hidden-kit-periodo-' + kitKey).value = document.getElementById('kit-periodo-' + kitKey).value;
-    // Recalcula todas as linhas
-    document.querySelectorAll(`#tbody-${kitKey} tr`).forEach(row => {
-        const idx = row.dataset.idx;
-        if (idx !== undefined) kitRowUpdate(kitKey, idx);
-    });
-}
-function kitPeriodoChange(kitKey) {
-    document.getElementById('hidden-kit-periodo-' + kitKey).value = kitGetPeriodo(kitKey);
-    document.querySelectorAll(`#tbody-${kitKey} tr`).forEach(row => {
-        const idx = row.dataset.idx;
-        if (idx !== undefined) kitRowUpdate(kitKey, idx);
-    });
-}
+// kitUnidadeChange e kitPeriodoChange removidos — período vem fixo da equipe operacional
 
 // ── Transporte: Fleet row subtotal + auto-link combustível ─────────────────
 const CUSTO_KM = 6.50 / 10; // R$/km  (gasolina R$6,50 / consumo 10km/L)
@@ -1486,11 +1457,20 @@ function calcViagem() {
     if (el) el.textContent = 'R$ ' + custo.toLocaleString('pt-BR', {minimumFractionDigits: 2});
     atualizarCombTotal();
 }
-// Combustível Deslocamento Diário — ativado automaticamente ao marcar veículo
+// Total de carros selecionados na frota
+function getTotalCarros() {
+    let total = 0;
+    document.querySelectorAll('#frota-tbody input[type=number]').forEach(inp => {
+        total += parseFloat(inp.value) || 0;
+    });
+    return Math.max(total, 1);
+}
+// Combustível Deslocamento Diário — multiplica por total de carros
 function calcDiario() {
-    const dias  = parseFloat(document.getElementById('tempo-diario')?.value) || 0;
-    const kmDia = parseFloat(document.getElementById('km-dia')?.value) || 0;
-    const custo = kmDia * dias * CUSTO_KM;
+    const dias   = parseFloat(document.getElementById('tempo-diario')?.value) || 0;
+    const kmDia  = parseFloat(document.getElementById('km-dia')?.value) || 0;
+    const carros = getTotalCarros();
+    const custo  = kmDia * dias * CUSTO_KM * carros;
     const el = document.getElementById('comb-diario');
     if (el) el.textContent = 'R$ ' + custo.toLocaleString('pt-BR', {minimumFractionDigits: 2});
     atualizarCombTotal();

@@ -1057,6 +1057,15 @@ def gestao_mo(request, projeto_id, aba):
         return redirect('gestao_mo', projeto_id=projeto_id, aba='operacional')
     projeto = get_object_or_404(Projeto, pk=projeto_id)
 
+    # ── Métricas da equipe operacional (usadas em todas as abas) ────────────
+    import math as _math
+    _ops_ativos = ItemMO.objects.filter(projeto=projeto, aba='operacional', ativo=True)
+    _meses_list = [i.tempo for i in _ops_ativos if i.unidade == 'Meses']
+    equipe_meses = max(_meses_list) if _meses_list else Decimal('1')
+    equipe_headcount = _headcount_demais_custos(projeto)
+    equipe_dias_uteis = int(equipe_meses) * 22
+    veiculos_sugeridos = _math.ceil(equipe_headcount / 4) if equipe_headcount > 0 else 1
+
     def _dec(val, default=0):
         try:
             return Decimal(str(val).replace(',', '.'))
@@ -1202,7 +1211,7 @@ def gestao_mo(request, projeto_id, aba):
                         ItemMO.objects.create(
                             projeto=projeto, aba='ferramentas', especificacao=kit_key,
                             descricao=nome,
-                            quantidade=qtd_default, tempo=Decimal('1'), unidade='Meses',
+                            quantidade=qtd_default, tempo=equipe_meses, unidade='Meses',
                             custo_unitario=Decimal(str(custo_base)), ativo=True,
                         )
 
@@ -1210,8 +1219,8 @@ def gestao_mo(request, projeto_id, aba):
             kit_key = request.POST.get('kit_key', '')
             if kit_key in KITS_FERR:
                 kit_def = KITS_FERR[kit_key]
-                kit_unidade = request.POST.get('kit_unidade', 'Meses')
-                kit_periodo = _dec(request.POST.get('kit_periodo', '1'), 1)
+                kit_unidade = 'Meses'
+                kit_periodo = equipe_meses  # período vem da equipe operacional
                 # Apaga e recria para evitar duplicatas
                 ItemMO.objects.filter(
                     projeto=projeto, aba='ferramentas', especificacao=kit_key
@@ -1321,7 +1330,8 @@ def gestao_mo(request, projeto_id, aba):
             for i, (nome, grupo, custo_base) in enumerate(kit_def['items']):
                 db = existing_map.get(nome)
                 qty = db.quantidade if db else qtd_default
-                ativo = db.ativo if db else False
+                ativo_default_kit = (kit_def['multiplicador'] != 'fixo')  # escritório=False, outros=True
+                ativo = db.ativo if db else ativo_default_kit
                 custo = Decimal(str(custo_base))
                 item_total = qty * custo if ativo else Decimal('0')
                 kit_total += item_total
@@ -1392,6 +1402,10 @@ def gestao_mo(request, projeto_id, aba):
         'equips_data': equips_data,
         'kits_ferr_json': _json.dumps({k: v['label'] for k, v in KITS_FERR.items()}),
         'lista_ativos_nomes': [n for n, _ in LISTA_ATIVOS_FERR],
+        'equipe_meses': int(equipe_meses),
+        'equipe_headcount': equipe_headcount,
+        'equipe_dias_uteis': equipe_dias_uteis,
+        'veiculos_sugeridos': veiculos_sugeridos,
     }
     return render(request, 'gestao_mo.html', ctx)
 

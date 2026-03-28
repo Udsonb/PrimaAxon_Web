@@ -98,11 +98,13 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
+USE_L10N = False   # mantém ponto como decimal (pt-br usaria vírgula e quebraria inputs)
 USE_TZ = True
 
-# Força ponto como separador decimal para inputs HTML type="number" (pt-br usa vírgula)
 DECIMAL_SEPARATOR = '.'
 USE_THOUSAND_SEPARATOR = False
+DATE_FORMAT = 'd/m/Y'
+DATETIME_FORMAT = 'd/m/Y H:i'
 
 # Static files (WhiteNoise serve em produção)
 STATIC_URL = '/static/'
