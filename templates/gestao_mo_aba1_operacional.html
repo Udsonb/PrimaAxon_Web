@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface-variant": "#454652",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f3f2fe",
+                        "secondary-fixed-dim": "#7ad7c6",
+                        "secondary-fixed": "#97f3e2",
+                        "on-primary-container": "#8690ee",
+                        "tertiary-fixed-dim": "#ffb865",
+                        "surface-tint": "#4c56af",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#006b5e",
+                        "on-surface": "#1a1b23",
+                        "background": "#fbf8ff",
+                        "surface-variant": "#e2e1ed",
+                        "primary-fixed": "#e0e0ff",
+                        "tertiary": "#2a1700",
+                        "on-tertiary-container": "#d68500",
+                        "inverse-surface": "#2f3038",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "on-error": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#006f62",
+                        "outline": "#767683",
+                        "inverse-primary": "#bdc2ff",
+                        "on-tertiary-fixed": "#2b1700",
+                        "surface-container": "#eeedf8",
+                        "surface-dim": "#dad9e4",
+                        "on-secondary-fixed": "#00201b",
+                        "surface-bright": "#fbf8ff",
+                        "secondary-container": "#94f0df",
+                        "on-background": "#1a1b23",
+                        "tertiary-container": "#472900",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#ffddba",
+                        "inverse-on-surface": "#f1f0fb",
+                        "on-secondary-fixed-variant": "#005047",
+                        "primary": "#000666",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#1a237e",
+                        "outline-variant": "#c6c5d4",
+                        "on-primary-fixed": "#000767",
+                        "surface": "#fbf8ff",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e8e7f2",
+                        "on-tertiary-fixed-variant": "#663d00",
+                        "surface-container-highest": "#e2e1ed",
+                        "on-primary-fixed-variant": "#343d96"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: #fbf8ff; }
+        .font-manrope { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- Side Navigation Bar -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-[#f3f2fe] dark:bg-slate-900 flex flex-col py-8 z-50">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<span class="text-lg font-bold text-[#1A237E] font-manrope">Prisma Axon</span>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-4 px-6 py-3 bg-white dark:bg-slate-800 text-[#1A237E] dark:text-indigo-300 rounded-r-full font-bold shadow-sm translate-x-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">engineering</span>
+<span class="text-sm font-label">Mão de Obra</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#454652] dark:text-slate-400 hover:text-[#1A237E] hover:bg-[#e2e1ed] dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined">construction</span>
+<span class="text-sm font-label">Equipamentos/Insumos</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#454652] dark:text-slate-400 hover:text-[#1A237E] hover:bg-[#e2e1ed] dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="text-sm font-label">Transporte</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#454652] dark:text-slate-400 hover:text-[#1A237E] hover:bg-[#e2e1ed] dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-sm font-label">Demais Custos</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-[#454652] dark:text-slate-400 hover:text-[#1A237E] hover:bg-[#e2e1ed] dark:hover:bg-slate-800 transition-all" href="#">
+<span class="material-symbols-outlined">handshake</span>
+<span class="text-sm font-label">Terceirizados</span>
+</a>
+</nav>
+<div class="px-6 pt-6 mt-auto border-t border-outline-variant/10">
+<div class="flex items-center gap-3 mb-6 p-2 rounded-xl bg-surface-container-lowest/50">
+<img class="w-10 h-10 rounded-full object-cover border-2 border-primary-container/20" data-alt="close-up portrait of professional executive man in business attire with confident friendly expression on neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPTiRnBAp_k-KzISX-MEouH78nEFBR5SIRIgHLW2vxLtfuEIQ96s5QhFPY0_87znYPmj2TbcaHyyNLTqSgM4rsB8LT4fUWOIWTB5un7_Dmr_D3VSq87jgXmYM8dge_4tExPpgAF774RkumWjdtbQJDSYhSF9aVLQM-DLMlF_nSUZlda7hIDHTm_5mE5OamQdKTwgUmesddrctr6jdbaYouRyYGbXNoT_HqhJpmj05r0cjRI7kPxFzD0sZnwYnBP_mPh3GHWZO3_8s"/>
+<div>
+<p class="text-sm font-bold text-on-surface">Udson</p>
+<p class="text-xs text-on-surface-variant">Administrador</p>
+</div>
+</div>
+<a class="flex items-center gap-4 py-2 text-[#454652] hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="text-sm font-label">Suporte</span>
+</a>
+<a class="flex items-center gap-4 py-2 text-[#454652] hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-label">Sair</span>
+</a>
+</div>
+</aside>
+<!-- Top App Bar -->
+<header class="fixed top-0 right-0 left-64 bg-[#fbf8ff] dark:bg-slate-950 z-40">
+<div class="flex justify-between items-center w-full px-8 py-4">
+<div class="flex items-center gap-4">
+<h1 class="text-2xl font-extrabold text-[#1A237E] dark:text-indigo-300 tracking-tight font-manrope">Mão de Obra</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-on-surface-variant">
+<span class="material-symbols-outlined">search</span>
+</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full text-sm focus:ring-2 focus:ring-primary/40 w-64" placeholder="Buscar custos..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-[#e2e1ed] rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-[#e2e1ed] rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-[#f3f2fe] dark:bg-slate-900 h-px w-full"></div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 min-h-screen bg-surface p-8">
+<!-- Tab Bar Navigation -->
+<div class="flex items-center gap-8 mb-10 overflow-x-auto pb-2 scrollbar-hide">
+<button class="text-[#1A237E] dark:text-indigo-300 font-bold border-b-2 border-[#1A237E] px-1 pb-2 whitespace-nowrap">Mão de Obra</button>
+<button class="text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] transition-colors px-1 pb-2 whitespace-nowrap">Equipamentos/Insumos</button>
+<button class="text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] transition-colors px-1 pb-2 whitespace-nowrap">Transporte</button>
+<button class="text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] transition-colors px-1 pb-2 whitespace-nowrap">Demais Custos</button>
+<button class="text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] transition-colors px-1 pb-2 whitespace-nowrap">Terceirizados</button>
+</div>
+<div class="max-w-6xl mx-auto">
+<!-- Header Section with Add Button -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-3xl font-extrabold text-primary font-manrope tracking-tight">Equipe Operacional</h2>
+<p class="text-on-surface-variant mt-1">Configure o dimensionamento técnico para este projeto.</p>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:scale-95 transition-all">
+<span class="material-symbols-outlined">person_add</span>
+                        Adicionar Função
+                    </button>
+<!-- Dropdown Content (Implicit State) -->
+<div class="absolute right-0 mt-2 w-56 bg-surface-container-lowest rounded-xl shadow-2xl border border-outline-variant/20 py-2 hidden group-hover:block z-20">
+<a class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low" href="#">Dupla técnica</a>
+<a class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low" href="#">Eletricista</a>
+<a class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low" href="#">Técnico de T.I</a>
+<a class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low" href="#">Coordenador Técnico</a>
+<a class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low" href="#">Supervisor</a>
+<a class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low" href="#">Engenheiro</a>
+<a class="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low" href="#">Projetista</a>
+</div>
+</div>
+</div>
+<!-- Main Data Table Container -->
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm border border-outline-variant/10">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low/50 border-b border-outline-variant/10">
+<tr>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider font-label">Função</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider font-label">Quantidade</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider font-label">Tempo (Unidade)</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider font-label text-right">Custo Unitário</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-wider font-label text-right">Custo Total</th>
+<th class="px-6 py-4 text-center"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1: Engenheiro -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-xl">engineering</span>
+</div>
+<span class="font-bold text-on-surface font-manrope">Engenheiro Residente</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<input class="w-20 bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20" type="number" value="1"/>
+</td>
+<td class="px-6 py-5">
+<div class="flex gap-2">
+<input class="w-16 bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20" type="number" value="4"/>
+<select class="bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20 cursor-pointer">
+<option selected="">Meses</option>
+<option>Dias</option>
+<option>Horas</option>
+</select>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-medium text-on-surface-variant">
+                                R$ 12.500,00
+                            </td>
+<td class="px-6 py-5 text-right font-bold text-primary">
+                                R$ 50.000,00
+                            </td>
+<td class="px-6 py-5 text-center">
+<button class="p-2 text-outline hover:text-error transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 2: Dupla Técnica -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-secondary/5 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-xl">groups</span>
+</div>
+<span class="font-bold text-on-surface font-manrope">Dupla Técnica (Civil)</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<input class="w-20 bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20" type="number" value="3"/>
+</td>
+<td class="px-6 py-5">
+<div class="flex gap-2">
+<input class="w-16 bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20" type="number" value="45"/>
+<select class="bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20 cursor-pointer">
+<option>Meses</option>
+<option selected="">Dias</option>
+<option>Horas</option>
+</select>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-medium text-on-surface-variant">
+                                R$ 450,00
+                            </td>
+<td class="px-6 py-5 text-right font-bold text-primary">
+                                R$ 60.750,00
+                            </td>
+<td class="px-6 py-5 text-center">
+<button class="p-2 text-outline hover:text-error transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+<!-- Row 3: Técnico de TI -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-5">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary-container/5 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-xl">terminal</span>
+</div>
+<span class="font-bold text-on-surface font-manrope">Técnico de T.I (Infra)</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<input class="w-20 bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20" type="number" value="2"/>
+</td>
+<td class="px-6 py-5">
+<div class="flex gap-2">
+<input class="w-16 bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20" type="number" value="120"/>
+<select class="bg-surface-container-high border-none rounded-lg text-sm focus:ring-primary/20 cursor-pointer">
+<option>Meses</option>
+<option>Dias</option>
+<option selected="">Horas</option>
+</select>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-medium text-on-surface-variant">
+                                R$ 85,00
+                            </td>
+<td class="px-6 py-5 text-right font-bold text-primary">
+                                R$ 20.400,00
+                            </td>
+<td class="px-6 py-5 text-center">
+<button class="p-2 text-outline hover:text-error transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Bento Summary Footer -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="md:col-span-2 bg-primary-container rounded-2xl p-8 text-white relative overflow-hidden group">
+<div class="absolute -right-10 -bottom-10 opacity-10 transform group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[12rem]">payments</span>
+</div>
+<div class="relative z-10 flex flex-col justify-between h-full">
+<div>
+<span class="text-on-primary-container font-bold text-xs uppercase tracking-widest">Resumo Financeiro da Equipe</span>
+<h3 class="text-4xl font-extrabold mt-2 font-manrope">R$ 131.150,00</h3>
+</div>
+<p class="text-primary-fixed-dim text-sm mt-4 max-w-sm">Total consolidado incluindo encargos e horas técnicas projetadas para a vigência do contrato.</p>
+</div>
+</div>
+<div class="grid grid-rows-2 gap-6">
+<div class="bg-secondary-container/30 rounded-2xl p-6 border border-secondary-container/20">
+<span class="text-on-secondary-container/70 font-bold text-xs uppercase tracking-widest">Total de Horas</span>
+<div class="flex items-end gap-2 mt-1">
+<span class="text-2xl font-bold text-on-secondary-container">1.840</span>
+<span class="text-sm text-on-secondary-container/60 mb-1">hrs estimadas</span>
+</div>
+</div>
+<div class="bg-surface-container-high rounded-2xl p-6 flex items-center justify-between group cursor-pointer hover:bg-surface-container-highest transition-colors">
+<div>
+<span class="text-on-surface-variant font-bold text-xs uppercase tracking-widest">Exportar Relatório</span>
+<p class="text-on-surface font-bold text-sm">Download PDF / XLS</p>
+</div>
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">download</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Decorative Visual Context Section -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="h-48 rounded-2xl bg-cover bg-center" data-alt="high-angle architectural shot of modern construction site with professional engineers in safety gear reviewing technical blueprints in daylight" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAPEVF66JPoaLgm8YFwmhSS3wpW7WWMFS0QGB36K7KpWo_TAzwPMSAJPaPht54n_be7wG78vUK7pKfzNnn6qb9ar-4Qvfvi8gR7fKgoiYRq0iArV4tTIOD-Tl6jy4qlVOlkzK9aLfKbfIZkOZC2wtg6ypThA7EnVptPqcSzWL2iUxuxOX1OLfLHf67_WojyXEhDjyFJEeKBX9uphoEQBFSiI0UFcaBVi1kb-MTkxKaZrfYlSP3OIzk9PXhuKB8NC7aB0sv0qvDq9-o')"></div>
+<div class="h-48 rounded-2xl bg-cover bg-center" data-alt="close-up of electronic components and wiring inside a server rack with soft technical blue lighting and shallow depth of field" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCqkTf2L7jd8XFlW6qSNq5J3aZ4RrtZUjEpjO4yaBOlWNXYxcZdLIliwCZBynHJqxo5o-OiRKZFWXQ_XBxi0lkXdS4UjG3AsXJK2ZIEB4wc0XVTiw8MnTsgeUx35wYXIrlIjyiektyLc4Ebgdm4i2vLPWcNIyrA5Te7-YCEHri7WO21ddaAgb23ae8n2F_Dd6r8GysUJR4c_nJuPDbvTmsYDQIZI3SekFn60hqeFmokzALel0rJrivzo92-VCJI9HBcY1Y9Ob9LApI')"></div>
+<div class="md:col-span-2 flex flex-col justify-center p-8 bg-surface-container-low rounded-2xl border-l-4 border-primary">
+<h4 class="text-xl font-bold text-primary font-manrope">Aviso de Gestão</h4>
+<p class="text-on-surface-variant mt-2 text-sm">A alocação atual representa 42% do orçamento total previsto para a fase 1. Recomenda-se revisão dos custos de transporte antes do fechamento desta planilha.</p>
+</div>
+</div>
+</div>
+</main>
+</body></html>

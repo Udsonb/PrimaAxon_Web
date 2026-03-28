@@ -92,10 +92,12 @@
                     <a href="{% url 'gestao_empresas' %}" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container-high transition-colors">
                         <span class="material-symbols-outlined text-primary text-xl">business</span>Gestão de Empresas
                     </a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface-variant opacity-50 cursor-not-allowed">
-                        <span class="material-symbols-outlined text-xl">calculate</span>Gestão de MKP
-                        <span class="ml-auto text-[8px] bg-outline-variant/30 px-1 py-0.5 rounded font-bold">BREVE</span>
-                    </a>
+                    {% if request.user.is_superuser or request.user.perfil.empresa.is_sistema %}
+                    <div class="border-t border-outline-variant/20 my-1"></div>
+                    <button onclick="abrirGestaoPrograma()" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-primary font-bold hover:bg-primary-fixed transition-colors">
+                        <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1;">admin_panel_settings</span>Gestão do Programa
+                    </button>
+                    {% endif %}
                 </div>
             </div>
             <div class="flex items-center gap-2 pl-2 border-l border-outline-variant/30">
@@ -116,6 +118,33 @@
 </div>
 
 <script>document.addEventListener('click',function(e){document.querySelectorAll('.dd').forEach(function(m){if(!m.parentElement.contains(e.target))m.classList.add('hidden')})});</script>
+
+<!-- Modal: Confirmação de Senha para Gestão do Programa -->
+<div id="modal-senha-gestao" class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center px-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 flex flex-col gap-5">
+    <h2 class="font-headline font-bold text-primary text-xl text-center">Confirmação de Acesso</h2>
+    <p class="text-on-surface-variant text-sm text-center">Digite sua senha para acessar a Gestão do Programa</p>
+    <input id="senha-gestao-input" type="password" placeholder="Sua senha" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none"/>
+    <p id="senha-gestao-erro" class="text-error text-xs hidden text-center">Senha incorreta.</p>
+    <div class="flex gap-3">
+      <button onclick="fecharModalSenha()" class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant text-sm font-bold hover:bg-surface-container-high transition-all">Cancelar</button>
+      <button onclick="confirmarSenhaGestao()" class="flex-1 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:opacity-90 transition-all">Confirmar</button>
+    </div>
+  </div>
+</div>
+<script>
+function abrirGestaoPrograma(){document.getElementById('modal-senha-gestao').classList.remove('hidden');setTimeout(()=>document.getElementById('senha-gestao-input').focus(),100);}
+function fecharModalSenha(){document.getElementById('modal-senha-gestao').classList.add('hidden');document.getElementById('senha-gestao-input').value='';document.getElementById('senha-gestao-erro').classList.add('hidden');}
+function confirmarSenhaGestao(){
+  const senha=document.getElementById('senha-gestao-input').value;
+  fetch('/gestao/programa/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':'{{ csrf_token }}'},body:'acao=verificar_senha&senha='+encodeURIComponent(senha)})
+  .then(r=>r.json()).then(d=>{
+    if(d.ok){fecharModalSenha();window.location.href='/gestao/programa/';}
+    else{document.getElementById('senha-gestao-erro').classList.remove('hidden');}
+  });
+}
+document.getElementById('senha-gestao-input').addEventListener('keydown',function(e){if(e.key==='Enter')confirmarSenhaGestao();});
+</script>
 {% block extra_scripts %}{% endblock %}
 </body>
 </html>

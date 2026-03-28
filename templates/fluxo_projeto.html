@@ -23,15 +23,17 @@
         </button>
     </div>
     <div class="hidden lg:flex items-center gap-2 ml-auto mr-2">
-        <a href="{% url 'bom_selector_projeto' projeto_id=projeto.id %}" class="px-3 py-1.5 text-[10px] font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-md transition-colors flex items-center gap-1">
-            <span class="material-symbols-outlined text-sm">add</span>Adicionar Itens
-        </a>
+        <!-- Badge de revisão -->
+        <span class="px-3 py-1 bg-green-600 text-white text-[10px] font-bold rounded-full">{{ projeto.revisao_label }}</span>
         <div class="flex items-center gap-1 bg-tertiary-fixed/50 px-2 py-1 rounded-lg">
             <span class="text-[10px] font-bold text-tertiary uppercase">Desconto:</span>
-            <input id="desconto-input" type="number" min="0" max="100" value="0" step="0.5" class="w-12 h-6 text-xs text-center border-none bg-white rounded font-bold text-tertiary focus:ring-1 focus:ring-tertiary" onchange="recalcFooter()">
+            <input id="desconto-input" type="number" min="0" max="100" value="0" step="0.01" class="w-20 h-6 text-xs text-center border-none bg-white rounded font-bold text-tertiary focus:ring-1 focus:ring-tertiary" onchange="recalcFooter()">
             <span class="text-[10px] font-bold text-tertiary">%</span>
         </div>
-        <button onclick="document.getElementById('acao-form').value='finalizar'; document.getElementById('form-fluxo').submit()" class="px-4 py-1.5 text-[10px] font-bold text-white bg-primary rounded-md shadow-md hover:opacity-90 transition-all flex items-center gap-1">
+        <button onclick="salvarSair()" class="px-3 py-1.5 text-[10px] font-bold text-on-surface-variant bg-surface-container-high hover:bg-surface-container-highest rounded-md transition-all flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">save</span>Salvar e Sair
+        </button>
+        <button onclick="finalizarProjeto()" class="px-4 py-1.5 text-[10px] font-bold text-white bg-primary rounded-md shadow-md hover:opacity-90 transition-all flex items-center gap-1">
             <span class="material-symbols-outlined text-sm">check_circle</span>Salvar e Finalizar
         </button>
     </div>
@@ -230,6 +232,19 @@ function excluirItem(itemId) {
         document.getElementById('excluir-item-id').value = itemId;
         document.getElementById('form-excluir').submit();
     }
+}
+
+function salvarSair() {
+    document.getElementById('acao-form').value = 'salvar_sair';
+    document.getElementById('form-fluxo').submit();
+}
+
+function finalizarProjeto() {
+    {% if projeto.finalizado %}
+    if (!confirm('Este projeto já está finalizado.\nDeseja salvar como nova revisão?\n{{ projeto.revisao_label }} → REV.{{ projeto.revisao|add:"1"|stringformat:"02d" }}')) return;
+    {% endif %}
+    document.getElementById('acao-form').value = 'finalizar';
+    document.getElementById('form-fluxo').submit();
 }
 
 // Filtros

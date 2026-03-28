@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinel Ledger - Dashboard Gerencial</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f3f2fe",
+              "secondary-fixed-dim": "#7ad7c6",
+              "on-tertiary-fixed": "#2b1700",
+              "on-surface-variant": "#454652",
+              "on-error-container": "#93000a",
+              "on-tertiary": "#ffffff",
+              "surface-dim": "#dad9e4",
+              "inverse-surface": "#2f3038",
+              "on-primary-fixed-variant": "#343d96",
+              "on-primary-fixed": "#000767",
+              "primary-fixed": "#e0e0ff",
+              "on-secondary-fixed-variant": "#005047",
+              "on-primary-container": "#8690ee",
+              "surface-container-highest": "#e2e1ed",
+              "on-background": "#1a1b23",
+              "inverse-primary": "#bdc2ff",
+              "secondary": "#006b5e",
+              "primary-fixed-dim": "#bdc2ff",
+              "surface-variant": "#e2e1ed",
+              "surface": "#fbf8ff",
+              "outline-variant": "#c6c5d4",
+              "on-secondary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "surface-container": "#eeedf8",
+              "primary-container": "#1a237e",
+              "surface-tint": "#4c56af",
+              "on-primary": "#ffffff",
+              "background": "#fbf8ff",
+              "inverse-on-surface": "#f1f0fb",
+              "on-surface": "#1a1b23",
+              "outline": "#767683",
+              "on-tertiary-container": "#d68500",
+              "on-error": "#ffffff",
+              "surface-container-high": "#e8e7f2",
+              "tertiary-container": "#472900",
+              "error-container": "#ffdad6",
+              "tertiary": "#2a1700",
+              "secondary-fixed": "#97f3e2",
+              "tertiary-fixed": "#ffddba",
+              "primary": "#000666",
+              "on-secondary-fixed": "#00201b",
+              "error": "#ba1a1a",
+              "tertiary-fixed-dim": "#ffb865",
+              "on-secondary-container": "#006f62",
+              "on-tertiary-fixed-variant": "#663d00",
+              "surface-bright": "#fbf8ff",
+              "secondary-container": "#94f0df"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #fbf8ff;
+      }
+      h1, h2, h3, .headline {
+        font-family: 'Manrope', sans-serif;
+      }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-100 flex flex-col py-6 z-50">
+<div class="px-6 mb-10">
+<span class="text-lg font-bold text-indigo-950">Sentinel Ledger</span>
+<p class="text-xs text-slate-500 font-medium">Tactical Architect</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center px-6 py-3 text-slate-500 hover:text-indigo-600 hover:bg-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">home</span>
+<span class="text-sm font-medium">Início</span>
+</a>
+<a class="flex items-center px-6 py-3 text-indigo-700 font-bold border-r-4 border-indigo-700 bg-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-500 hover:text-indigo-600 hover:bg-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">security</span>
+<span class="text-sm font-medium">Sentinel Ledger</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-500 hover:text-indigo-600 hover:bg-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">manage_accounts</span>
+<span class="text-sm font-medium">Gestão</span>
+</a>
+<a class="flex items-center px-6 py-3 text-slate-500 hover:text-indigo-600 hover:bg-slate-200 transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">notifications</span>
+<span class="text-sm font-medium">Alerts</span>
+</a>
+</nav>
+<div class="mt-auto px-6 pt-6 border-t border-slate-200/50">
+<a class="flex items-center py-3 text-slate-500 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined mr-3">logout</span>
+<span class="text-sm font-medium">Sair</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 min-h-screen">
+<!-- TopAppBar Component -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-white/80 backdrop-blur-md shadow-sm flex justify-between items-center px-8 py-4">
+<div class="flex items-center space-x-8">
+<h1 class="text-2xl font-black text-indigo-950">DashBoard - Gerencial</h1>
+<nav class="hidden md:flex space-x-6">
+<a class="text-indigo-700 border-b-2 border-indigo-700 pb-1 font-bold text-sm" href="#">Overview</a>
+<a class="text-slate-500 hover:text-indigo-900 transition-all text-sm" href="#">Validation</a>
+</nav>
+</div>
+<div class="flex items-center space-x-6">
+<div class="relative flex items-center bg-surface-container-high rounded-full px-4 py-1.5 w-64">
+<span class="material-symbols-outlined text-outline text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full py-0" placeholder="Search..." type="text"/>
+</div>
+<div class="flex items-center space-x-4">
+<button class="text-slate-500 hover:text-indigo-600 transition-all opacity-90 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="text-slate-500 hover:text-indigo-600 transition-all opacity-90 active:scale-95 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-error ring-2 ring-white"></span>
+</button>
+<div class="flex items-center space-x-3 border-l pl-4 border-slate-200">
+<span class="text-sm font-bold text-indigo-950">Udson</span>
+<img alt="User Avatar" class="h-9 w-9 rounded-full object-cover" data-alt="Close-up portrait of a professional man in a dark suit with a focused expression, clean studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOOUo6yqsv1QbLzLhn9GbsMQ4KkkXYkfFoGVRZconzZ2UBQnx8833QrHIwTNvFtvuqClirOZaEydpdBTSXryRzdJw9Svt2e_JhaAJzW0-dFNqlKpz-288NOxWdFqbIyKN1r-2w77FoBFax7hJn_3foPK_mY7tUr__sGxwaY37c6ZLFQEFfWtYJeVWniSyRsHAYy_ZJnJE53YL3-2KdII5T5u3nW8fMHLVwuUYdnwj0IFnr6keRb4HH6QBO_Jg4oojO3mdQcsuXXf0"/>
+</div>
+</div>
+</div>
+</header>
+<div class="pt-24 px-10 pb-12 space-y-10">
+<!-- KPI Cards Section: Intentional Asymmetry -->
+<section class="grid grid-cols-12 gap-6">
+<!-- Large KPI: Budget -->
+<div class="col-span-12 lg:col-span-5 bg-primary-container rounded-xl p-8 flex flex-col justify-between relative overflow-hidden group">
+<div class="z-10">
+<p class="text-on-primary-container/80 text-xs font-semibold uppercase tracking-widest mb-2">Volume Global Orçado</p>
+<h2 class="text-5xl font-black text-white headline">R$ 12.4M</h2>
+</div>
+<div class="mt-8 flex items-center text-secondary-fixed-dim z-10">
+<span class="material-symbols-outlined mr-1">trending_up</span>
+<span class="text-sm font-bold">+14.2% em relação ao mês anterior</span>
+</div>
+<!-- Aesthetic abstract background element -->
+<div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/5 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+</div>
+<!-- Medium KPI: Average Ticket -->
+<div class="col-span-12 md:col-span-6 lg:col-span-4 bg-surface-container-lowest border border-outline-variant/15 rounded-xl p-8 flex flex-col justify-between shadow-sm">
+<div>
+<div class="flex items-center justify-between mb-4">
+<span class="p-2 bg-secondary-container rounded-lg text-on-secondary-container">
+<span class="material-symbols-outlined">payments</span>
+</span>
+<span class="text-xs font-bold text-secondary uppercase tracking-tighter">Premium Efficiency</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium mb-1">Ticket Médio</p>
+<h2 class="text-3xl font-bold text-indigo-950 headline">R$ 42.8k</h2>
+</div>
+<div class="mt-4 h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-3/4"></div>
+</div>
+</div>
+<!-- Small KPI: Live Projects -->
+<div class="col-span-12 md:col-span-6 lg:col-span-3 bg-surface-container-lowest border border-outline-variant/15 rounded-xl p-8 flex flex-col justify-between shadow-sm">
+<div class="flex items-start justify-between">
+<div>
+<p class="text-on-surface-variant text-sm font-medium mb-1">Live Monitor</p>
+<h2 class="text-4xl font-bold text-indigo-950 headline">48</h2>
+<p class="text-xs font-bold text-indigo-700 mt-1 uppercase">Projetos Ativos</p>
+</div>
+<span class="material-symbols-outlined text-indigo-400 animate-pulse" style="font-variation-settings: 'FILL' 1;">sensors</span>
+</div>
+<div class="mt-6 flex -space-x-2">
+<img alt="Analyst 1" class="h-8 w-8 rounded-full border-2 border-white object-cover" data-alt="Profile of a male professional" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSvdDhrpyTlwQr68JzZEKay0J2NERen16Czn9K3k-2lEEQD1eIh2dPzN7BeXbUsdCHYlpp2pO3hAVxI1X2xcYbVgWza8PRf6RsGrktnA_ag75PSqY0_-ILLfgS_MriW7U22pE2AuQ7jZ5M_3Z_pNAS9jTUZ4773oSYSg2P9gQg-KIVuL-eBmPN6pjIsV8tG9sHOlxCmCvrkikBg6zzGzBpzSj4CXqRVOGPqGYQ6KdCuY-5aCdZRdXx944vXxi0A3ZdEGL0Po3jApk"/>
+<img alt="Analyst 2" class="h-8 w-8 rounded-full border-2 border-white object-cover" data-alt="Profile of a female professional" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd_-PDICtWbDDrMvooFL0BmAvie2NtwQglA36GMxHcPIXKGG0Wf67lrCjG1OKa8oVHz_fsls8XivnCUZU4QfdPK_xRPY8HvMg5hfHbSvOt4GEr3DFlXogvW9cyy9tyaRIwW1wm9AtIPg3X80GIn0zgIjxZWi6cdU5kRq2H0JRjQy2J3Rn0TmAt8yo2A0jnUeeTWr6dy4Iq79WM9ln7oLFtq-nDYOu4lFnatVHtDIKhSj2EQikXujczyecKlxCqS4lAOvjT8jfimrs"/>
+<img alt="Analyst 3" class="h-8 w-8 rounded-full border-2 border-white object-cover" data-alt="Profile of a female professional" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwip2w4qgBRYC2hidcW9h-SlqOPk4yOvR_399jTVgpcylvmpVqni261QRLqLNp8DzSOXEah63_4fBB_NS_XWQag-2uj5ic4brhEdnwGa2c0-Do_Bkz8Dp_Ff5qwmbtbHSnByRZEFsuZ_VHITvmKt76R8W4zbhrgFZ3TpZ3RNuXyC-Cp8o5lrvFJZNbmcUbSRKi-duktf2Icd7tPCROE_I6gMXdy2ZbRBJhtvcCWJg7sNJD8qWgJWyPDGra9qYeWZoV1bKIFHFU4X8"/>
+<div class="h-8 w-8 rounded-full border-2 border-white bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-indigo-900">+45</div>
+</div>
+</div>
+</section>
+<!-- Alertas Táticos & Map / Summary -->
+<section class="grid grid-cols-12 gap-10 items-start">
+<!-- Tactical Alerts Column -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<h3 class="text-xl font-extrabold text-indigo-950 tracking-tight flex items-center">
+<span class="material-symbols-outlined mr-2 text-primary">campaign</span>
+                        Alertas Táticos
+                    </h3>
+<!-- Alert: Validation (Yellow) -->
+<div class="bg-tertiary-fixed rounded-xl p-5 border-l-8 border-on-tertiary-container shadow-sm flex items-center space-x-4">
+<div class="bg-white/40 p-3 rounded-lg">
+<span class="material-symbols-outlined text-on-tertiary-container" style="font-variation-settings: 'FILL' 1;">price_check</span>
+</div>
+<div>
+<p class="font-bold text-on-tertiary-container text-lg">Novos Itens / Validar Preços</p>
+<p class="text-on-tertiary-container/80 text-sm font-medium">3 itens pendentes de revisão</p>
+</div>
+</div>
+<!-- Alert: Approval (Blue) -->
+<div class="bg-indigo-100 rounded-xl p-5 border-l-8 border-indigo-700 shadow-sm flex items-center space-x-4">
+<div class="bg-white/40 p-3 rounded-lg">
+<span class="material-symbols-outlined text-indigo-800" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+<div>
+<p class="font-bold text-indigo-900 text-lg">Aprovação de Gerência</p>
+<p class="text-indigo-800/80 text-sm font-medium">5 projetos aguardando assinatura</p>
+</div>
+</div>
+<!-- Alert: Expired (Red) -->
+<div class="bg-error-container rounded-xl p-5 border-l-8 border-error shadow-sm flex items-center space-x-4">
+<div class="bg-white/40 p-3 rounded-lg">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">event_busy</span>
+</div>
+<div>
+<p class="font-bold text-on-error-container text-lg">Cotação Vencida</p>
+<p class="text-on-error-container/80 text-sm font-medium">2 itens fora do prazo de validade</p>
+</div>
+</div>
+</div>
+<!-- Analyst Performance Table -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-xl p-8 shadow-sm">
+<div class="flex justify-between items-center mb-8">
+<h3 class="text-xl font-extrabold text-indigo-950 tracking-tight">Performance por Analista</h3>
+<button class="text-sm font-bold text-indigo-700 flex items-center hover:underline">
+                            Ver todos <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="text-xs text-on-surface-variant uppercase tracking-widest font-bold">
+<tr>
+<th class="pb-4">Analista</th>
+<th class="pb-4">Projetos Totais</th>
+<th class="pb-4">Status Mensal</th>
+<th class="pb-4 text-right">Ação</th>
+</tr>
+</thead>
+<tbody class="text-sm font-medium text-indigo-950">
+<tr class="group hover:bg-surface-container-low transition-colors rounded-lg">
+<td class="py-4 flex items-center">
+<div class="h-8 w-8 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 font-bold text-indigo-700 text-xs">MA</div>
+<span>Marco Aurélio</span>
+</td>
+<td class="py-4">12 Projetos</td>
+<td class="py-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-black uppercase">8 Entregues</span>
+</td>
+<td class="py-4 text-right">
+<button class="text-outline hover:text-indigo-600 transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-low transition-colors">
+<td class="py-4 flex items-center border-t border-outline-variant/10">
+<div class="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center mr-3 font-bold text-amber-700 text-xs">LB</div>
+<span>Luciana Borges</span>
+</td>
+<td class="py-4 border-t border-outline-variant/10">15 Projetos</td>
+<td class="py-4 border-t border-outline-variant/10">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-black uppercase">11 Entregues</span>
+</td>
+<td class="py-4 text-right border-t border-outline-variant/10">
+<button class="text-outline hover:text-indigo-600 transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-surface-container-low transition-colors">
+<td class="py-4 flex items-center border-t border-outline-variant/10">
+<div class="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center mr-3 font-bold text-emerald-700 text-xs">RS</div>
+<span>Ricardo Silva</span>
+</td>
+<td class="py-4 border-t border-outline-variant/10">09 Projetos</td>
+<td class="py-4 border-t border-outline-variant/10">
+<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full text-[10px] font-black uppercase">4 Entregues</span>
+</td>
+<td class="py-4 text-right border-t border-outline-variant/10">
+<button class="text-outline hover:text-indigo-600 transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Resumo Inferior: State Map & Statistics -->
+<section class="grid grid-cols-12 gap-10">
+<div class="col-span-12 lg:col-span-7 bg-white rounded-xl p-8 shadow-sm flex space-x-12">
+<div class="flex-1 space-y-8">
+<h3 class="text-xl font-extrabold text-indigo-950 tracking-tight">Projetos por Estado</h3>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-sm font-bold text-indigo-900">São Paulo</span>
+<div class="flex items-center space-x-4">
+<span class="text-xs font-medium text-slate-500">22 Proj.</span>
+<span class="text-sm font-black text-indigo-950">R$ 5.2M</span>
+</div>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full">
+<div class="bg-indigo-700 h-full w-[65%] rounded-full"></div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="text-sm font-bold text-indigo-900">Rio de Janeiro</span>
+<div class="flex items-center space-x-4">
+<span class="text-xs font-medium text-slate-500">14 Proj.</span>
+<span class="text-sm font-black text-indigo-950">R$ 3.1M</span>
+</div>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full">
+<div class="bg-indigo-400 h-full w-[40%] rounded-full"></div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<span class="text-sm font-bold text-indigo-900">Minas Gerais</span>
+<div class="flex items-center space-x-4">
+<span class="text-xs font-medium text-slate-500">08 Proj.</span>
+<span class="text-sm font-black text-indigo-950">R$ 1.8M</span>
+</div>
+</div>
+<div class="w-full h-1.5 bg-surface-container rounded-full">
+<div class="bg-secondary h-full w-[25%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Mock Map Integration -->
+<div class="hidden md:block w-48 h-full bg-slate-50 rounded-xl relative overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover opacity-30 grayscale" data-alt="Monochrome schematic map of Brazil with highlighted nodes on major cities in high tech architectural style" data-location="Brazil" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA11MhcvexJFphSbi0xQA484i2B2pxq05TxgxcT_23zYGx9yY38sOxL2fVC6zweQ6qMDZpdZ8Po_xFI2RxJrnshbXnWHRV-5coNz9goFBeKIPu9MZrsMXN6WjipVT4IAj0j44Y9Einz-zT3VoUg7cAnnM1pUfSDakwFWWskN_r2bapR_7JU4rv-NlyIMZDbLwpIDA4udpezrEgB2R0vVr29nNUG1DV7fSYDMD4buRSbBzW1TfO4yUxpMTZLPFkNStMEietO_ruTHR4"/>
+<div class="absolute inset-0 bg-gradient-to-tr from-white/80 to-transparent"></div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-5 grid grid-cols-2 gap-6">
+<div class="bg-surface-container-high rounded-xl p-6 flex flex-col justify-center items-center text-center">
+<span class="material-symbols-outlined text-indigo-600 mb-2" style="font-size: 32px;">task_alt</span>
+<h4 class="text-3xl font-black text-indigo-950 headline">312</h4>
+<p class="text-[10px] font-black uppercase text-indigo-700 tracking-widest mt-1">Projetos Finalizados</p>
+</div>
+<div class="bg-surface-container-highest rounded-xl p-6 flex flex-col justify-center items-center text-center">
+<span class="material-symbols-outlined text-secondary mb-2" style="font-size: 32px;">inventory_2</span>
+<h4 class="text-3xl font-black text-indigo-950 headline">1.2k</h4>
+<p class="text-[10px] font-black uppercase text-secondary tracking-widest mt-1">Produtos em Catálogo</p>
+</div>
+<div class="col-span-2 bg-indigo-950 rounded-xl p-6 flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="bg-white/10 p-3 rounded-lg">
+<span class="material-symbols-outlined text-white">insights</span>
+</div>
+<div>
+<h4 class="text-white font-bold">Efficiency Score</h4>
+<p class="text-indigo-300 text-xs">Global tactical performance</p>
+</div>
+</div>
+<div class="text-right">
+<span class="text-2xl font-black text-white headline">94%</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Floating Action Button (FAB) - Contextual -->
+<button class="fixed bottom-8 right-8 h-14 w-14 rounded-full bg-gradient-to-tr from-primary to-primary-container text-white shadow-xl flex items-center justify-center group active:scale-90 transition-transform">
+<span class="material-symbols-outlined">add</span>
+<span class="absolute right-full mr-4 bg-indigo-950 text-white text-xs py-2 px-4 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Novo Projeto</span>
+</button>
+</body></html>

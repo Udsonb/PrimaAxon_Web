@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed": "#97f3e2",
+              "on-secondary-fixed-variant": "#005047",
+              "on-tertiary-fixed-variant": "#663d00",
+              "tertiary-fixed-dim": "#ffb865",
+              "outline-variant": "#c6c5d4",
+              "on-primary": "#ffffff",
+              "on-error-container": "#93000a",
+              "secondary-fixed-dim": "#7ad7c6",
+              "surface-container": "#eeedf8",
+              "tertiary-fixed": "#ffddba",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed": "#00201b",
+              "surface-variant": "#e2e1ed",
+              "on-tertiary-container": "#d68500",
+              "surface": "#fbf8ff",
+              "on-primary-container": "#8690ee",
+              "on-error": "#ffffff",
+              "surface-bright": "#fbf8ff",
+              "inverse-surface": "#2f3038",
+              "secondary-container": "#94f0df",
+              "secondary": "#006b5e",
+              "primary-container": "#1a237e",
+              "on-tertiary-fixed": "#2b1700",
+              "surface-container-highest": "#e2e1ed",
+              "primary-fixed": "#e0e0ff",
+              "tertiary": "#2a1700",
+              "on-primary-fixed-variant": "#343d96",
+              "inverse-primary": "#bdc2ff",
+              "outline": "#767683",
+              "on-surface-variant": "#454652",
+              "surface-container-low": "#f3f2fe",
+              "surface-container-high": "#e8e7f2",
+              "surface-dim": "#dad9e4",
+              "on-background": "#1a1b23",
+              "primary": "#000666",
+              "inverse-on-surface": "#f1f0fb",
+              "primary-fixed-dim": "#bdc2ff",
+              "on-surface": "#1a1b23",
+              "on-secondary": "#ffffff",
+              "surface-tint": "#4c56af",
+              "error": "#ba1a1a",
+              "background": "#fbf8ff",
+              "on-primary-fixed": "#000767",
+              "tertiary-container": "#472900",
+              "error-container": "#ffdad6",
+              "on-secondary-container": "#006f62"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .brand-font { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(251, 248, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SIDE NAV BAR -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#f3f2fe] flex flex-col py-6 space-y-4 z-50">
+<div class="px-6 mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="architecture">architecture</span>
+</div>
+<div>
+<h2 class="font-manrope font-black text-[#1A237E] leading-none">Gestão M.O</h2>
+<p class="text-[10px] font-inter font-semibold uppercase tracking-wider text-[#454652]">Operational Control</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-[#454652] hover:text-[#1A237E] hover:bg-[#e2e1ed] rounded-md transition-all font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="engineering">engineering</span>
+<span>Mão de Obra</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#454652] hover:text-[#1A237E] hover:bg-[#e2e1ed] rounded-md transition-all font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="construction">construction</span>
+<span>Equipamentos &amp; Insumos</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#454652] hover:text-[#1A237E] hover:bg-[#e2e1ed] rounded-md transition-all font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span>Transporte</span>
+</a>
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 bg-white text-[#1A237E] rounded-r-full shadow-sm translate-x-1 transition-transform font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Demais Custos</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#454652] hover:text-[#1A237E] hover:bg-[#e2e1ed] rounded-md transition-all font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="handshake">handshake</span>
+<span>Terceirizados</span>
+</a>
+</nav>
+<div class="px-3 pt-4">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                Novo Registro
+            </button>
+</div>
+<div class="px-3 pt-10 border-t border-outline-variant/10">
+<a class="flex items-center gap-3 px-4 py-2 text-[#454652] hover:text-[#1A237E] font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span>Suporte</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-[#454652] hover:text-[#1A237E] font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Sair</span>
+</a>
+</div>
+</aside>
+<!-- MAIN CANVAS -->
+<main class="ml-64 min-h-screen">
+<!-- TOP APP BAR -->
+<header class="w-full top-0 sticky z-40 bg-[#fbf8ff] flex justify-between items-center px-8 py-4">
+<div class="flex flex-col">
+<h1 class="text-xl font-bold text-[#1A237E] tracking-tight">The Architectural Ledger</h1>
+<div class="flex items-center gap-2 text-[10px] text-on-surface-variant font-bold uppercase tracking-widest">
+<span>Módulo M.O</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Demais Custos</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-outline">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</span>
+<input class="bg-surface-container-high border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-2 focus:ring-primary/40 transition-all" placeholder="Buscar custos..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[#454652] hover:bg-[#e2e1ed] p-2 rounded-full transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-[#454652] hover:bg-[#e2e1ed] p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary-fixed-dim overflow-hidden border-2 border-white shadow-sm">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="professional portrait of an architect wearing glasses in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-SkzEVx_v4j0veTltKEby5YA5yPD3FPcr2ak9sV5AJTGirEPTC8E7vPE3mU6bWi6XTor1z_-N-mnAIXqoHyoWSz83V21Sh3JfZLBF6Yuo8DkYH99gAO3pXslpmNYX634IwY6RCGIQ7TVt0fvGqRDXzaj6LvS1fpJ9oF9RhuegjUSnW75JWimYJXQHrzou9BTlUJAOoj6eBe8i3zCgQ7mtVIJouZ0nNlc2bjc-f4swARSqkamOwFXarVQw-2eKCXWl9YFCHEJKIas"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SEPARATION LINE -->
+<div class="bg-[#f3f2fe] h-[1px] w-full mx-auto"></div>
+<!-- CONTENT AREA -->
+<div class="p-8 max-w-[1400px] mx-auto space-y-8">
+<!-- SUMMARY BENTO GRID -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="col-span-1 md:col-span-2 bg-primary-container p-6 rounded-xl text-on-primary flex flex-col justify-between overflow-hidden relative shadow-lg shadow-primary-container/20">
+<div class="z-10">
+<p class="text-xs font-semibold uppercase tracking-widest opacity-70">Total Previsto Acumulado</p>
+<h2 class="text-4xl font-black font-headline mt-1 tracking-tight">R$ 42.850,00</h2>
+</div>
+<div class="flex items-center gap-2 mt-6 z-10">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-tighter">Budget Seguro</span>
+<span class="text-xs opacity-80">+2.4% vs mês anterior</span>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-symbols-outlined text-[160px]" data-icon="payments">payments</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15 flex flex-col justify-between">
+<div>
+<p class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Ticket Médio p/ Colaborador</p>
+<h3 class="text-2xl font-bold font-headline mt-1 text-primary">R$ 1.150,00</h3>
+</div>
+<div class="h-2 w-full bg-surface-container-low rounded-full mt-4 overflow-hidden">
+<div class="bg-secondary h-full w-[65%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/15 flex flex-col justify-between">
+<div>
+<p class="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Eficiência de Custo</p>
+<h3 class="text-2xl font-bold font-headline mt-1 text-secondary">94.2%</h3>
+</div>
+<div class="flex items-center gap-1 text-xs text-secondary font-bold">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span>Performance Excelente</span>
+</div>
+</div>
+</div>
+<!-- TABLE CONTAINER -->
+<section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
+<div class="p-6 flex justify-between items-center border-b border-surface-container">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-container-low rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+</div>
+<h3 class="text-lg font-bold text-on-surface tracking-tight">Detalhamento de Custos Operacionais</h3>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-low text-on-surface-variant px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="file_download">file_download</span>
+                            Exportar CSV
+                        </button>
+<button class="bg-primary text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add_circle">add_circle</span>
+                            Incluir Item
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="text-left px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Descrição</th>
+<th class="text-center px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Quant</th>
+<th class="text-right px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Mensalidade (R$)</th>
+<th class="text-right px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Diária (R$)</th>
+<th class="text-center px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Tempo (Mês/Dia)</th>
+<th class="text-right px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Custo Total</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Rows -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">Plano de Saúde</td>
+<td class="px-6 py-4 text-center text-sm">12</td>
+<td class="px-6 py-4 text-right text-sm">175,00</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-center text-sm">12 Mês</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">25.200,00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">Plano Odontológico</td>
+<td class="px-6 py-4 text-center text-sm">12</td>
+<td class="px-6 py-4 text-right text-sm">25,00</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-center text-sm">12 Mês</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">3.600,00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">Seguro de Vida</td>
+<td class="px-6 py-4 text-center text-sm">12</td>
+<td class="px-6 py-4 text-right text-sm">15,00</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-center text-sm">12 Mês</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">2.160,00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">Uniforme</td>
+<td class="px-6 py-4 text-center text-sm">12</td>
+<td class="px-6 py-4 text-right text-sm">120,00</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-center text-sm">1 Mês</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">1.440,00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">NR10</td>
+<td class="px-6 py-4 text-center text-sm">5</td>
+<td class="px-6 py-4 text-right text-sm">250,00</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-center text-sm">1 Mês</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">1.250,00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">Alimentação Convencional</td>
+<td class="px-6 py-4 text-center text-sm">12</td>
+<td class="px-6 py-4 text-right text-sm">450,00</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-center text-sm">12 Mês</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">64.800,00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">Alimentação (Diária)</td>
+<td class="px-6 py-4 text-center text-sm">12</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-right text-sm">45,00</td>
+<td class="px-6 py-4 text-center text-sm">22 Dia</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">11.880,00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">Hospedagem</td>
+<td class="px-6 py-4 text-center text-sm">4</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-right text-sm">180,00</td>
+<td class="px-6 py-4 text-center text-sm">15 Dia</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">10.800,00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">Pedágio</td>
+<td class="px-6 py-4 text-center text-sm">2</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-right text-sm">32,00</td>
+<td class="px-6 py-4 text-center text-sm">22 Dia</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">1.408,00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4 font-medium text-primary text-sm">PPRA/PCMSO</td>
+<td class="px-6 py-4 text-center text-sm">12</td>
+<td class="px-6 py-4 text-right text-sm">45,00</td>
+<td class="px-6 py-4 text-right text-sm text-outline-variant">—</td>
+<td class="px-6 py-4 text-center text-sm">1 Mês</td>
+<td class="px-6 py-4 text-right font-bold text-on-surface text-sm">540,00</td>
+</tr>
+</tbody>
+<tfoot>
+<tr class="bg-surface-container-high">
+<td class="px-6 py-5 text-right font-black uppercase text-[10px] tracking-widest text-primary" colspan="5">Custo Total de Operação (Projetado)</td>
+<td class="px-6 py-5 text-right font-black text-primary text-lg">R$ 124.078,00</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</section>
+<!-- ASYMMETRIC SECONDARY CARDS -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Monthly Projection Chart Placeholder -->
+<div class="lg:col-span-2 bg-surface-container-low rounded-2xl p-8 relative overflow-hidden group">
+<div class="flex justify-between items-start mb-10">
+<div>
+<h4 class="text-xl font-bold text-primary">Projeção de Fluxo de Caixa</h4>
+<p class="text-sm text-on-surface-variant">Baseado nos custos fixos e variáveis mensais</p>
+</div>
+<span class="material-symbols-outlined text-primary-container opacity-20 text-4xl" data-icon="query_stats">query_stats</span>
+</div>
+<div class="flex items-end justify-between h-48 gap-4 px-4">
+<div class="w-full bg-primary-container/20 rounded-t-lg h-[40%] group-hover:h-[45%] transition-all duration-500"></div>
+<div class="w-full bg-primary-container/20 rounded-t-lg h-[60%] group-hover:h-[65%] transition-all duration-500"></div>
+<div class="w-full bg-primary-container/20 rounded-t-lg h-[55%] group-hover:h-[60%] transition-all duration-500"></div>
+<div class="w-full bg-primary-container/20 rounded-t-lg h-[80%] group-hover:h-[85%] transition-all duration-500"></div>
+<div class="w-full bg-primary h-full rounded-t-lg relative">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-primary text-on-primary text-[10px] font-bold px-2 py-1 rounded shadow-md">CORRENTE</div>
+</div>
+<div class="w-full bg-primary-container/20 rounded-t-lg h-[75%] group-hover:h-[80%] transition-all duration-500"></div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60">
+<span>Jan</span><span>Fev</span><span>Mar</span><span>Abr</span><span>Mai</span><span>Jun</span>
+</div>
+</div>
+<!-- Notes / Warning Glassmorphism Card -->
+<div class="bg-[#e0e0ff]/30 backdrop-blur-md border border-white p-8 rounded-2xl flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 mb-4 text-tertiary-container">
+<span class="material-symbols-outlined" data-icon="report_problem">report_problem</span>
+<span class="font-bold text-sm">Alerta de Renovação</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                            A renovação do <strong class="text-primary">Seguro de Vida</strong> e as certificações <strong class="text-primary">NR10</strong> expiram em 45 dias. Recomenda-se iniciar o processo de cotação para evitar flutuações no budget.
+                        </p>
+</div>
+<button class="mt-8 text-xs font-bold text-primary flex items-center gap-1 hover:gap-3 transition-all underline decoration-primary/20">
+                        AGENDAR RENOVAÇÕES
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_right_alt">arrow_right_alt</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- FLOATING ACTION BUTTON (Optional but premium) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+</button>
+</body></html>

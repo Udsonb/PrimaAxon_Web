@@ -21,6 +21,7 @@
                     <h3 class="font-headline font-bold text-primary text-base">{{ item.projeto.id_projeto_manual }}</h3>
                     <p class="text-sm text-on-surface-variant truncate">{{ item.projeto.nome_cliente }} — {{ item.projeto.municipio_obra }}/{{ item.projeto.estado_obra }}</p>
                     <div class="flex flex-wrap gap-2 mt-1 items-center">
+                        <span class="bg-green-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">{{ item.projeto.revisao_label }}</span>
                         <span class="text-[10px] font-bold uppercase text-on-surface-variant tracking-wider">{{ item.projeto.empresa_executora }}</span>
                         <span class="text-[10px] font-bold uppercase tracking-wider {% if item.projeto.tipo_projeto == 'Publico' %}text-secondary{% else %}text-primary{% endif %}">{{ item.projeto.tipo_projeto }}</span>
                         {% if item.projeto.finalizado %}

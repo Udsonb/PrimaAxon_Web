@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tela de Validação - Sentinel Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container": "#eeedf8",
+                        "inverse-on-surface": "#f1f0fb",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#2f3038",
+                        "on-surface": "#1a1b23",
+                        "on-secondary-fixed": "#00201b",
+                        "primary": "#000666",
+                        "on-tertiary-fixed-variant": "#663d00",
+                        "on-tertiary-container": "#d68500",
+                        "tertiary-fixed": "#ffddba",
+                        "on-secondary-fixed-variant": "#005047",
+                        "on-tertiary-fixed": "#2b1700",
+                        "secondary": "#006b5e",
+                        "surface-bright": "#fbf8ff",
+                        "outline": "#767683",
+                        "on-primary-container": "#8690ee",
+                        "surface-container-high": "#e8e7f2",
+                        "on-primary-fixed-variant": "#343d96",
+                        "error": "#ba1a1a",
+                        "primary-fixed": "#e0e0ff",
+                        "on-background": "#1a1b23",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "background": "#fbf8ff",
+                        "tertiary-container": "#472900",
+                        "surface-tint": "#4c56af",
+                        "on-secondary-container": "#006f62",
+                        "tertiary-fixed-dim": "#ffb865",
+                        "on-primary-fixed": "#000767",
+                        "tertiary": "#2a1700",
+                        "secondary-fixed-dim": "#7ad7c6",
+                        "secondary-fixed": "#97f3e2",
+                        "primary-fixed-dim": "#bdc2ff",
+                        "surface-container-low": "#f3f2fe",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#dad9e4",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#fbf8ff",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c6c5d4",
+                        "inverse-primary": "#bdc2ff",
+                        "surface-container-highest": "#e2e1ed",
+                        "secondary-container": "#94f0df",
+                        "on-surface-variant": "#454652",
+                        "surface-variant": "#e2e1ed",
+                        "primary-container": "#1a237e"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#f3f2fe] dark:bg-slate-900 flex flex-col h-full py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="text-xl font-bold tracking-tight text-[#000666] dark:text-indigo-200">The Architectural Ledger</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant opacity-70 font-bold">Tactical ERP</p>
+</div>
+<nav class="flex-grow space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] hover:bg-[#e2e1ed] dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg group active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="dashboard">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] hover:bg-[#e2e1ed] dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg group active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="payments">payments</span>
+<span class="text-sm">Budgets</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] hover:bg-[#e2e1ed] dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg group active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="assignment">assignment</span>
+<span class="text-sm">Projects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] hover:bg-[#e2e1ed] dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg group active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="inventory_2">inventory_2</span>
+<span class="text-sm">Products</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] hover:bg-[#e2e1ed] dark:hover:bg-slate-800 transition-colors duration-200 rounded-lg group active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="analytics">analytics</span>
+<span class="text-sm">Analytics</span>
+</a>
+</nav>
+<button class="mt-4 mb-8 mx-2 bg-gradient-to-br from-primary to-primary-container text-white py-3 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+<span class="text-sm font-bold">New Budget</span>
+</button>
+<div class="pt-6 border-t border-outline-variant/10 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="settings">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-[#454652] dark:text-slate-400 font-medium hover:text-[#1A237E] transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl" data-icon="help">help</span>
+<span class="text-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-[#fbf8ff]/80 dark:bg-slate-950/80 backdrop-blur-md flex justify-between items-center px-8 h-20 shadow-[0px_12px_32px_rgba(26,27,35,0.06)]">
+<div class="flex items-center gap-8">
+<span class="text-lg font-black text-[#000666] dark:text-indigo-300">Architectural Ledger</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#454652] dark:text-slate-400 hover:text-[#1A237E] transition-all text-sm font-medium" href="#">Overview</a>
+<a class="text-[#1A237E] dark:text-indigo-300 border-b-2 border-[#1A237E] pb-1 text-sm font-bold" href="#">Validation</a>
+<a class="text-[#454652] dark:text-slate-400 hover:text-[#1A237E] transition-all text-sm font-medium" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-xl" data-icon="search">search</span>
+<input class="bg-surface-container-high border-none rounded-full pl-10 pr-4 py-2 text-sm w-64 focus:ring-2 focus:ring-primary/40" placeholder="Search validation records..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="history">history</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Analyst Avatar" data-alt="professional portrait of a financial analyst with a neutral expression and corporate attire against a clean studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_IvhKkWAsEvdawSp1_zLtv_c2KfvywSObZVK0yd706tK7-knrhI5NB2l8xEa96kAGkTq-w4EqezeO1j7cAypjUDFHkDvRe1nRf_lLNgS-Ei4rqyUNblpytEQxuumLiNtytil09_zkP6tJkiOcx_w0LtfOmKlPEqv37yuOUbzaHwPKEr66zzuUa_sz8QHWppd9yuOCl9ZBZlIp43xqDnsbe107MuD9Hh9MQ-LsEN3OoCYoaQpEB-bKrDmWuU8dJZgB89L3XPYOlCs"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-20 min-h-screen p-8 bg-surface">
+<!-- Header Section -->
+<div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<nav class="flex items-center gap-2 text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-tighter">
+<span>Sentinel Ledger</span>
+<span class="material-symbols-outlined text-xs" data-icon="chevron_right">chevron_right</span>
+<span class="text-primary">Validation</span>
+</nav>
+<h2 class="text-4xl font-extrabold text-primary tracking-tight">Validação de Itens</h2>
+<p class="text-on-surface-variant mt-1 font-body">Review and approve architectural materials and equipment ledger entries.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex bg-surface-container-low p-1 rounded-lg">
+<button class="px-4 py-2 text-xs font-bold bg-surface-container-lowest text-primary rounded shadow-sm">All Items</button>
+<button class="px-4 py-2 text-xs font-bold text-on-surface-variant hover:text-primary transition-colors">Pending</button>
+</div>
+<button class="flex items-center gap-2 bg-secondary text-on-secondary px-5 py-2.5 rounded-lg text-sm font-bold active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="download_done">download_done</span>
+                    Bulk Approve
+                </button>
+</div>
+</div>
+<!-- Dashboard Stats Row (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<div class="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-tertiary-fixed-dim shadow-sm">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Items Pending</p>
+<h3 class="text-3xl font-black text-primary">124</h3>
+<div class="mt-2 flex items-center gap-1 text-tertiary-fixed-variant font-bold text-xs">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span>+12 today</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-primary shadow-sm">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Approved Today</p>
+<h3 class="text-3xl font-black text-primary">48</h3>
+<div class="mt-2 flex items-center gap-1 text-secondary font-bold text-xs">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle">check_circle</span>
+<span>Verified</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border-l-4 border-secondary shadow-sm">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Total Value</p>
+<h3 class="text-3xl font-black text-primary">R$ 2.4M</h3>
+<div class="mt-2 flex items-center gap-1 text-on-surface-variant font-bold text-xs opacity-60">
+<span>Ledger Balance</span>
+</div>
+</div>
+<div class="bg-primary text-white p-6 rounded-xl shadow-lg relative overflow-hidden">
+<div class="relative z-10">
+<p class="text-[10px] font-bold text-on-primary-container uppercase tracking-widest mb-1">System Health</p>
+<h3 class="text-3xl font-black">Optimal</h3>
+<div class="mt-2 flex items-center gap-1 font-bold text-xs text-on-primary-container">
+<span class="material-symbols-outlined text-sm" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span>Sentinel Active</span>
+</div>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined text-8xl" data-icon="security">security</span>
+</div>
+</div>
+</div>
+<!-- Validation Table Section -->
+<div class="bg-surface-container-low rounded-2xl overflow-hidden shadow-sm">
+<div class="px-8 py-6 flex items-center justify-between bg-surface-container-high">
+<h4 class="font-headline font-bold text-primary">Tela de Validação</h4>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-yellow-200 border border-yellow-400"></div>
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Novos Itens</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-blue-100 border border-blue-300"></div>
+<span class="text-[10px] font-bold uppercase text-on-surface-variant">Aprovado p/ Gestor</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all p-1" data-icon="filter_list">filter_list</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest">
+<th class="px-8 py-5 text-[10px] font-black uppercase tracking-wider text-on-surface-variant border-b border-surface-container-high">ID</th>
+<th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-on-surface-variant border-b border-surface-container-high">Nome do Produto</th>
+<th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-on-surface-variant border-b border-surface-container-high">Modelo</th>
+<th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-on-surface-variant border-b border-surface-container-high">PN</th>
+<th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-on-surface-variant border-b border-surface-container-high">Projeto</th>
+<th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-on-surface-variant border-b border-surface-container-high">Analista</th>
+<th class="px-6 py-5 text-[10px] font-black uppercase tracking-wider text-on-surface-variant border-b border-surface-container-high">Preço Venda</th>
+<th class="px-8 py-5 text-[10px] font-black uppercase tracking-wider text-on-surface-variant border-b border-surface-container-high text-right">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high/40">
+<!-- Yellow Row: New Item -->
+<tr class="bg-yellow-50/70 hover:bg-yellow-100/80 transition-colors group">
+<td class="px-8 py-4 font-mono text-xs font-bold text-primary">#SL-9832</td>
+<td class="px-6 py-4">
+<span class="block text-sm font-bold text-on-surface">Steel Beam H-Type</span>
+<span class="text-[10px] font-medium text-on-surface-variant opacity-60">Structural Materials</span>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-on-surface-variant">H-Series 500</td>
+<td class="px-6 py-4 text-xs font-mono text-on-surface-variant">PN-X98-2024</td>
+<td class="px-6 py-4">
+<span class="bg-surface-container-highest px-2 py-1 rounded text-[10px] font-bold text-primary">ALPHA-CENTAURI</span>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center text-[10px] font-bold text-primary">AS</div>
+<span class="text-xs font-medium text-on-surface">Arthur S.</span>
+</td>
+<td class="px-6 py-4 font-bold text-sm text-primary">R$ 14.250,00</td>
+<td class="px-8 py-4 text-right">
+<button class="bg-white border border-yellow-200 text-primary px-4 py-1.5 rounded-lg text-xs font-bold hover:shadow-md transition-all active:scale-95">Detalhes</button>
+</td>
+</tr>
+<!-- Blue Row: Manager Approved -->
+<tr class="bg-blue-50/70 hover:bg-blue-100/80 transition-colors group">
+<td class="px-8 py-4 font-mono text-xs font-bold text-primary">#SL-9833</td>
+<td class="px-6 py-4">
+<span class="block text-sm font-bold text-on-surface">Glass Panel UltraV</span>
+<span class="text-[10px] font-medium text-on-surface-variant opacity-60">Facade Elements</span>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-on-surface-variant">UV-Reflect 80</td>
+<td class="px-6 py-4 text-xs font-mono text-on-surface-variant">PN-G42-UV8</td>
+<td class="px-6 py-4">
+<span class="bg-surface-container-highest px-2 py-1 rounded text-[10px] font-bold text-primary">SKY-TOWER-II</span>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed flex items-center justify-center text-[10px] font-bold text-secondary">ML</div>
+<span class="text-xs font-medium text-on-surface">Marina L.</span>
+</td>
+<td class="px-6 py-4 font-bold text-sm text-primary">R$ 8.900,00</td>
+<td class="px-8 py-4 text-right">
+<button class="bg-white border border-blue-200 text-primary px-4 py-1.5 rounded-lg text-xs font-bold hover:shadow-md transition-all active:scale-95">Detalhes</button>
+</td>
+</tr>
+<!-- Standard Row -->
+<tr class="bg-surface-container-lowest hover:bg-surface-container-high transition-colors group">
+<td class="px-8 py-4 font-mono text-xs font-bold text-primary">#SL-9834</td>
+<td class="px-6 py-4">
+<span class="block text-sm font-bold text-on-surface">Concrete Mixture X</span>
+<span class="text-[10px] font-medium text-on-surface-variant opacity-60">Foundations</span>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-on-surface-variant">Quick-Dry 40</td>
+<td class="px-6 py-4 text-xs font-mono text-on-surface-variant">PN-C40-MIX</td>
+<td class="px-6 py-4">
+<span class="bg-surface-container-highest px-2 py-1 rounded text-[10px] font-bold text-primary">PORT-LINK</span>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-fixed flex items-center justify-center text-[10px] font-bold text-tertiary">RC</div>
+<span class="text-xs font-medium text-on-surface">Ricardo C.</span>
+</td>
+<td class="px-6 py-4 font-bold text-sm text-primary">R$ 5.420,00</td>
+<td class="px-8 py-4 text-right">
+<button class="bg-surface-container-low text-primary px-4 py-1.5 rounded-lg text-xs font-bold hover:bg-surface-container-high transition-all active:scale-95">Detalhes</button>
+</td>
+</tr>
+<!-- Yellow Row -->
+<tr class="bg-yellow-50/70 hover:bg-yellow-100/80 transition-colors group">
+<td class="px-8 py-4 font-mono text-xs font-bold text-primary">#SL-9835</td>
+<td class="px-6 py-4">
+<span class="block text-sm font-bold text-on-surface">Oak Timber Finish</span>
+<span class="text-[10px] font-medium text-on-surface-variant opacity-60">Interior Carpentry</span>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-on-surface-variant">Premium-Grade A</td>
+<td class="px-6 py-4 text-xs font-mono text-on-surface-variant">PN-W22-OAK</td>
+<td class="px-6 py-4">
+<span class="bg-surface-container-highest px-2 py-1 rounded text-[10px] font-bold text-primary">VILLA-VERDE</span>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center text-[10px] font-bold text-primary">AS</div>
+<span class="text-xs font-medium text-on-surface">Arthur S.</span>
+</td>
+<td class="px-6 py-4 font-bold text-sm text-primary">R$ 22.100,00</td>
+<td class="px-8 py-4 text-right">
+<button class="bg-white border border-yellow-200 text-primary px-4 py-1.5 rounded-lg text-xs font-bold hover:shadow-md transition-all active:scale-95">Detalhes</button>
+</td>
+</tr>
+<!-- Blue Row -->
+<tr class="bg-blue-50/70 hover:bg-blue-100/80 transition-colors group">
+<td class="px-8 py-4 font-mono text-xs font-bold text-primary">#SL-9836</td>
+<td class="px-6 py-4">
+<span class="block text-sm font-bold text-on-surface">HVAC Central Unit</span>
+<span class="text-[10px] font-medium text-on-surface-variant opacity-60">Climate Systems</span>
+</td>
+<td class="px-6 py-4 text-xs font-medium text-on-surface-variant">V30-MultiFlow</td>
+<td class="px-6 py-4 text-xs font-mono text-on-surface-variant">PN-HVC-30V</td>
+<td class="px-6 py-4">
+<span class="bg-surface-container-highest px-2 py-1 rounded text-[10px] font-bold text-primary">TECH-HUB-4</span>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-fixed flex items-center justify-center text-[10px] font-bold text-secondary">ML</div>
+<span class="text-xs font-medium text-on-surface">Marina L.</span>
+</td>
+<td class="px-6 py-4 font-bold text-sm text-primary">R$ 42.000,00</td>
+<td class="px-8 py-4 text-right">
+<button class="bg-white border border-blue-200 text-primary px-4 py-1.5 rounded-lg text-xs font-bold hover:shadow-md transition-all active:scale-95">Detalhes</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Footer Pagination -->
+<div class="px-8 py-4 flex items-center justify-between bg-surface-container-lowest border-t border-surface-container-high/40">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">Showing 5 of 124 validation entries</p>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-container-high transition-colors" disabled="">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded bg-primary text-white text-xs font-bold">1</button>
+<button class="w-8 h-8 rounded text-xs font-bold text-on-surface-variant hover:bg-surface-container-high">2</button>
+<button class="w-8 h-8 rounded text-xs font-bold text-on-surface-variant hover:bg-surface-container-high">3</button>
+<button class="w-8 h-8 rounded flex items-center justify-center hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Floating Action Info (Contextual) -->
+<div class="fixed bottom-8 right-8 bg-primary-container text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/10 backdrop-blur-xl">
+<div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="inventory" style="font-variation-settings: 'FILL' 1;">inventory</span>
+</div>
+<div>
+<p class="text-[10px] uppercase font-black tracking-widest opacity-80">Pending Ledger Total</p>
+<p class="text-xl font-black">R$ 92.670,00</p>
+</div>
+<button class="ml-4 bg-white text-primary px-4 py-2 rounded-xl text-xs font-extrabold hover:bg-primary-fixed transition-colors">Execute Sync</button>
+</div>
+</main>
+</body></html>

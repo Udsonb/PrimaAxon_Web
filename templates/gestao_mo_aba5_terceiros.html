@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Terceirizados - The Architectural Ledger</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed": "#97f3e2",
+              "on-secondary-fixed-variant": "#005047",
+              "on-tertiary-fixed-variant": "#663d00",
+              "tertiary-fixed-dim": "#ffb865",
+              "outline-variant": "#c6c5d4",
+              "on-primary": "#ffffff",
+              "on-error-container": "#93000a",
+              "secondary-fixed-dim": "#7ad7c6",
+              "surface-container": "#eeedf8",
+              "tertiary-fixed": "#ffddba",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed": "#00201b",
+              "surface-variant": "#e2e1ed",
+              "on-tertiary-container": "#d68500",
+              "surface": "#fbf8ff",
+              "on-primary-container": "#8690ee",
+              "on-error": "#ffffff",
+              "surface-bright": "#fbf8ff",
+              "inverse-surface": "#2f3038",
+              "secondary-container": "#94f0df",
+              "secondary": "#006b5e",
+              "primary-container": "#1a237e",
+              "on-tertiary-fixed": "#2b1700",
+              "surface-container-highest": "#e2e1ed",
+              "primary-fixed": "#e0e0ff",
+              "tertiary": "#2a1700",
+              "on-primary-fixed-variant": "#343d96",
+              "inverse-primary": "#bdc2ff",
+              "outline": "#767683",
+              "on-surface-variant": "#454652",
+              "surface-container-low": "#f3f2fe",
+              "surface-container-high": "#e8e7f2",
+              "surface-dim": "#dad9e4",
+              "on-background": "#1a1b23",
+              "primary": "#000666",
+              "inverse-on-surface": "#f1f0fb",
+              "primary-fixed-dim": "#bdc2ff",
+              "on-surface": "#1a1b23",
+              "on-secondary": "#ffffff",
+              "surface-tint": "#4c56af",
+              "error": "#ba1a1a",
+              "background": "#fbf8ff",
+              "on-primary-fixed": "#000767",
+              "tertiary-container": "#472900",
+              "error-container": "#ffdad6",
+              "on-secondary-container": "#006f62"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .font-manrope { font-family: 'Manrope', sans-serif; }
+      .font-inter { font-family: 'Inter', sans-serif; }
+      /* Custom Glassmorphism */
+      .glass-panel {
+        background: rgba(251, 248, 255, 0.8);
+        backdrop-filter: blur(20px);
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#f3f2fe] dark:bg-slate-900 flex flex-col py-6 space-y-4 z-50">
+<div class="px-6 mb-6">
+<h2 class="font-manrope font-black text-[#1A237E] text-2xl tracking-tighter">Gestão M.O</h2>
+<p class="font-inter text-[10px] font-semibold uppercase tracking-widest text-[#454652]">Operational Control</p>
+</div>
+<nav class="flex-grow">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center px-6 py-3 space-x-3 text-[#454652] hover:bg-[#e2e1ed] transition-all font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined">engineering</span>
+<span>Mão de Obra</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 space-x-3 text-[#454652] hover:bg-[#e2e1ed] transition-all font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined">construction</span>
+<span>Equipamentos &amp; Insumos</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 space-x-3 text-[#454652] hover:bg-[#e2e1ed] transition-all font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span>Transporte</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 space-x-3 text-[#454652] hover:bg-[#e2e1ed] transition-all font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Demais Custos</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-6 py-3 space-x-3 bg-white text-[#1A237E] rounded-r-full shadow-sm translate-x-1 font-inter text-xs font-semibold uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined">handshake</span>
+<span>Terceirizados</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="px-6 mt-auto space-y-4">
+<button class="w-full py-3 px-4 bg-gradient-to-br from-primary to-primary-container text-white rounded-md text-xs font-bold uppercase tracking-widest shadow-lg flex items-center justify-center space-x-2">
+<span class="material-symbols-outlined text-sm">add</span>
+<span>Novo Registro</span>
+</button>
+<div class="pt-4 space-y-2 border-t border-outline-variant/20">
+<a class="flex items-center space-x-3 text-[#454652] text-xs font-semibold uppercase tracking-wider py-2" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+<span>Suporte</span>
+</a>
+<a class="flex items-center space-x-3 text-error text-xs font-semibold uppercase tracking-wider py-2" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Sair</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="ml-64 min-h-screen">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-[#fbf8ff] z-40">
+<div class="flex justify-between items-center px-10 py-4 w-full">
+<div class="flex items-center gap-4">
+<h1 class="text-xl font-bold text-[#1A237E] tracking-tight font-manrope">The Architectural Ledger</h1>
+<span class="h-6 w-[1px] bg-outline-variant/30"></span>
+<nav class="flex gap-6">
+<a class="text-[#454652] font-manrope text-sm font-medium hover:text-[#1A237E] transition-colors" href="#">Projetos</a>
+<a class="text-[#1A237E] font-bold border-b-2 border-[#1A237E] font-manrope text-sm" href="#">Dashboard</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative">
+<input class="bg-surface-container-high border-none rounded-full px-4 py-2 text-sm w-64 focus:ring-2 focus:ring-primary/20" placeholder="Buscar registros..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-on-surface-variant text-sm">search</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-full hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="close-up of a professional architect in professional attire looking confident against a minimalist office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBh7bruM8jCrcM84syBf96r9WRNPyOKrqnEZp1odQrpPALmtrOEKPeFzjSDpPMRSX-L9sNyk1KZABw34TBEo5BNbhaRJu_LHUK-6E4Is_0n1fk3KqQWKaNBfmh0_i82bFE7n5G1ci-kF9p3a0sDu9zswPdwROh_JGsZjWAQ3G7pS5ASCyauppFgO9bQwVe1GCdd_Lk2YMu2l8Se0UNK1116wB_5lSxpwk6EiOAIEwNIrK3D953itDZN1QQa9Q8UqU1LSlmwLn1ICHc"/>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-[#f3f2fe] h-[1px] w-full"></div>
+</header>
+<!-- Main Canvas -->
+<div class="p-10 max-w-7xl mx-auto space-y-8">
+<!-- Bento Summary Grid -->
+<section class="grid grid-cols-12 gap-6">
+<!-- Summary Card: Total Budget -->
+<div class="col-span-12 lg:col-span-4 bg-primary text-white p-8 rounded-xl shadow-xl flex flex-col justify-between overflow-hidden relative">
+<div class="relative z-10">
+<p class="font-inter text-xs font-bold uppercase tracking-widest opacity-70">Total Terceirizados</p>
+<h3 class="font-manrope text-4xl font-extrabold mt-2 tracking-tighter">R$ 14.850,90</h3>
+<div class="mt-6 flex items-center space-x-2 text-xs text-secondary-container bg-secondary-container/10 py-1 px-3 rounded-full w-fit">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+<span>12% acima do previsto</span>
+</div>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-symbols-outlined text-9xl">handshake</span>
+</div>
+</div>
+<!-- Summary Card: Item Distribution -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container-low p-8 rounded-xl flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h4 class="font-manrope font-bold text-on-surface">Distribuição de Custos</h4>
+<span class="material-symbols-outlined text-on-surface-variant">analytics</span>
+</div>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-xs font-semibold mb-1">
+<span>Infraestrutura</span>
+<span>45%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full">
+<div class="bg-primary h-2 rounded-full w-[45%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs font-semibold mb-1">
+<span>Instalação Ponto</span>
+<span>30%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full">
+<div class="bg-secondary h-2 rounded-full w-[30%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs font-semibold mb-1">
+<span>Deslocamento</span>
+<span>25%</span>
+</div>
+<div class="w-full bg-surface-container-highest h-2 rounded-full">
+<div class="bg-tertiary-fixed-dim h-2 rounded-full w-[25%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Summary Card: Quick Actions -->
+<div class="col-span-12 lg:col-span-3 bg-surface-container-lowest border border-outline-variant/10 p-8 rounded-xl flex flex-col justify-center items-center text-center space-y-4">
+<div class="p-3 bg-secondary/10 rounded-full">
+<span class="material-symbols-outlined text-secondary text-3xl">receipt_long</span>
+</div>
+<div>
+<h4 class="font-manrope font-bold">Relatório Executivo</h4>
+<p class="text-xs text-on-surface-variant mt-1">Gerar PDF consolidado para aprovação do cliente.</p>
+</div>
+<button class="w-full py-2 border border-secondary text-secondary rounded-md text-xs font-bold uppercase tracking-wider hover:bg-secondary hover:text-white transition-all">
+                        Baixar Relatório
+                    </button>
+</div>
+</section>
+<!-- Data Grid Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+<div class="px-8 py-6 border-b border-surface-container-low flex justify-between items-center">
+<h2 class="font-manrope font-extrabold text-xl text-[#1A237E]">Detalhamento de Terceirizados</h2>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container text-xs font-bold uppercase tracking-wider rounded flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                            Filtrar
+                        </button>
+<button class="px-4 py-2 bg-surface-container text-xs font-bold uppercase tracking-wider rounded flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">download</span>
+                            Exportar
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-inter text-[10px] font-bold uppercase tracking-widest">
+<th class="px-8 py-4">Descrição do Serviço / Item</th>
+<th class="px-8 py-4 text-center">Quant.</th>
+<th class="px-8 py-4 text-right">Valor Unit. (R$)</th>
+<th class="px-8 py-4 text-right">Total (R$)</th>
+<th class="px-8 py-4">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<!-- Rows from prompt -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Instalação Ponto Câmera</td>
+<td class="px-8 py-5 text-sm text-center">10</td>
+<td class="px-8 py-5 text-sm text-right">80,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">800,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Alarme</td>
+<td class="px-8 py-5 text-sm text-center">5</td>
+<td class="px-8 py-5 text-sm text-right">80,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">400,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Acesso</td>
+<td class="px-8 py-5 text-sm text-center">2</td>
+<td class="px-8 py-5 text-sm text-right">80,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">160,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Base Cancela</td>
+<td class="px-8 py-5 text-sm text-center">1</td>
+<td class="px-8 py-5 text-sm text-right">400,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">400,00</td>
+<td class="px-8 py-5"><span class="bg-surface-container-highest text-on-surface-variant text-[10px] font-bold px-2 py-1 rounded-full uppercase">Pendente</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Poste Plantado</td>
+<td class="px-8 py-5 text-sm text-center">3</td>
+<td class="px-8 py-5 text-sm text-right">500,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">1.500,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Poste com Base</td>
+<td class="px-8 py-5 text-sm text-center">2</td>
+<td class="px-8 py-5 text-sm text-right">700,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">1.400,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Montagem Painel</td>
+<td class="px-8 py-5 text-sm text-center">4</td>
+<td class="px-8 py-5 text-sm text-right">160,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">640,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Infra Aparente</td>
+<td class="px-8 py-5 text-sm text-center">50</td>
+<td class="px-8 py-5 text-sm text-right">30,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">1.500,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Infra Subterrânea</td>
+<td class="px-8 py-5 text-sm text-center">100</td>
+<td class="px-8 py-5 text-sm text-right">51,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">5.100,00</td>
+<td class="px-8 py-5"><span class="bg-error-container text-on-error-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Crítico</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Infra Envelopada</td>
+<td class="px-8 py-5 text-sm text-center">20</td>
+<td class="px-8 py-5 text-sm text-right">120,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">2.400,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Cabeamento Tubulação</td>
+<td class="px-8 py-5 text-sm text-center">200</td>
+<td class="px-8 py-5 text-sm text-right">1,50</td>
+<td class="px-8 py-5 text-sm text-right font-bold">300,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Cabeamento Aéreo</td>
+<td class="px-8 py-5 text-sm text-center">50</td>
+<td class="px-8 py-5 text-sm text-right">3,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">150,00</td>
+<td class="px-8 py-5"><span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded-full uppercase">Ativo</span></td>
+</tr>
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-8 py-5 text-sm font-semibold">Alimentação</td>
+<td class="px-8 py-5 text-sm text-center">10</td>
+<td class="px-8 py-5 text-sm text-right">75,00</td>
+<td class="px-8 py-5 text-sm text-right font-bold">750,00</td>
+<td class="px-8 py-5"><span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold px-2 py-1 rounded-full uppercase">Custo Fixo</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Bottom Floating Summary (Glassmorphism) -->
+<div class="fixed bottom-10 right-10 left-72">
+<div class="glass-panel border border-white/40 shadow-2xl rounded-2xl p-6 flex justify-between items-center">
+<div class="flex gap-10">
+<div>
+<p class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">Hospedagem Acumulada</p>
+<p class="font-manrope text-xl font-extrabold text-[#1A237E]">R$ 2.420,00</p>
+</div>
+<div class="border-l border-outline-variant/30 pl-10">
+<p class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant">Deslocamento (Km/Aéreo)</p>
+<p class="font-manrope text-xl font-extrabold text-[#1A237E]">R$ 1.250,50</p>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-3 bg-surface-container-highest text-primary font-bold text-xs uppercase tracking-widest rounded-md hover:bg-surface-variant transition-all">
+                            Visualizar Recibos
+                        </button>
+<button class="px-8 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-bold text-xs uppercase tracking-widest rounded-md shadow-lg">
+                            Salvar Alterações
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

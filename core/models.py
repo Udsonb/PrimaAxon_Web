@@ -97,7 +97,12 @@ class Projeto(models.Model):
     material_aplicado = models.BooleanField(default=False)
     finalizado = models.BooleanField("Projeto finalizado", default=False)
     
+    revisao = models.IntegerField("Revisão", default=0)
     data_criacao = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def revisao_label(self):
+        return f"REV.{self.revisao:02d}"
 
     def __str__(self):
         return f"{self.id_projeto_manual} - {self.nome_cliente}"

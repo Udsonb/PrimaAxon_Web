@@ -40,8 +40,16 @@ def minha_tela_login(request):
                 pass
         user = authenticate(request, username=username_final, password=senha_digitada)
         if user is not None:
+            # Verificar se o usuário pertence à empresa selecionada
+            if empresa_id and not user.is_superuser:
+                try:
+                    perfil_usr = user.perfil
+                    if perfil_usr.empresa_id and str(perfil_usr.empresa_id) != str(empresa_id):
+                        messages.error(request, "Usuário não autorizado para esta empresa.")
+                        return render(request, 'login.html', {'empresas': Empresa.objects.all().order_by('nome_fantasia')})
+                except Exception:
+                    pass
             login(request, user)
-            # Salva a empresa na sessão DEPOIS do login e força persistência
             if empresa_id:
                 request.session['empresa_id'] = int(empresa_id)
                 request.session.modified = True
@@ -193,9 +201,13 @@ def bom_selector(request, projeto_id=None):
             except (Produto.DoesNotExist, ValueError):
                 pass
 
+        if count > 0:
+            projeto.revisao += 1
+            projeto.save(update_fields=['revisao'])
         finalizar = request.POST.get('finalizar') == '1'
         if finalizar:
             return redirect('fluxo_projeto', projeto_id=projeto.id)
+        return redirect('bom_selector_projeto', projeto_id=projeto.id)
 
     categoria = request.GET.get('categoria', '')
     busca = request.GET.get('busca', '')
@@ -243,35 +255,43 @@ def fluxo_projeto(request, projeto_id):
     if request.method == 'POST':
         acao = request.POST.get('acao', '')
 
+        def _salvar_qtds():
+            for item in ItemProjeto.objects.filter(projeto=projeto):
+                nova_qty = request.POST.get(f'qty_{item.id}')
+                if nova_qty and int(nova_qty) != item.quantidade:
+                    item.quantidade = int(nova_qty)
+                    item.save()
+
+        def _incrementar_revisao():
+            projeto.revisao += 1
+            projeto.save(update_fields=['revisao'])
+
         # Excluir item
         if acao == 'excluir':
             item_id = request.POST.get('item_id')
             ItemProjeto.objects.filter(id=item_id, projeto=projeto).delete()
+            _incrementar_revisao()
             return redirect('fluxo_projeto', projeto_id=projeto.id)
 
         # Salvar quantidades
         if acao == 'salvar_qtds':
-            for item in ItemProjeto.objects.filter(projeto=projeto):
-                nova_qty = request.POST.get(f'qty_{item.id}')
-                if nova_qty:
-                    item.quantidade = int(nova_qty)
-                    item.save()
+            _salvar_qtds()
+            _incrementar_revisao()
             return redirect('fluxo_projeto', projeto_id=projeto.id)
+
+        # Salvar e sair (sem finalizar)
+        if acao == 'salvar_sair':
+            _salvar_qtds()
+            _incrementar_revisao()
+            return redirect('consultar_projeto')
 
         # Finalizar projeto
         if acao == 'finalizar':
-            # Salvar quantidades primeiro
-            for item in ItemProjeto.objects.filter(projeto=projeto):
-                nova_qty = request.POST.get(f'qty_{item.id}')
-                if nova_qty:
-                    item.quantidade = int(nova_qty)
-                    item.save()
-            # Aplicar desconto se houver
-            desconto = request.POST.get('desconto', '0')
-            # Marcar como finalizado
+            _salvar_qtds()
+            _incrementar_revisao()
             projeto.finalizado = True
             projeto.save()
-            return redirect('inicio')
+            return redirect('consultar_projeto')
 
     itens = ItemProjeto.objects.filter(projeto=projeto).select_related('produto')
 
@@ -577,6 +597,52 @@ def produto_aba(request, pk, aba):
         return redirect('produto_aba', pk=pk, aba=aba)
 
     return render(request, TEMPLATES[aba], {'produto': produto, 'aba': aba})
+
+
+# ============================================================
+# GESTÃO DO PROGRAMA (só Prisma Axon sistema)
+# ============================================================
+@login_required(login_url='/')
+def gestao_programa(request):
+    from django.http import JsonResponse
+    # Verificar se é usuário do sistema
+    try:
+        is_sistema = request.user.perfil.empresa.is_sistema
+    except Exception:
+        is_sistema = request.user.is_superuser
+    if not is_sistema:
+        messages.error(request, 'Acesso restrito.')
+        return redirect('inicio')
+
+    # Verificar senha via POST
+    if request.method == 'POST' and request.POST.get('acao') == 'verificar_senha':
+        senha = request.POST.get('senha', '')
+        user = authenticate(request, username=request.user.username, password=senha)
+        if user is not None:
+            return JsonResponse({'ok': True})
+        return JsonResponse({'ok': False})
+
+    return render(request, 'gestão_do_programa.html', {'is_sistema': is_sistema})
+
+
+# ============================================================
+# RESET DE SENHA DE USUÁRIO
+# ============================================================
+@login_required(login_url='/')
+def reset_senha_usuario(request, user_id):
+    from django.utils import timezone
+    edit_user = get_object_or_404(User, id=user_id)
+    try:
+        empresa = edit_user.perfil.empresa
+        nome_empresa = empresa.nome_fantasia.split()[0] if empresa else 'Prisma'
+    except Exception:
+        nome_empresa = 'Prisma'
+    ano = timezone.now().year
+    nova_senha = f"{nome_empresa}@{ano}"
+    edit_user.set_password(nova_senha)
+    edit_user.save()
+    messages.success(request, f'Senha redefinida para: {nova_senha}')
+    return redirect('editar_usuario', user_id=user_id)
 
 
 # ============================================================

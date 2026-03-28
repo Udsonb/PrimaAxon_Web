@@ -25,6 +25,8 @@ urlpatterns = [
     path('gestao/empresas/', views.gestao_empresas, name='gestao_empresas'),
     path('gestao/empresas/nova/', views.cadastro_empresa, name='cadastro_empresa'),
     path('gestao/empresas/<int:empresa_id>/editar/', views.editar_empresa, name='editar_empresa'),
+    path('gestao/usuarios/<int:user_id>/reset-senha/', views.reset_senha_usuario, name='reset_senha_usuario'),
+    path('gestao/programa/', views.gestao_programa, name='gestao_programa'),
 ]
 
 if settings.DEBUG:
