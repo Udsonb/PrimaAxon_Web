@@ -65,52 +65,57 @@
 
     <!-- Add Form -->
     <div id="add-form-op" class="hidden bg-white rounded-xl border border-outline-variant/15 shadow-sm p-6">
-        <form method="POST">
+        <form method="POST" id="form-add-op-real">
             {% csrf_token %}<input type="hidden" name="acao" value="add">
             <input type="hidden" name="descricao" id="op-descricao">
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                 <div class="md:col-span-2 space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Função / Cargo</label>
-                    <select id="combo-op" onchange="onFuncaoChange(this,'op-descricao','modal-outros-op')"
-                            class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm cursor-pointer">
+                    <select id="combo-op" onchange="opFuncaoChange(this)"
+                            class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm text-on-surface cursor-pointer">
                         <option value="">— Selecione —</option>
-                        {% for f in funcoes_aba %}<option value="{{ f }}">{{ f }}</option>{% endfor %}
+                        {% for nome, salario in funcoes_op %}
+                        <option value="{{ nome }}" data-salary="{{ salario }}">{{ nome }}</option>
+                        {% endfor %}
                         <option value="__outros__">Outros...</option>
                     </select>
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Qtd Pessoas</label>
                     <input name="quantidade" type="number" step="1" value="1" min="1"
-                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm text-on-surface">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Tempo</label>
                     <input name="tempo" type="number" step="0.5" value="1" min="0"
-                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm text-on-surface">
                 </div>
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Unidade</label>
-                    <select name="unidade" class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm cursor-pointer">
-                        <option selected>Meses</option><option>Dias</option><option>Horas</option><option>Un</option>
+                    <select name="unidade" id="add-unidade-op" onchange="opUnidadeChange(this)"
+                            class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm text-on-surface cursor-pointer">
+                        <option>Meses</option><option>Dias</option><option>Horas</option><option>Un</option>
                     </select>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end mt-4">
                 <div class="md:col-span-2 space-y-1">
-                    <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Salário / Custo Unitário (R$)</label>
+                    <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">
+                        Salário / Custo Unitário (R$)
+                        <span id="op-custo-label" class="text-primary normal-case tracking-normal font-normal ml-1"></span>
+                    </label>
                     <input name="custo_unitario" id="op-custo" type="number" step="0.01" value="0" min="0"
-                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm">
+                           class="w-full bg-surface-container-high border-none px-3 py-2.5 rounded-lg focus:ring-2 focus:ring-primary/40 text-sm text-on-surface">
                 </div>
                 <div class="md:col-span-3 flex justify-end gap-3 items-end">
                     <button type="button" onclick="document.getElementById('add-form-op').classList.add('hidden')"
                             class="px-4 py-2.5 text-sm font-bold text-on-surface-variant hover:text-primary rounded-lg">Cancelar</button>
-                    <button type="button" onclick="confirmarAdd('combo-op','op-descricao','form-add-op')"
+                    <button type="button" onclick="opConfirmarAdd()"
                             class="px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:opacity-90 flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">check_circle</span>Adicionar
                     </button>
                 </div>
             </div>
-            <span id="form-add-op"></span>
         </form>
     </div>
 
@@ -130,7 +135,7 @@
             </div>
             <div class="flex gap-3">
                 <button onclick="fecharModal('modal-outros-op','combo-op')" class="flex-1 py-2.5 rounded-lg border border-outline-variant text-on-surface-variant text-sm font-bold hover:bg-surface-container-high">Cancelar</button>
-                <button onclick="confirmarOutros('outros-op-desc','outros-op-custo','op-descricao','op-custo','modal-outros-op','combo-op','form-add-op')" class="flex-1 py-2.5 rounded-lg bg-primary text-white text-sm font-bold hover:opacity-90">Confirmar</button>
+                <button onclick="opConfirmarOutros()" class="flex-1 py-2.5 rounded-lg bg-primary text-white text-sm font-bold hover:opacity-90">Confirmar</button>
             </div>
         </div>
     </div>
@@ -151,12 +156,19 @@
             </thead>
             <tbody class="divide-y divide-outline-variant/10">
             {% for item in itens %}
-            <tr class="hover:bg-surface-container-low transition-colors group" id="row-{{ item.id }}">
-                <td class="px-4 py-3 text-center">
-                    <span class="material-symbols-outlined text-xl text-primary/60" style="font-variation-settings:'FILL' 1">engineering</span>
+            <tr class="hover:bg-surface-container-low/60 transition-colors group" id="row-{{ item.id }}">
+                <td class="px-4 py-4 text-center">
+                    <span class="material-symbols-outlined text-xl text-primary/50" style="font-variation-settings:'FILL' 1"
+                          data-icon-fn="{{ item.descricao }}">engineering</span>
                 </td>
-                <td class="px-4 py-3 font-bold text-on-surface text-sm">{{ item.descricao }}</td>
-                <td class="px-4 py-3">
+                <td class="px-4 py-4">
+                    <p class="font-bold text-on-surface text-sm leading-tight">{{ item.descricao }}</p>
+                    <p class="text-[10px] text-on-surface-variant mt-0.5">
+                        {% if item.unidade == "Meses" %}Custo mensal{% elif item.unidade == "Dias" %}Custo/dia (mensal ÷ 20){% elif item.unidade == "Horas" %}Custo/hora (mensal ÷ 146){% else %}Custo unit.{% endif %}
+                    </p>
+                </td>
+                <!-- Quantidade -->
+                <td class="px-4 py-4">
                     <form method="POST" class="inline" onchange="this.submit()">
                         {% csrf_token %}<input type="hidden" name="acao" value="update">
                         <input type="hidden" name="item_id" value="{{ item.id }}">
@@ -164,11 +176,12 @@
                         <input type="hidden" name="unidade" value="{{ item.unidade }}">
                         <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
                         <input type="hidden" name="ativo" value="1">
-                        <input name="quantidade" type="number" step="1" value="{{ item.quantidade }}"
-                               class="w-16 bg-surface-container-high border-none rounded-lg text-sm px-2 py-1 focus:ring-primary/20">
+                        <input name="quantidade" type="number" step="1" value="{{ item.quantidade|floatformat:0 }}"
+                               class="w-16 bg-surface-container-high border-none rounded-lg text-sm text-on-surface px-2 py-1.5 text-center focus:ring-2 focus:ring-primary/30">
                     </form>
                 </td>
-                <td class="px-4 py-3">
+                <!-- Tempo -->
+                <td class="px-4 py-4">
                     <form method="POST" class="inline" onchange="this.submit()">
                         {% csrf_token %}<input type="hidden" name="acao" value="update">
                         <input type="hidden" name="item_id" value="{{ item.id }}">
@@ -176,12 +189,13 @@
                         <input type="hidden" name="unidade" value="{{ item.unidade }}">
                         <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
                         <input type="hidden" name="ativo" value="1">
-                        <input name="tempo" type="number" step="0.5" value="{{ item.tempo }}"
-                               class="w-16 bg-surface-container-high border-none rounded-lg text-sm px-2 py-1 focus:ring-primary/20">
+                        <input name="tempo" type="number" step="0.5" value="{{ item.tempo|floatformat:1 }}"
+                               class="w-16 bg-surface-container-high border-none rounded-lg text-sm text-on-surface px-2 py-1.5 text-center focus:ring-2 focus:ring-primary/30">
                     </form>
                 </td>
-                <td class="px-2 py-3">
-                    <form method="POST" class="inline" onchange="this.submit()">
+                <!-- Unidade (submete e recalcula custo no server) -->
+                <td class="px-2 py-4">
+                    <form method="POST" class="inline">
                         {% csrf_token %}<input type="hidden" name="acao" value="update">
                         <input type="hidden" name="item_id" value="{{ item.id }}">
                         <input type="hidden" name="quantidade" value="{{ item.quantidade }}">
@@ -189,7 +203,7 @@
                         <input type="hidden" name="custo_unitario" value="{{ item.custo_unitario }}">
                         <input type="hidden" name="ativo" value="1">
                         <select name="unidade" onchange="this.form.submit()"
-                                class="bg-surface-container-high border-none rounded-lg text-sm cursor-pointer px-2 py-1">
+                                class="bg-surface-container-high border-none rounded-lg text-sm text-on-surface cursor-pointer px-2 py-1.5">
                             <option {% if item.unidade == "Meses" %}selected{% endif %}>Meses</option>
                             <option {% if item.unidade == "Dias" %}selected{% endif %}>Dias</option>
                             <option {% if item.unidade == "Horas" %}selected{% endif %}>Horas</option>
@@ -197,7 +211,8 @@
                         </select>
                     </form>
                 </td>
-                <td class="px-4 py-3 text-right">
+                <!-- Custo Unitário -->
+                <td class="px-4 py-4 text-right">
                     <form method="POST" class="inline" onchange="this.submit()">
                         {% csrf_token %}<input type="hidden" name="acao" value="update">
                         <input type="hidden" name="item_id" value="{{ item.id }}">
@@ -205,12 +220,19 @@
                         <input type="hidden" name="tempo" value="{{ item.tempo }}">
                         <input type="hidden" name="unidade" value="{{ item.unidade }}">
                         <input type="hidden" name="ativo" value="1">
-                        <input name="custo_unitario" type="number" step="0.01" value="{{ item.custo_unitario }}"
-                               class="w-28 bg-surface-container-high border-none rounded-lg text-sm px-2 py-1 text-right focus:ring-primary/20">
+                        <div class="flex flex-col items-end gap-0.5">
+                            <span class="text-[10px] text-on-surface-variant">R$</span>
+                            <input name="custo_unitario" type="number" step="0.01" value="{{ item.custo_unitario|floatformat:2 }}"
+                                   class="w-28 bg-surface-container-high border-none rounded-lg text-sm text-on-surface px-2 py-1.5 text-right focus:ring-2 focus:ring-primary/30">
+                        </div>
                     </form>
                 </td>
-                <td class="px-4 py-3 text-right font-bold text-primary text-sm">R$ {{ item.custo_total|floatformat:2 }}</td>
-                <td class="px-4 py-3 text-center">
+                <!-- Custo Total -->
+                <td class="px-4 py-4 text-right">
+                    <p class="font-extrabold text-primary text-sm">R$</p>
+                    <p class="font-extrabold text-primary text-base leading-tight">{{ item.custo_total|floatformat:2 }}</p>
+                </td>
+                <td class="px-4 py-4 text-center">
                     <form method="POST" class="inline" onsubmit="return confirm('Remover função?')">
                         {% csrf_token %}<input type="hidden" name="acao" value="delete">
                         <input type="hidden" name="item_id" value="{{ item.id }}">
@@ -230,37 +252,47 @@
         </table>
     </div>
 
-    <!-- Footer Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <!-- Total M.O -->
-        <div class="md:col-span-2 bg-[#1a237e] rounded-2xl p-7 text-white relative overflow-hidden">
-            <div class="absolute -right-6 -bottom-6 opacity-10">
-                <span class="material-symbols-outlined text-[9rem]">payments</span>
+    <!-- Footer Cards — só aparece quando há itens -->
+    {% if itens %}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Resumo Financeiro -->
+        <div class="md:col-span-2 bg-[#1a237e] rounded-xl px-6 py-5 text-white relative overflow-hidden flex items-center gap-6">
+            <div class="absolute -right-4 -bottom-4 opacity-10">
+                <span class="material-symbols-outlined text-[7rem]">payments</span>
             </div>
-            <p class="text-white/60 font-bold text-xs uppercase tracking-widest">Resumo Financeiro da Equipe</p>
-            <h3 class="text-4xl font-extrabold mt-2 font-headline">R$ {{ total_aba|floatformat:2 }}</h3>
-            <p class="text-white/50 text-sm mt-3">Total consolidado incluindo horas técnicas projetadas para a vigência do contrato.</p>
+            <div class="flex-1 min-w-0">
+                <p class="text-white/60 font-bold text-[10px] uppercase tracking-widest">Resumo Financeiro da Equipe</p>
+                <h3 class="text-3xl font-extrabold mt-1 font-headline leading-tight">R$ {{ total_aba|floatformat:2 }}</h3>
+                <p class="text-white/40 text-xs mt-1">Total consolidado incluindo horas técnicas projetadas para a vigência do contrato.</p>
+            </div>
         </div>
         <!-- Cards direita -->
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-3">
             <!-- Total de Horas -->
-            <div class="bg-teal-50 rounded-2xl p-5 border border-teal-100 flex-1">
-                <p class="text-teal-700 font-bold text-xs uppercase tracking-widest">Total de Horas</p>
-                <div class="flex items-end gap-2 mt-1">
-                    <span class="text-3xl font-extrabold text-teal-800">{{ total_horas }}</span>
-                    <span class="text-teal-600 text-sm mb-1">hrs estimadas</span>
+            <div class="bg-teal-50 rounded-xl px-4 py-3 border border-teal-100 flex items-center justify-between">
+                <div>
+                    <p class="text-teal-700 font-bold text-[10px] uppercase tracking-widest">Total de Horas</p>
+                    <div class="flex items-baseline gap-1 mt-0.5">
+                        <span class="text-2xl font-extrabold text-teal-800">{{ total_horas }}</span>
+                        <span class="text-teal-600 text-xs">hrs estimadas</span>
+                    </div>
                 </div>
+                <span class="material-symbols-outlined text-2xl text-teal-300">schedule</span>
             </div>
             <!-- Aviso de Gestão -->
-            <div class="bg-amber-50 rounded-2xl p-5 border border-amber-100 flex-1">
-                <p class="text-amber-700 font-bold text-xs uppercase tracking-widest mb-1">Aviso de Gestão</p>
-                <p class="text-amber-800 text-xs leading-relaxed">
-                    A alocação atual representa <strong>{{ pct_mo }}%</strong> do orçamento total do projeto.
-                    {% if pct_mo > 40 %}Recomenda-se revisão dos custos antes do fechamento.{% else %}Dentro do parâmetro recomendado.{% endif %}
-                </p>
+            <div class="bg-amber-50 rounded-xl px-4 py-3 border border-amber-100 flex items-start gap-2">
+                <span class="material-symbols-outlined text-amber-500 text-base mt-0.5" style="font-variation-settings:'FILL' 1">warning</span>
+                <div>
+                    <p class="text-amber-700 font-bold text-[10px] uppercase tracking-widest">Aviso de Gestão</p>
+                    <p class="text-amber-800 text-xs leading-relaxed mt-0.5">
+                        A alocação atual representa <strong>{{ pct_mo }}%</strong> do orçamento total do projeto.
+                        {% if pct_mo > 40 %}Recomenda-se revisão dos custos antes do fechamento.{% else %}Dentro do parâmetro recomendado.{% endif %}
+                    </p>
+                </div>
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 
 {# ═══════════════════════════════════════════════════════════════════════════ #}
@@ -1094,7 +1126,73 @@
 
 {% block extra_scripts %}
 <script>
-// ── Generic helpers ────────────────────────────────────────────────────────
+// ── Dados de salários e ícones do servidor ─────────────────────────────────
+const SALARIOS = {{ salarios_json|safe }};
+const FUNCAO_ICONS = {{ funcao_icons_json|safe }};
+
+// ── Cálculo de custo por unidade ───────────────────────────────────────────
+function calcCustoByUnit(monthly, unit) {
+    if (!monthly || monthly <= 0) return 0;
+    if (unit === 'Dias')  return +(monthly / 20).toFixed(2);
+    if (unit === 'Horas') return +(monthly / 146).toFixed(2);
+    return +monthly.toFixed(2);
+}
+function unitLabel(unit) {
+    if (unit === 'Dias')  return '(mensal ÷ 20)';
+    if (unit === 'Horas') return '(mensal ÷ 146)';
+    return '(mensal)';
+}
+
+// ── Operacional: combobox de funções ───────────────────────────────────────
+function opFuncaoChange(sel) {
+    if (sel.value === '__outros__') {
+        sel.value = '';
+        document.getElementById('modal-outros-op').classList.remove('hidden');
+        setTimeout(() => document.getElementById('outros-op-desc').focus(), 100);
+        return;
+    }
+    const opt = sel.options[sel.selectedIndex];
+    const salary = parseFloat(opt.dataset.salary) || 0;
+    const unit = document.getElementById('add-unidade-op').value;
+    if (salary > 0) {
+        document.getElementById('op-custo').value = calcCustoByUnit(salary, unit);
+        document.getElementById('op-custo-label').textContent = unitLabel(unit);
+    }
+}
+function opUnidadeChange(sel) {
+    const combo = document.getElementById('combo-op');
+    if (!combo.value) return;
+    const opt = combo.options[combo.selectedIndex];
+    const salary = parseFloat(opt.dataset.salary) || 0;
+    if (salary > 0) {
+        document.getElementById('op-custo').value = calcCustoByUnit(salary, sel.value);
+        document.getElementById('op-custo-label').textContent = unitLabel(sel.value);
+    }
+}
+function opConfirmarAdd() {
+    const combo = document.getElementById('combo-op');
+    if (!combo.value) { alert('Selecione uma função ou cargo.'); return; }
+    document.getElementById('op-descricao').value = combo.value;
+    document.getElementById('form-add-op-real').submit();
+}
+function opConfirmarOutros() {
+    const desc = document.getElementById('outros-op-desc').value.trim();
+    if (!desc) { alert('Digite a função/cargo.'); return; }
+    document.getElementById('op-descricao').value = desc;
+    document.getElementById('op-custo').value = document.getElementById('outros-op-custo').value;
+    fecharModal('modal-outros-op', 'combo-op');
+    document.getElementById('form-add-op-real').submit();
+}
+
+// ── Ícones dinâmicos por função ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-icon-fn]').forEach(el => {
+        const fn = el.dataset.iconFn;
+        if (FUNCAO_ICONS[fn]) el.textContent = FUNCAO_ICONS[fn];
+    });
+});
+
+// ── Generic helpers (outras abas) ─────────────────────────────────────────
 function onFuncaoChange(sel, descId, modalId) {
     if (sel.value === '__outros__') {
         sel.value = '';
@@ -1113,7 +1211,6 @@ function confirmarOutros(descInputId, custoInputId, hiddenDescId, hiddenCustoId,
     const custoInput = document.querySelector('input[name="custo_unitario"]');
     if (custoInput) custoInput.value = document.getElementById(custoInputId).value;
     fecharModal(modalId, comboId);
-    // Submit the nearest form
     document.getElementById(hiddenDescId).closest('form').submit();
 }
 function confirmarAdd(comboId, hiddenDescId, formId) {

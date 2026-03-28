@@ -697,14 +697,46 @@ ABAS_MO = [
     ('terceiros',     'Terceirizados',          'handshake'),
 ]
 
+# Salários base mensais (S/ADC — sem adicionais) usados para auto-fill de custo
+# Dias = mensal / 20  |  Horas = mensal / 146
+SALARIOS_MO = {
+    'Auxiliar de Instalação':              1780.16,
+    'Dupla Técnica':                       4582.56,
+    'Dupla Técnica (Civil)':               4582.56,
+    'Eletricista':                         1827.50,
+    'Técnico de Manutenção':               2802.39,
+    'Técnico de TI':                       3654.40,
+    'Técnico de T.I':                      3654.40,
+    'Técnico de TI - Ferroport':           2922.51,
+    'Técnico de Manutenção - Ferroport':   2734.67,
+    'Técnico de Manutenção - Prumo':       1979.58,
+    'Técnico de Segurança do Trabalho':    3008.00,
+    'Coordenador Técnico':                 3993.95,
+    'Técnico de Manutenção - Samarco':     2719.68,
+    'Supervisor Técnico':                  5000.00,
+    'Supervisor':                          5000.00,
+    'Projetista':                          4000.00,
+    'Engenheiro Eletricista':              7500.00,
+    'Engenheiro Residente':                7500.00,
+    'Pedreiro':                            2000.00,
+    'Ajudante de Pedreiro':                1485.00,
+}
+
 FUNCAO_ICONS = {
     'Engenheiro Residente': 'engineering',
+    'Engenheiro Eletricista': 'engineering',
     'Coordenador Técnico': 'manage_accounts',
     'Supervisor': 'supervisor_account',
+    'Supervisor Técnico': 'supervisor_account',
     'Projetista': 'architecture',
     'Técnico de T.I': 'computer',
+    'Técnico de TI': 'computer',
     'Eletricista': 'electrical_services',
     'Dupla Técnica': 'groups',
+    'Dupla Técnica (Civil)': 'groups',
+    'Técnico de Manutenção': 'build',
+    'Pedreiro': 'construction',
+    'Auxiliar de Instalação': 'handyman',
 }
 
 FROTA_TRANSPORTE = [
@@ -748,7 +780,15 @@ ITENS_TERCEIROS_DEFAULT = [
 ]
 
 FUNCOES_MO = {
-    'operacional':   ['Engenheiro Residente', 'Coordenador Técnico', 'Supervisor', 'Projetista', 'Técnico de T.I', 'Eletricista', 'Dupla Técnica'],
+    'operacional': [
+        'Auxiliar de Instalação', 'Dupla Técnica', 'Dupla Técnica (Civil)',
+        'Eletricista', 'Técnico de Manutenção', 'Técnico de TI',
+        'Técnico de TI - Ferroport', 'Técnico de Manutenção - Ferroport',
+        'Técnico de Manutenção - Prumo', 'Técnico de Segurança do Trabalho',
+        'Coordenador Técnico', 'Técnico de Manutenção - Samarco',
+        'Supervisor Técnico', 'Projetista', 'Engenheiro Eletricista',
+        'Engenheiro Residente', 'Pedreiro', 'Ajudante de Pedreiro',
+    ],
     'ferramentas':   ['Maleta de Ferramentas', 'Equipamento de Medição', 'Insumos Perecíveis', 'EPI', 'Andaime/Escada', 'Escritório de Obra'],
     'transporte':    ['Veículo Leve', 'Van/Utilitário', 'Caminhão', 'Combustível', 'Pedágio', 'Hospedagem', 'Passagem Aérea'],
     'demais_custos': ['Vale Refeição', 'Vale Transporte', 'Plano de Saúde', 'Plano Odontológico', 'Seguro de Vida', 'Uniforme', 'Treinamento/Capacitação'],
@@ -865,10 +905,21 @@ def gestao_mo(request, projeto_id, aba):
 
         elif acao == 'update':
             item = get_object_or_404(ItemMO, pk=request.POST.get('item_id'), projeto=projeto)
+            new_unit = request.POST.get('unidade', item.unidade)
+            new_custo = _dec(request.POST.get('custo_unitario', item.custo_unitario), item.custo_unitario)
+            # Se mudou unidade e função tem salário base conhecido, recalcula automaticamente
+            if aba == 'operacional' and new_unit != item.unidade and item.descricao in SALARIOS_MO:
+                base = Decimal(str(SALARIOS_MO[item.descricao]))
+                if new_unit == 'Meses':
+                    new_custo = base
+                elif new_unit == 'Dias':
+                    new_custo = (base / 20).quantize(Decimal('0.01'))
+                elif new_unit == 'Horas':
+                    new_custo = (base / 146).quantize(Decimal('0.01'))
             item.quantidade = _dec(request.POST.get('quantidade', item.quantidade), item.quantidade)
             item.tempo = _dec(request.POST.get('tempo', item.tempo), item.tempo)
-            item.unidade = request.POST.get('unidade', item.unidade)
-            item.custo_unitario = _dec(request.POST.get('custo_unitario', item.custo_unitario), item.custo_unitario)
+            item.unidade = new_unit
+            item.custo_unitario = new_custo
             item.especificacao = request.POST.get('especificacao', item.especificacao)
             item.status = request.POST.get('status', item.status)
             item.ativo = request.POST.get('ativo') == '1'
@@ -956,6 +1007,15 @@ def gestao_mo(request, projeto_id, aba):
             qtd_atual = int(item_fr.quantidade) if item_fr else 0
             frota_lista.append((label, icon, custo_base, qtd_atual))
 
+    import json as _json
+    # Operacional: lista de (nome, salario_mensal) para auto-fill de custo no JS
+    funcoes_op = [
+        (nome, SALARIOS_MO.get(nome, 0))
+        for nome in FUNCOES_MO.get('operacional', [])
+    ]
+    salarios_json = _json.dumps(SALARIOS_MO)
+    funcao_icons_json = _json.dumps(FUNCAO_ICONS)
+
     ctx = {
         'projeto': projeto,
         'aba': aba,
@@ -966,7 +1026,10 @@ def gestao_mo(request, projeto_id, aba):
         'total_horas': int(total_horas),
         'pct_mo': pct_mo,
         'total_bom': total_bom,
-        'funcoes_aba': FUNCOES_MO.get(aba, []),
+        'funcoes_aba': FUNCOES_MO.get(aba, []),   # strings (ferramentas/transporte/etc)
+        'funcoes_op': funcoes_op,                  # tuplas (nome, salario) só p/ operacional
+        'salarios_json': salarios_json,
+        'funcao_icons_json': funcao_icons_json,
         'cfg': CONFIG_ABA.get(aba, CONFIG_ABA['operacional']),
         'frota_lista': frota_lista,
     }
