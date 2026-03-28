@@ -116,11 +116,12 @@
             </thead>
             <tbody class="divide-y divide-surface-container-low text-sm">
                 {% for produto in produtos %}
-                <tr class="hover:bg-surface-container-low/50 transition-colors item-row cursor-default"
+                <tr class="hover:bg-surface-container-low/50 transition-colors item-row cursor-default {% if produto.preco_variavel %}bg-green-50{% endif %}"
                     data-preco="{{ produto.unit_reais }}"
                     data-id="{{ produto.pk }}"
                     data-categoria="{{ produto.categoria }}"
-                    ondblclick="abrirDetalhe({{ produto.pk }})">
+                    ondblclick="abrirDetalhe({{ produto.pk }})"
+                    {% if produto.preco_variavel %}title="Preço variável — definido por Mão de Obra do projeto"{% endif %}>
                     {% if projeto %}
                     <td class="p-2 text-center">
                         <input type="checkbox" data-produto-id="{{ produto.pk }}" class="item-check rounded border-outline-variant text-primary focus:ring-primary" onchange="onCheckChange(this)">
@@ -139,7 +140,9 @@
                     <td class="px-2 py-1.5"><span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">{{ produto.fabricante }}</span></td>
                     <td class="px-2 py-1.5 text-xs text-on-surface-variant">{{ produto.part_number|default:"-" }}</td>
                     <td class="px-2 py-1.5"><span class="bg-primary-fixed px-1.5 py-0.5 rounded text-[9px] font-bold text-primary">{{ produto.categoria }}</span></td>
-                    <td class="px-2 py-1.5 font-bold text-primary text-right preco-cell">{{ produto.unit_reais }}</td>
+                    <td class="px-2 py-1.5 font-bold text-right preco-cell {% if produto.preco_variavel %}text-green-700{% else %}text-primary{% endif %}">
+                        {% if produto.preco_variavel %}<span title="Preço definido por M.O">⬥ M.O</span>{% else %}{{ produto.unit_reais }}{% endif %}
+                    </td>
                     {% if projeto %}
                     <td class="px-2 py-1.5 text-center">
                         <input type="number" min="1" value="1" data-produto-id="{{ produto.pk }}" class="item-qty w-14 h-7 bg-surface-container-high border-none rounded text-xs text-center focus:ring-1 focus:ring-primary" onchange="recalcular()">

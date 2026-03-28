@@ -42,6 +42,9 @@ class Produto(models.Model):
     categoria = models.CharField("Categoria", max_length=100)
     descricao = models.TextField("Descrição", blank=True, null=True)
     status = models.CharField("Status", max_length=10, choices=STATUS_CHOICES, default='verde')
+    foto = models.ImageField("Foto do Produto", upload_to='produtos/', blank=True, null=True)
+    preco_variavel = models.BooleanField("Preço Variável (M.O)", default=False,
+        help_text="Marque se o preço deste item é definido pela Mão de Obra do projeto")
     
     # VERDE - CUSTO
     moeda = models.CharField("Moeda", max_length=20) 

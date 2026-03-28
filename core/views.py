@@ -565,6 +565,10 @@ def produto_aba(request, pk, aba):
             dt = request.POST.get('data_ultima_cotacao')
             if dt:
                 produto.data_ultima_cotacao = dt
+        if aba == 'cadastro':
+            produto.preco_variavel = request.POST.get('preco_variavel') == 'on'
+            if request.FILES.get('foto'):
+                produto.foto = request.FILES['foto']
         try:
             produto.save()
             messages.success(request, 'Dados salvos.')
