@@ -100,6 +100,10 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
+# Força ponto como separador decimal para inputs HTML type="number" (pt-br usa vírgula)
+DECIMAL_SEPARATOR = '.'
+USE_THOUSAND_SEPARATOR = False
+
 # Static files (WhiteNoise serve em produção)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'

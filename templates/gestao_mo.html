@@ -256,14 +256,24 @@
     {% if itens %}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Resumo Financeiro -->
-        <div class="md:col-span-2 bg-[#1a237e] rounded-xl px-6 py-5 text-white relative overflow-hidden flex items-center gap-6">
+        <div class="md:col-span-2 bg-[#1a237e] rounded-xl px-6 py-5 text-white relative overflow-hidden">
             <div class="absolute -right-4 -bottom-4 opacity-10">
                 <span class="material-symbols-outlined text-[7rem]">payments</span>
             </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-white/60 font-bold text-[10px] uppercase tracking-widest">Resumo Financeiro da Equipe</p>
-                <h3 class="text-3xl font-extrabold mt-1 font-headline leading-tight">R$ {{ total_aba|floatformat:2 }}</h3>
-                <p class="text-white/40 text-xs mt-1">Total consolidado incluindo horas técnicas projetadas para a vigência do contrato.</p>
+            <p class="text-white/60 font-bold text-[10px] uppercase tracking-widest mb-3">Resumo Financeiro da Equipe</p>
+            <div class="flex flex-col gap-1.5">
+                <div class="flex justify-between items-center border-b border-white/10 pb-1.5">
+                    <span class="text-white/70 text-sm">Custo Base (S/ADC)</span>
+                    <span class="font-bold text-white text-sm">R$ {{ total_aba|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between items-center border-b border-white/10 pb-1.5">
+                    <span class="text-white/70 text-sm">Encargos <span class="text-white/50 text-xs">({{ encargos_percent }}%)</span></span>
+                    <span class="font-bold text-amber-300 text-sm">R$ {{ encargos_valor|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between items-center pt-1">
+                    <span class="text-white font-bold text-sm uppercase tracking-wide">Total Geral</span>
+                    <span class="font-extrabold text-2xl text-white">R$ {{ total_com_encargos|floatformat:2 }}</span>
+                </div>
             </div>
         </div>
         <!-- Cards direita -->
@@ -354,58 +364,85 @@
 
         <!-- Modal popup do kit -->
         <div id="modal-kit-{{ kit_key }}" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
-            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col" style="max-height:90vh">
-                <!-- Modal header -->
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col" style="max-height:92vh">
+                <!-- Header -->
                 <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10">
                     <div class="flex items-center gap-3">
                         <span class="material-symbols-outlined text-2xl {{ kit_data.cor_label }}" style="font-variation-settings:'FILL' 1">{{ kit_data.icon }}</span>
                         <div>
                             <h2 class="font-headline font-bold text-primary text-lg">{{ kit_data.label }}</h2>
-                            <p class="text-xs text-on-surface-variant">{{ kit_data.desc }} — valores mensais por unidade</p>
+                            <p class="text-xs text-on-surface-variant">{{ kit_data.desc }}</p>
                         </div>
                     </div>
-                    <button onclick="document.getElementById('modal-kit-{{ kit_key }}').classList.add('hidden')"
+                    <button type="button" onclick="document.getElementById('modal-kit-{{ kit_key }}').classList.add('hidden')"
                             class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
-                <!-- Modal body -->
+                <!-- Sub-header: seletor de unidade e período -->
+                <div class="px-6 py-3 bg-surface-container-low/40 border-b border-outline-variant/10 flex items-center gap-6 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Unidade</label>
+                        <select id="kit-unidade-{{ kit_key }}"
+                                onchange="kitUnidadeChange('{{ kit_key }}')"
+                                class="bg-white border border-outline-variant/20 rounded-lg text-sm px-3 py-1.5 cursor-pointer text-on-surface">
+                            <option value="Meses">Meses</option>
+                            <option value="Dias">Dias</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant" id="kit-periodo-label-{{ kit_key }}">Período (meses)</label>
+                        <input type="number" id="kit-periodo-{{ kit_key }}" value="1" min="1" step="1"
+                               oninput="kitPeriodoChange('{{ kit_key }}')"
+                               class="w-20 bg-white border border-outline-variant/20 rounded-lg text-sm px-2 py-1.5 text-center text-on-surface">
+                    </div>
+                    <div class="ml-auto text-right">
+                        <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">Total do Kit</p>
+                        <p class="text-lg font-extrabold text-primary" id="kit-grand-total-{{ kit_key }}">R$ {{ kit_data.total|floatformat:2 }}</p>
+                    </div>
+                </div>
+                <!-- Body: tabela de itens -->
                 <form method="POST" action="{% url 'gestao_mo' projeto_id=projeto.id aba='ferramentas' %}"
                       class="flex flex-col flex-1 min-h-0">
                     {% csrf_token %}
                     <input type="hidden" name="acao" value="kit_save">
                     <input type="hidden" name="kit_key" value="{{ kit_key }}">
-                    <div class="overflow-y-auto flex-1 px-6 py-3">
+                    <input type="hidden" name="kit_unidade" id="hidden-kit-unidade-{{ kit_key }}" value="Meses">
+                    <input type="hidden" name="kit_periodo" id="hidden-kit-periodo-{{ kit_key }}" value="1">
+                    <div class="overflow-y-auto flex-1 px-6 py-2">
                         <table class="w-full text-left">
-                            <thead class="sticky top-0 bg-white border-b border-outline-variant/10">
+                            <thead class="sticky top-0 bg-white border-b border-outline-variant/10 z-10">
                                 <tr>
                                     <th class="py-2 w-6"></th>
                                     <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Item</th>
-                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-12">Grupo</th>
-                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-16 text-center">Qtd</th>
+                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-20">Grupo</th>
+                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-14 text-center">Qtd</th>
                                     <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-24 text-right">R$/mês unit</th>
-                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-24 text-right">Total</th>
+                                    <th class="py-2 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-24 text-right" id="kit-col-unit-{{ kit_key }}">Custo Total</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-outline-variant/5" id="tbody-{{ kit_key }}">
                             {% for item_kit in kit_data.items_data %}
-                            <tr class="{% if not item_kit.ativo %}opacity-40{% endif %}" id="kit-row-{{ kit_key }}-{{ item_kit.idx }}">
+                            <tr class="{% if not item_kit.ativo %}opacity-40{% endif %}"
+                                id="kit-row-{{ kit_key }}-{{ item_kit.idx }}"
+                                data-idx="{{ item_kit.idx }}"
+                                data-monthly="{{ item_kit.custo_base }}">
                                 <td class="py-2 pr-2">
                                     <input type="checkbox" name="item_ativo_{{ item_kit.idx }}" value="1"
                                            {% if item_kit.ativo %}checked{% endif %}
-                                           onchange="kitRowToggle('{{ kit_key }}',{{ item_kit.idx }},{{ item_kit.custo_base }})"
+                                           onchange="kitRowUpdate('{{ kit_key }}',{{ item_kit.idx }})"
                                            class="w-4 h-4 rounded accent-primary cursor-pointer">
                                 </td>
-                                <td class="py-2 text-sm font-medium text-on-surface">{{ item_kit.nome }}</td>
+                                <td class="py-2 text-sm text-on-surface leading-tight">{{ item_kit.nome }}</td>
                                 <td class="py-2 text-xs text-on-surface-variant">{{ item_kit.grupo }}</td>
                                 <td class="py-2 text-center">
                                     <input type="number" name="item_qty_{{ item_kit.idx }}"
                                            value="{{ item_kit.qty|floatformat:0 }}" min="0" step="1"
-                                           onchange="kitRowCalc('{{ kit_key }}',{{ item_kit.idx }},{{ item_kit.custo_base }})"
-                                           class="w-14 bg-surface-container-high border-none rounded text-xs text-on-surface px-2 py-1 text-center">
+                                           onchange="kitRowUpdate('{{ kit_key }}',{{ item_kit.idx }})"
+                                           class="w-12 bg-surface-container-high border-none rounded text-xs text-on-surface px-1 py-1 text-center">
                                 </td>
-                                <td class="py-2 text-right text-xs text-on-surface-variant">{{ item_kit.custo_base }}</td>
-                                <td class="py-2 text-right text-xs font-bold text-primary" id="kit-total-{{ kit_key }}-{{ item_kit.idx }}">
+                                <td class="py-2 text-right text-xs text-on-surface-variant font-mono">{{ item_kit.custo_base }}</td>
+                                <td class="py-2 text-right text-xs font-bold text-primary font-mono" id="kit-total-{{ kit_key }}-{{ item_kit.idx }}">
                                     {{ item_kit.total|floatformat:2 }}
                                 </td>
                             </tr>
@@ -414,24 +451,16 @@
                         </table>
                     </div>
                     <!-- Modal footer -->
-                    <div class="px-6 py-4 border-t border-outline-variant/10 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs text-on-surface-variant uppercase font-bold tracking-widest">Total do Kit</p>
-                            <p class="text-xl font-extrabold text-primary" id="kit-grand-total-{{ kit_key }}">
-                                R$ {{ kit_data.total|floatformat:2 }}
-                            </p>
-                        </div>
-                        <div class="flex gap-3">
-                            <button type="button"
-                                    onclick="document.getElementById('modal-kit-{{ kit_key }}').classList.add('hidden')"
-                                    class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant text-sm font-bold hover:bg-surface-container-high">
-                                Cancelar
-                            </button>
-                            <button type="submit"
-                                    class="px-5 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:opacity-90 flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">save</span>Salvar Kit
-                            </button>
-                        </div>
+                    <div class="px-6 py-4 border-t border-outline-variant/10 flex justify-end gap-3">
+                        <button type="button"
+                                onclick="document.getElementById('modal-kit-{{ kit_key }}').classList.add('hidden')"
+                                class="px-4 py-2 rounded-lg border border-outline-variant text-on-surface-variant text-sm font-bold hover:bg-surface-container-high">
+                            Cancelar
+                        </button>
+                        <button type="submit"
+                                class="px-5 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:opacity-90 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1">save</span>Salvar Kit
+                        </button>
                     </div>
                 </form>
             </div>
@@ -1329,6 +1358,74 @@ function confirmarAdd(comboId, hiddenDescId, formId) {
     if (!combo.value) { alert('Selecione um item.'); return; }
     document.getElementById(hiddenDescId).value = combo.value;
     combo.closest('form').submit();
+}
+
+// ── Kit Ferramentas: cálculos dinâmicos no popup ──────────────────────────
+function kitGetPeriodo(kitKey) {
+    return parseFloat(document.getElementById('kit-periodo-' + kitKey)?.value) || 1;
+}
+function kitGetUnidade(kitKey) {
+    return document.getElementById('kit-unidade-' + kitKey)?.value || 'Meses';
+}
+function kitUnitRate(monthly, unidade) {
+    // monthly = custo mensal base; retorna custo unitário para a unidade selecionada
+    if (unidade === 'Dias') return monthly / 20;
+    return monthly; // Meses
+}
+function kitRowUpdate(kitKey, idx) {
+    const row = document.getElementById('kit-row-' + kitKey + '-' + idx);
+    if (!row) return;
+    const monthly = parseFloat(row.dataset.monthly) || 0;
+    const unidade = kitGetUnidade(kitKey);
+    const periodo = kitGetPeriodo(kitKey);
+    const qty = parseFloat(document.querySelector(`input[name="item_qty_${idx}"]`)?.value) || 0;
+    const ativo = document.querySelector(`input[name="item_ativo_${idx}"]`)?.checked;
+    const unitRate = kitUnitRate(monthly, unidade);
+    const total = ativo ? qty * unitRate * periodo : 0;
+    const totalEl = document.getElementById('kit-total-' + kitKey + '-' + idx);
+    if (totalEl) totalEl.textContent = total.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    row.classList.toggle('opacity-40', !ativo);
+    kitUpdateGrandTotal(kitKey);
+}
+function kitUpdateGrandTotal(kitKey) {
+    const unidade = kitGetUnidade(kitKey);
+    const periodo = kitGetPeriodo(kitKey);
+    let grand = 0;
+    document.querySelectorAll(`#tbody-${kitKey} tr`).forEach(row => {
+        const idx = row.dataset.idx;
+        if (!idx) return;
+        const monthly = parseFloat(row.dataset.monthly) || 0;
+        const qty = parseFloat(document.querySelector(`input[name="item_qty_${idx}"]`)?.value) || 0;
+        const ativo = document.querySelector(`input[name="item_ativo_${idx}"]`)?.checked;
+        if (ativo) grand += qty * kitUnitRate(monthly, unidade) * periodo;
+    });
+    const el = document.getElementById('kit-grand-total-' + kitKey);
+    if (el) el.textContent = 'R$ ' + grand.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+function kitUnidadeChange(kitKey) {
+    const unidade = kitGetUnidade(kitKey);
+    document.getElementById('hidden-kit-unidade-' + kitKey).value = unidade;
+    const labelEl = document.getElementById('kit-periodo-label-' + kitKey);
+    if (unidade === 'Dias') {
+        document.getElementById('kit-periodo-' + kitKey).value = 22;
+        if (labelEl) labelEl.textContent = 'Período (dias)';
+    } else {
+        document.getElementById('kit-periodo-' + kitKey).value = 1;
+        if (labelEl) labelEl.textContent = 'Período (meses)';
+    }
+    document.getElementById('hidden-kit-periodo-' + kitKey).value = document.getElementById('kit-periodo-' + kitKey).value;
+    // Recalcula todas as linhas
+    document.querySelectorAll(`#tbody-${kitKey} tr`).forEach(row => {
+        const idx = row.dataset.idx;
+        if (idx !== undefined) kitRowUpdate(kitKey, idx);
+    });
+}
+function kitPeriodoChange(kitKey) {
+    document.getElementById('hidden-kit-periodo-' + kitKey).value = kitGetPeriodo(kitKey);
+    document.querySelectorAll(`#tbody-${kitKey} tr`).forEach(row => {
+        const idx = row.dataset.idx;
+        if (idx !== undefined) kitRowUpdate(kitKey, idx);
+    });
 }
 
 // ── Transporte: Fleet row subtotal + auto-link combustível ─────────────────

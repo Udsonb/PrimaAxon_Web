@@ -697,6 +697,9 @@ ABAS_MO = [
     ('terceiros',     'Terceirizados',          'handshake'),
 ]
 
+# Encargos sociais aplicados sobre o custo de M.O (INSS patronal + FGTS + outros)
+ENCARGOS_PERCENT = 77.92  # %
+
 # Salários base mensais (S/ADC — sem adicionais) usados para auto-fill de custo
 # Dias = mensal / 20  |  Horas = mensal / 146
 SALARIOS_MO = {
@@ -1207,6 +1210,8 @@ def gestao_mo(request, projeto_id, aba):
             kit_key = request.POST.get('kit_key', '')
             if kit_key in KITS_FERR:
                 kit_def = KITS_FERR[kit_key]
+                kit_unidade = request.POST.get('kit_unidade', 'Meses')
+                kit_periodo = _dec(request.POST.get('kit_periodo', '1'), 1)
                 # Apaga e recria para evitar duplicatas
                 ItemMO.objects.filter(
                     projeto=projeto, aba='ferramentas', especificacao=kit_key
@@ -1214,11 +1219,16 @@ def gestao_mo(request, projeto_id, aba):
                 for i, (nome, grupo, custo_base) in enumerate(kit_def['items']):
                     ativo = request.POST.get(f'item_ativo_{i}') == '1'
                     qty = _dec(request.POST.get(f'item_qty_{i}', '1'), 1)
+                    monthly = Decimal(str(custo_base))
+                    if kit_unidade == 'Dias':
+                        custo_unit = (monthly / 20).quantize(Decimal('0.01'))
+                    else:
+                        custo_unit = monthly
                     ItemMO.objects.create(
                         projeto=projeto, aba='ferramentas', especificacao=kit_key,
                         descricao=nome,
-                        quantidade=qty, tempo=Decimal('1'), unidade='Meses',
-                        custo_unitario=Decimal(str(custo_base)), ativo=ativo,
+                        quantidade=qty, tempo=kit_periodo, unidade=kit_unidade,
+                        custo_unitario=custo_unit, ativo=ativo,
                     )
 
         elif acao == 'equip_toggle':
@@ -1351,12 +1361,18 @@ def gestao_mo(request, projeto_id, aba):
     salarios_json = _json.dumps(SALARIOS_MO)
     funcao_icons_json = _json.dumps(FUNCAO_ICONS)
 
+    encargos_valor = (total_aba * Decimal(str(ENCARGOS_PERCENT)) / 100).quantize(Decimal('0.01'))
+    total_com_encargos = total_aba + encargos_valor
+
     ctx = {
         'projeto': projeto,
         'aba': aba,
         'abas_mo': ABAS_MO,
         'itens': itens,
         'total_aba': total_aba,
+        'encargos_percent': ENCARGOS_PERCENT,
+        'encargos_valor': encargos_valor,
+        'total_com_encargos': total_com_encargos,
         'total_mo': total_mo,
         'total_horas': int(total_horas),
         'pct_mo': pct_mo,
