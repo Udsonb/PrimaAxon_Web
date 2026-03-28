@@ -646,6 +646,29 @@ def reset_senha_usuario(request, user_id):
 
 
 # ============================================================
+# TROCAR SENHA PRÓPRIA (AJAX)
+# ============================================================
+@login_required(login_url='/')
+def trocar_senha_proprio(request):
+    from django.http import JsonResponse
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'erro': 'Método inválido'})
+    senha_atual = request.POST.get('senha_atual', '')
+    senha_nova = request.POST.get('senha_nova', '')
+    user = authenticate(request, username=request.user.username, password=senha_atual)
+    if user is None:
+        return JsonResponse({'ok': False, 'erro': 'Senha atual incorreta.'})
+    if len(senha_nova) < 4:
+        return JsonResponse({'ok': False, 'erro': 'A nova senha deve ter ao menos 4 caracteres.'})
+    user.set_password(senha_nova)
+    user.save()
+    # Mantém a sessão ativa após a troca
+    from django.contrib.auth import update_session_auth_hash
+    update_session_auth_hash(request, user)
+    return JsonResponse({'ok': True})
+
+
+# ============================================================
 # ENTRAR NO M.O — auto-inclui preco_variavel no BoM e redireciona
 # ============================================================
 @login_required(login_url='/')
@@ -673,6 +696,14 @@ ABAS_MO = [
     ('demais_custos', 'Demais Custos',          'payments'),
     ('terceiros',     'Terceirizados',          'handshake'),
 ]
+
+FUNCOES_MO = {
+    'operacional':   ['Engenheiro Residente', 'Coordenador Técnico', 'Supervisor', 'Projetista', 'Técnico de T.I', 'Eletricista', 'Dupla Técnica'],
+    'ferramentas':   ['Maleta de Ferramentas', 'Equipamento de Medição', 'Insumos Perecíveis', 'EPI', 'Andaime/Escada', 'Escritório de Obra'],
+    'transporte':    ['Veículo Leve', 'Van/Utilitário', 'Caminhão', 'Combustível', 'Pedágio', 'Hospedagem', 'Passagem Aérea'],
+    'demais_custos': ['Vale Refeição', 'Vale Transporte', 'Plano de Saúde', 'Plano Odontológico', 'Seguro de Vida', 'Uniforme', 'Treinamento/Capacitação'],
+    'terceiros':     ['Instalação Civil', 'Cabeamento Estruturado', 'Montagem de Racks', 'Comissionamento', 'Certificação de Rede', 'Projeto Executivo'],
+}
 
 @login_required(login_url='/')
 def gestao_mo(request, projeto_id, aba):
@@ -721,7 +752,7 @@ def gestao_mo(request, projeto_id, aba):
                 qtd = item_proj.quantidade or 1
                 item_proj.preco_unitario = (total_mo / qtd).quantize(Decimal('0.01'))
                 item_proj.save(update_fields=['preco_unitario'])
-            return redirect('fluxo_projeto', projeto_id=projeto_id)
+            return redirect('bom_selector_projeto', projeto_id=projeto_id)
         return redirect('gestao_mo', projeto_id=projeto_id, aba=aba)
 
     itens = list(ItemMO.objects.filter(projeto=projeto, aba=aba))
@@ -736,6 +767,7 @@ def gestao_mo(request, projeto_id, aba):
         'itens': itens,
         'total_aba': total_aba,
         'total_mo': total_mo,
+        'funcoes_aba': FUNCOES_MO.get(aba, []),
     })
 
 

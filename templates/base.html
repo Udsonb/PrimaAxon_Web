@@ -98,13 +98,29 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="flex items-center gap-2 pl-2 border-l border-outline-variant/30">
-                {% if user_foto_url %}
-                <img src="{{ user_foto_url }}" alt="" class="h-8 w-8 rounded-full object-cover shadow-sm">
-                {% else %}
-                <div class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm">{{ request.user.first_name|default:request.user.username|slice:":1" }}</div>
-                {% endif %}
-                <span class="hidden sm:block text-sm font-semibold text-primary capitalize">{{ request.user.first_name|default:request.user.username }}</span>
+            <!-- Avatar com dropdown -->
+            <div class="relative pl-2 border-l border-outline-variant/30">
+                <button onclick="this.parentElement.querySelector('.dd-user').classList.toggle('hidden')" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    {% if user_foto_url %}
+                    <img src="{{ user_foto_url }}" alt="" class="h-8 w-8 rounded-full object-cover shadow-sm ring-2 ring-primary/20">
+                    {% else %}
+                    <div class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs uppercase shadow-sm">{{ request.user.first_name|default:request.user.username|slice:":1" }}</div>
+                    {% endif %}
+                    <span class="hidden sm:block text-sm font-semibold text-primary capitalize">{{ request.user.first_name|default:request.user.username }}</span>
+                    <span class="material-symbols-outlined text-sm text-on-surface-variant">expand_more</span>
+                </button>
+                <div class="dd-user hidden absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-outline-variant/20 py-2 z-50">
+                    <a href="{% url 'editar_usuario' user_id=request.user.id %}" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container-high transition-colors">
+                        <span class="material-symbols-outlined text-primary text-xl">add_a_photo</span>Trocar Foto
+                    </a>
+                    <button onclick="abrirTrocarSenha()" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container-high transition-colors">
+                        <span class="material-symbols-outlined text-primary text-xl">lock_reset</span>Trocar Senha
+                    </button>
+                    <div class="border-t border-outline-variant/20 my-1"></div>
+                    <a href="{% url 'logout' %}" class="flex items-center gap-3 px-4 py-3 text-sm text-error hover:bg-error-container transition-colors">
+                        <span class="material-symbols-outlined text-xl">logout</span>Sair
+                    </a>
+                </div>
             </div>
         </div>
     </header>
@@ -115,7 +131,9 @@
     </footer>
 </div>
 
-<script>document.addEventListener('click',function(e){document.querySelectorAll('.dd').forEach(function(m){if(!m.parentElement.contains(e.target))m.classList.add('hidden')})});</script>
+<script>document.addEventListener('click',function(e){
+    document.querySelectorAll('.dd,.dd-user').forEach(function(m){if(!m.parentElement.contains(e.target))m.classList.add('hidden');});
+});</script>
 
 <!-- Modal: Confirmação de Senha para Gestão do Programa -->
 <div id="modal-senha-gestao" class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center px-4">
@@ -142,6 +160,47 @@ function confirmarSenhaGestao(){
   });
 }
 document.getElementById('senha-gestao-input').addEventListener('keydown',function(e){if(e.key==='Enter')confirmarSenhaGestao();});
+</script>
+<!-- Modal: Trocar Senha -->
+<div id="modal-trocar-senha" class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center px-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 flex flex-col gap-5">
+    <h2 class="font-headline font-bold text-primary text-xl text-center">Trocar Senha</h2>
+    <input id="ts-atual" type="password" placeholder="Senha atual" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none"/>
+    <input id="ts-nova" type="password" placeholder="Nova senha" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none"/>
+    <input id="ts-confirma" type="password" placeholder="Confirmar nova senha" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/40 outline-none"/>
+    <p id="ts-erro" class="text-error text-xs hidden text-center"></p>
+    <p id="ts-ok" class="text-secondary text-xs hidden text-center font-bold">Senha alterada com sucesso!</p>
+    <div class="flex gap-3">
+      <button onclick="fecharTrocarSenha()" class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant text-sm font-bold hover:bg-surface-container-high transition-all">Cancelar</button>
+      <button onclick="confirmarTrocarSenha()" class="flex-1 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:opacity-90 transition-all">Confirmar</button>
+    </div>
+  </div>
+</div>
+<script>
+function abrirTrocarSenha(){document.getElementById('modal-trocar-senha').classList.remove('hidden');setTimeout(()=>document.getElementById('ts-atual').focus(),100);}
+function fecharTrocarSenha(){
+    document.getElementById('modal-trocar-senha').classList.add('hidden');
+    ['ts-atual','ts-nova','ts-confirma'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('ts-erro').classList.add('hidden');
+    document.getElementById('ts-ok').classList.add('hidden');
+}
+function confirmarTrocarSenha(){
+    const atual=document.getElementById('ts-atual').value;
+    const nova=document.getElementById('ts-nova').value;
+    const confirma=document.getElementById('ts-confirma').value;
+    const erro=document.getElementById('ts-erro');
+    erro.classList.add('hidden');
+    if(!atual||!nova){erro.textContent='Preencha todos os campos.';erro.classList.remove('hidden');return;}
+    if(nova!==confirma){erro.textContent='As novas senhas não conferem.';erro.classList.remove('hidden');return;}
+    if(nova.length<4){erro.textContent='A senha deve ter ao menos 4 caracteres.';erro.classList.remove('hidden');return;}
+    fetch('/trocar-senha/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':'{{ csrf_token }}'},
+        body:'senha_atual='+encodeURIComponent(atual)+'&senha_nova='+encodeURIComponent(nova)})
+    .then(r=>r.json()).then(d=>{
+        if(d.ok){document.getElementById('ts-ok').classList.remove('hidden');setTimeout(fecharTrocarSenha,1500);}
+        else{erro.textContent=d.erro||'Erro ao trocar senha.';erro.classList.remove('hidden');}
+    });
+}
+['ts-confirma'].forEach(id=>{document.getElementById(id).addEventListener('keydown',function(e){if(e.key==='Enter')confirmarTrocarSenha();});});
 </script>
 {% block extra_scripts %}{% endblock %}
 </body>
