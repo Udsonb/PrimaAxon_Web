@@ -6,7 +6,7 @@
 <div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>
 <nav class="hidden md:flex gap-3 items-center">
     <a class="text-primary font-bold border-b-2 border-primary text-sm pb-0.5" href="#">Materiais</a>
-    {% if projeto %}<a class="text-on-surface-variant hover:text-primary text-sm" href="{% url 'gestao_mo' projeto_id=projeto.id aba='operacional' %}">M.O</a>{% else %}<a class="text-on-surface-variant text-sm opacity-40" href="#">M.O</a>{% endif %}
+    {% if projeto %}<a class="text-on-surface-variant hover:text-primary text-sm" href="{% url 'entrar_mo' projeto_id=projeto.id %}">M.O</a>{% else %}<a class="text-on-surface-variant text-sm opacity-40" href="#">M.O</a>{% endif %}
 </nav>
 {% if projeto %}
 <div class="h-5 w-[1px] bg-outline-variant/30 mx-1 hidden md:block"></div>

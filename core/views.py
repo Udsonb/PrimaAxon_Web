@@ -646,6 +646,24 @@ def reset_senha_usuario(request, user_id):
 
 
 # ============================================================
+# ENTRAR NO M.O — auto-inclui preco_variavel no BoM e redireciona
+# ============================================================
+@login_required(login_url='/')
+def entrar_mo(request, projeto_id):
+    from decimal import Decimal
+    projeto = get_object_or_404(Projeto, pk=projeto_id)
+    # Garante que todos os produtos preco_variavel estão no BoM (remarca se foi desmarcado)
+    for produto in Produto.objects.filter(preco_variavel=True):
+        item, criado = ItemProjeto.objects.get_or_create(
+            projeto=projeto,
+            produto=produto,
+            defaults={'quantidade': 1, 'preco_unitario': Decimal('0.00')},
+        )
+        # Se já existia mas foi removido e recriado, não mexe no preco_unitario existente
+    return redirect('gestao_mo', projeto_id=projeto_id, aba='operacional')
+
+
+# ============================================================
 # GESTÃO DE MÃO DE OBRA (abas por projeto)
 # ============================================================
 ABAS_MO = [
@@ -699,13 +717,11 @@ def gestao_mo(request, projeto_id, aba):
             # Calcula total M.O (todas as abas) e atualiza todos os ItemProjeto com preco_variavel=True
             from decimal import Decimal
             total_mo = sum(i.custo_total for i in ItemMO.objects.filter(projeto=projeto))
-            itens_variavel = ItemProjeto.objects.filter(projeto=projeto, produto__preco_variavel=True)
-            if itens_variavel.exists():
-                for item_proj in itens_variavel:
-                    qtd = item_proj.quantidade or 1
-                    item_proj.preco_unitario = (total_mo / qtd).quantize(Decimal('0.01'))
-                    item_proj.save(update_fields=['preco_unitario'])
-            return redirect('bom_selector_projeto', projeto_id=projeto_id)
+            for item_proj in ItemProjeto.objects.filter(projeto=projeto, produto__preco_variavel=True):
+                qtd = item_proj.quantidade or 1
+                item_proj.preco_unitario = (total_mo / qtd).quantize(Decimal('0.01'))
+                item_proj.save(update_fields=['preco_unitario'])
+            return redirect('fluxo_projeto', projeto_id=projeto_id)
         return redirect('gestao_mo', projeto_id=projeto_id, aba=aba)
 
     itens = list(ItemMO.objects.filter(projeto=projeto, aba=aba))
