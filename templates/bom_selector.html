@@ -134,7 +134,7 @@
                         {% else %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span>{% endif %}
                     </td>
                     <td class="px-2 py-1.5 text-xs font-mono text-on-surface-variant">{{ produto.id_planilha }}</td>
-                    <td class="px-2 py-1.5 font-semibold text-primary">{{ produto.nome }}</td>
+                    <td class="px-2 py-1.5 font-semibold text-primary"><a href="{% url 'produto_aba' pk=produto.id_planilha aba='cadastro' %}" target="_blank" class="hover:underline hover:text-secondary">{{ produto.nome }}</a></td>
                     <td class="px-2 py-1.5 text-xs text-on-surface-variant">{{ produto.modelo }}</td>
                     <td class="px-2 py-1.5"><span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">{{ produto.fabricante }}</span></td>
                     <td class="px-2 py-1.5 text-xs text-on-surface-variant">{{ produto.part_number|default:"-" }}</td>

@@ -18,6 +18,7 @@ urlpatterns = [
     path('catalogo/', views.bom_selector, name='bom_selector'),
     path('produto/cadastro/', views.cadastro_produto, name='cadastro_produto'),
     path('produto/<int:pk>/', views.detalhe_produto, name='detalhe_produto'),
+    path('produto/<int:pk>/aba/<str:aba>/', views.produto_aba, name='produto_aba'),
     path('gestao/usuarios/', views.gestao_usuarios, name='gestao_usuarios'),
     path('gestao/usuarios/novo/', views.cadastro_usuario, name='cadastro_usuario'),
     path('gestao/usuarios/<int:user_id>/editar/', views.editar_usuario, name='editar_usuario'),

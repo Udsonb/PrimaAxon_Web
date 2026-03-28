@@ -522,6 +522,60 @@ def editar_usuario(request, user_id):
 
 
 # ============================================================
+# PRODUTO — ABAS DETALHADAS
+# ============================================================
+@login_required(login_url='/')
+def produto_aba(request, pk, aba):
+    produto = get_object_or_404(Produto, pk=pk)
+
+    CAMPOS_TEXTO = {
+        'cadastro': ['nome', 'modelo', 'part_number', 'fabricante', 'unidade', 'categoria', 'descricao'],
+        'fiscal':   ['moeda'],
+        'compras':  ['nome_fornecedor', 'estado_origem', 'grupo_financeiro', 'ncm'],
+        'mkp':      [],
+        'locacao':  [],
+    }
+    CAMPOS_DEC = {
+        'cadastro': [],
+        'fiscal':   ['preco_fornecedor', 'unit_reais', 'frete_na_compra', 'ipi', 'icms'],
+        'compras':  [],
+        'mkp':      ['lucro_percent', 'iss_percent', 'pis_cofins_percent', 'ir_csll_lp', 'ir_csll_lr', 'mkp'],
+        'locacao':  ['custo_loc', 'custo_mensal', 'iss_loc', 'pis_cofins_loc', 'ir_csll_lp_loc', 'ir_csll_lr_loc', 'mkp_loc'],
+    }
+    TEMPLATES = {
+        'cadastro': 'cadastro_produtos_inclusao.html',
+        'fiscal':   'cadastro_produtos_fiscal.html',
+        'compras':  'cadastro_produtos_compras.html',
+        'mkp':      'cadastro_produtos_mkp.html',
+        'locacao':  'cadastro_produtos_mkp_locacao.html',
+    }
+
+    if aba not in TEMPLATES:
+        from django.http import Http404
+        raise Http404
+
+    if request.method == 'POST':
+        for field in CAMPOS_TEXTO.get(aba, []):
+            val = request.POST.get(field, '').strip()
+            setattr(produto, field, val)
+        for field in CAMPOS_DEC.get(aba, []):
+            val = request.POST.get(field)
+            setattr(produto, field, val or 0)
+        if aba == 'compras':
+            dt = request.POST.get('data_ultima_cotacao')
+            if dt:
+                produto.data_ultima_cotacao = dt
+        try:
+            produto.save()
+            messages.success(request, 'Dados salvos.')
+        except Exception as e:
+            messages.error(request, f'Erro: {e}')
+        return redirect('produto_aba', pk=pk, aba=aba)
+
+    return render(request, TEMPLATES[aba], {'produto': produto, 'aba': aba})
+
+
+# ============================================================
 # DIAGNÓSTICO (sem login — apenas para verificar o sistema)
 # ============================================================
 from django.http import JsonResponse
