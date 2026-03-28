@@ -213,9 +213,13 @@ def bom_selector(request, projeto_id=None):
     busca = request.GET.get('busca', '')
     produtos = Produto.objects.all().order_by('categoria', 'nome')
 
-    # Excluir produtos já incluídos neste projeto
+    # Excluir produtos já incluídos neste projeto (exceto preco_variavel — sempre visível)
     if projeto:
-        ids_ja_incluidos = ItemProjeto.objects.filter(projeto=projeto).values_list('produto_id', flat=True)
+        ids_ja_incluidos = (
+            ItemProjeto.objects
+            .filter(projeto=projeto, produto__preco_variavel=False)
+            .values_list('produto_id', flat=True)
+        )
         produtos = produtos.exclude(id_planilha__in=ids_ja_incluidos)
 
     if categoria:
@@ -235,12 +239,19 @@ def bom_selector(request, projeto_id=None):
         total_itens_projeto = itens_projeto.count()
         custo_projeto = sum(i.preco_unitario * i.quantidade for i in itens_projeto)
 
+    _mo_item = (
+        ItemProjeto.objects.filter(projeto=projeto, produto__preco_variavel=True).first()
+        if projeto else None
+    )
+    mo_preco = float(_mo_item.preco_unitario) if _mo_item else 0.0
+
     context = {
         'produtos': produtos, 'categorias': categorias,
         'categoria_ativa': categoria, 'busca': busca,
         'total_produtos': produtos.count(), 'projeto': projeto,
         'total_itens_projeto': total_itens_projeto,
         'custo_projeto': custo_projeto,
+        'mo_preco': mo_preco,
     }
     return render(request, 'bom_selector.html', context)
 
@@ -1373,6 +1384,18 @@ def gestao_mo(request, projeto_id, aba):
 
     encargos_valor = (total_aba * Decimal(str(ENCARGOS_PERCENT)) / 100).quantize(Decimal('0.01'))
     total_com_encargos = total_aba + encargos_valor
+
+    # ── Auto-sync item preco_variavel: sempre reflete o total M.O ───────────
+    _prod_var = Produto.objects.filter(preco_variavel=True).first()
+    if _prod_var:
+        ItemProjeto.objects.update_or_create(
+            projeto=projeto, produto=_prod_var,
+            defaults={
+                'quantidade': 1,
+                'preco_unitario': total_mo,
+                'faturar_servico': True,
+            }
+        )
 
     total_itens_projeto = ItemProjeto.objects.filter(projeto=projeto).count()
 

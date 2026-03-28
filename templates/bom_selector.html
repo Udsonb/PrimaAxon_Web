@@ -116,41 +116,58 @@
             </thead>
             <tbody class="divide-y divide-surface-container-low text-sm">
                 {% for produto in produtos %}
-                <tr class="hover:bg-surface-container-low/50 transition-colors item-row cursor-default group {% if produto.preco_variavel %}bg-green-50{% endif %}"
-                    data-preco="{{ produto.unit_reais }}"
+                <tr class="item-row group
+                    {% if produto.preco_variavel %}bg-green-100 border-l-4 border-green-500{% else %}hover:bg-surface-container-low/50 transition-colors cursor-default{% endif %}"
+                    data-preco="{% if produto.preco_variavel %}{{ mo_preco }}{% else %}{{ produto.unit_reais }}{% endif %}"
                     data-id="{{ produto.pk }}"
                     data-categoria="{{ produto.categoria }}"
-                    ondblclick="abrirDetalhe({{ produto.pk }})"
-                    {% if produto.preco_variavel %}title="Preço variável — definido por Mão de Obra do projeto"{% endif %}>
+                    {% if produto.preco_variavel %}data-fixo="1"{% endif %}
+                    ondblclick="{% if not produto.preco_variavel %}abrirDetalhe({{ produto.pk }}){% endif %}"
+                    {% if produto.preco_variavel %}title="Serviço de M.O — sempre incluído, preço atualizado automaticamente"{% endif %}>
                     {% if projeto %}
                     <td class="p-2 text-center">
+                        {% if produto.preco_variavel %}
+                        <span class="material-symbols-outlined text-green-600 text-base" title="Sempre incluído" style="font-variation-settings:'FILL' 1">lock</span>
+                        {% else %}
                         <input type="checkbox" data-produto-id="{{ produto.pk }}" class="item-check rounded border-outline-variant text-primary focus:ring-primary" onchange="onCheckChange(this)">
+                        {% endif %}
                     </td>
                     {% endif %}
                     <td class="px-2 py-1.5 text-center">
-                        {% if produto.status == 'verde' %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500" title="Conferido"></span>
+                        {% if produto.preco_variavel %}
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" title="M.O ativa"></span>
+                        {% elif produto.status == 'verde' %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500" title="Conferido"></span>
                         {% elif produto.status == 'amarelo' %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-yellow-400" title="Aguardando"></span>
                         {% elif produto.status == 'azul' %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-500" title="Aprovado"></span>
                         {% elif produto.status == 'vermelho' %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500" title="Descontinuado"></span>
                         {% else %}<span class="inline-block w-2.5 h-2.5 rounded-full bg-green-500"></span>{% endif %}
                     </td>
-                    <td class="px-2 py-1.5 text-xs font-mono text-on-surface-variant">{{ produto.id_planilha }}</td>
-                    <td class="px-2 py-1.5 font-semibold text-primary">
+                    <td class="px-2 py-1.5 text-xs font-mono {% if produto.preco_variavel %}text-green-800 font-bold{% else %}text-on-surface-variant{% endif %}">{{ produto.id_planilha }}</td>
+                    <td class="px-2 py-1.5 font-semibold {% if produto.preco_variavel %}text-green-800{% else %}text-primary{% endif %}">
                         {{ produto.nome }}
+                        {% if not produto.preco_variavel %}
                         <a href="{% url 'produto_aba' pk=produto.id_planilha aba='cadastro' %}" target="_blank" title="Abrir cadastro" onclick="event.stopPropagation()" class="ml-1 text-outline hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity">
                             <span class="material-symbols-outlined text-xs align-middle">open_in_new</span>
                         </a>
+                        {% endif %}
                     </td>
                     <td class="px-2 py-1.5 text-xs text-on-surface-variant">{{ produto.modelo }}</td>
-                    <td class="px-2 py-1.5"><span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">{{ produto.fabricante }}</span></td>
+                    <td class="px-2 py-1.5"><span class="{% if produto.preco_variavel %}bg-green-200 text-green-800{% else %}bg-surface-container-highest{% endif %} px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">{% if produto.preco_variavel %}M.O{% else %}{{ produto.fabricante }}{% endif %}</span></td>
                     <td class="px-2 py-1.5 text-xs text-on-surface-variant">{{ produto.part_number|default:"-" }}</td>
                     <td class="px-2 py-1.5"><span class="bg-primary-fixed px-1.5 py-0.5 rounded text-[9px] font-bold text-primary">{{ produto.categoria }}</span></td>
                     <td class="px-2 py-1.5 font-bold text-right preco-cell {% if produto.preco_variavel %}text-green-700{% else %}text-primary{% endif %}">
-                        {% if produto.preco_variavel %}<span title="Preço definido por M.O">⬥ M.O</span>{% else %}{{ produto.unit_reais }}{% endif %}
+                        {% if produto.preco_variavel %}
+                        <span class="text-green-700 font-extrabold">R$ {{ mo_preco|floatformat:2 }}</span>
+                        <span class="text-[9px] text-green-500 block leading-none">via M.O</span>
+                        {% else %}{{ produto.unit_reais }}{% endif %}
                     </td>
                     {% if projeto %}
                     <td class="px-2 py-1.5 text-center">
+                        {% if produto.preco_variavel %}
+                        <span class="text-xs font-bold text-green-700">1</span>
+                        {% else %}
                         <input type="number" min="1" value="1" data-produto-id="{{ produto.pk }}" class="item-qty w-14 h-7 bg-surface-container-high border-none rounded text-xs text-center focus:ring-1 focus:ring-primary" onchange="recalcular()">
+                        {% endif %}
                     </td>
                     {% endif %}
                 </tr>
@@ -197,6 +214,7 @@ function onCheckChange(cb) {
 function recalcular() {
     let count = 0, custoNovo = 0;
     document.querySelectorAll('.item-row').forEach(row => {
+        if (row.dataset.fixo) return;  // item M.O já está em custo_projeto
         const check = row.querySelector('.item-check');
         const qty = row.querySelector('.item-qty');
         if (check && check.checked) {
@@ -244,7 +262,9 @@ function enviarItens(finalizar) {
     formItens.innerHTML = '';
     let count = 0;
     // Coleta TODOS os marcados (inclusive os escondidos pelo filtro)
+    // Itens data-fixo (M.O) são gerenciados automaticamente — não submeter aqui
     document.querySelectorAll('.item-row').forEach(row => {
+        if (row.dataset.fixo) return;
         const check = row.querySelector('.item-check');
         const qty = row.querySelector('.item-qty');
         if (check && check.checked) {
