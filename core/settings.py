@@ -117,10 +117,12 @@ USE_GCS = os.environ.get('USE_GCS', 'False') == 'True'
 
 if USE_GCS:
     # Produção: Google Cloud Storage
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud_storage.GoogleCloudStorage'
-    STATICFILES_STORAGE = 'storages.backends.gcloud_storage.GoogleCloudStorage'
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME', os.environ.get('GCS_BUCKET_NAME', 'primaaxon-media-files'))
     GS_PROJECT_ID = os.environ.get('GCP_PROJECT_ID')
+    GS_DEFAULT_ACL = 'publicRead'       # arquivos enviados ficam públicos
+    GS_QUERYSTRING_AUTH = False         # URLs sem assinatura (acesso direto)
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
     STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
 else:
