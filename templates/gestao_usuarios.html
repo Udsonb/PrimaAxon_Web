@@ -26,7 +26,7 @@
         </div>
         <div class="relative flex items-center bg-surface-container-low rounded-lg px-4 py-2 max-w-sm">
             <span class="material-symbols-outlined text-outline text-lg">search</span>
-            <input id="busca-usuario" class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-outline/60 ml-2" placeholder="Buscar usuário..." type="text" onkeyup="filtrarUsuarios()"/>
+            <input id="busca-usuario" class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-outline/60 ml-2" placeholder="Buscar usuário..." type="text" autocomplete="off" onkeyup="filtrarUsuarios()"/>
         </div>
         <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
             <div class="overflow-x-auto">
@@ -101,5 +101,8 @@ function filtrarUsuarios() {
         row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
     });
 }
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('busca-usuario').value = '';
+});
 </script>
 {% endblock %}
