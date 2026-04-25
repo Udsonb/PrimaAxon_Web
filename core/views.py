@@ -1040,9 +1040,24 @@ def editar_usuario(request, user_id):
 
         if request.FILES.get('foto'):
             try:
-                perfil.foto = request.FILES['foto']
+                from google.cloud import storage as _gcs
+                import re, uuid, os
+                _arq = request.FILES['foto']
+                _ext = os.path.splitext(_arq.name)[1].lower() or '.jpg'
+                _safe = re.sub(r'[^a-zA-Z0-9]', '_', os.path.splitext(_arq.name)[0])[:40]
+                _blob_name = f'media/usuarios/{_safe}_{uuid.uuid4().hex[:8]}{_ext}'
+                _bucket_name = 'primaaxon-media-files'
+                _client = _gcs.Client()
+                _bucket = _client.bucket(_bucket_name)
+                _blob = _bucket.blob(_blob_name)
+                _blob.upload_from_file(_arq, content_type=_arq.content_type)
+                print(f'[GCS DIRECT] Salvo em gs://{_bucket_name}/{_blob_name}', flush=True)
+                perfil.foto = _blob_name.replace('media/', '', 1)  # remove prefixo media/ para o campo
                 perfil.save(update_fields=['foto'])
+                messages.success(request, f'Foto salva!')
             except Exception as e:
+                import traceback
+                print(f'[GCS DIRECT] ERRO: {e}\n{traceback.format_exc()}', flush=True)
                 messages.error(request, f'Erro ao salvar foto: {e}')
 
         try:
