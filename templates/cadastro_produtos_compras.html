@@ -166,10 +166,10 @@
 <div>
 <label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Grupo Financeiro</label>
 <div class="relative">
-<select name="grupo_financeiro" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none appearance-none cursor-pointer transition-all">
-<option {% if produto.grupo_financeiro == 'Group 1' or produto.grupo_financeiro == '1' %}selected{% endif %}>Group 1</option>
-<option {% if produto.grupo_financeiro == 'Group 2' or produto.grupo_financeiro == '2' %}selected{% endif %}>Group 2</option>
-<option {% if produto.grupo_financeiro == 'Group 3' or produto.grupo_financeiro == '3' %}selected{% endif %}>Group 3</option>
+<select id="grupo_financeiro" name="grupo_financeiro" onchange="calcularVencimento()" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none appearance-none cursor-pointer transition-all">
+<option value="Grupo 1" {% if produto.grupo_financeiro == 'Grupo 1' or produto.grupo_financeiro == 'Group 1' or produto.grupo_financeiro == '1' %}selected{% endif %}>Grupo 1 (30 dias)</option>
+<option value="Grupo 2" {% if produto.grupo_financeiro == 'Grupo 2' or produto.grupo_financeiro == 'Group 2' or produto.grupo_financeiro == '2' %}selected{% endif %}>Grupo 2 (60 dias)</option>
+<option value="Grupo 3" {% if produto.grupo_financeiro == 'Grupo 3' or produto.grupo_financeiro == 'Group 3' or produto.grupo_financeiro == '3' %}selected{% endif %}>Grupo 3 (90 dias)</option>
 </select>
 <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
 </div>
@@ -179,10 +179,24 @@
 <input name="ncm" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" placeholder="0000.00.00" type="text" value="{{ produto.ncm }}"/>
 </div>
 <div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">ICMS Compra (%)</label>
+<input name="icms_compra" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" placeholder="0,00" type="number" step="0.01" min="0" value="{{ produto.icms_compra }}"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
 <label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Data da Última Cotação</label>
 <div class="flex items-center bg-surface-container-high rounded-lg overflow-hidden">
 <span class="material-symbols-outlined px-4 text-outline">calendar_month</span>
-<input name="data_ultima_cotacao" class="w-full bg-transparent border-none py-4 pr-4 focus:ring-0 text-on-surface font-body" type="date" value="{{ produto.data_ultima_cotacao|date:'Y-m-d' }}"/>
+<input id="data_ultima_cotacao" name="data_ultima_cotacao" onchange="calcularVencimento()" class="w-full bg-transparent border-none py-4 pr-4 focus:ring-0 text-on-surface font-body" type="date" value="{{ produto.data_ultima_cotacao|date:'Y-m-d' }}"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Vencimento da Cotação</label>
+<div id="vencimento_container" class="flex items-center gap-3 bg-surface-container-high rounded-lg px-4 py-4 min-h-[56px]">
+<span class="material-symbols-outlined text-outline">event_available</span>
+<span id="vencimento_texto" class="font-body text-on-surface">—</span>
+<span id="vencimento_badge" class="hidden ml-auto text-xs font-bold px-2 py-1 rounded-full"></span>
 </div>
 </div>
 </div>
@@ -199,4 +213,44 @@
 <button type="submit" onclick="document.querySelector('form').submit()" class="bg-[#000666] text-white rounded-md px-8 py-3 flex items-center gap-2 hover:opacity-95 transition-all active:scale-[0.98] duration-100 uppercase text-xs font-bold tracking-tighter font-label">
 <span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">check_circle</span>CONFIRMAR</button>
 </footer>
+<script>
+const DIAS_GRUPO = {'Grupo 1': 30, 'Grupo 2': 60, 'Grupo 3': 90};
+
+function calcularVencimento() {
+    const dataStr = document.getElementById('data_ultima_cotacao').value;
+    const grupo = document.getElementById('grupo_financeiro').value;
+    const badge = document.getElementById('vencimento_badge');
+    const texto = document.getElementById('vencimento_texto');
+
+    if (!dataStr) {
+        texto.textContent = '—';
+        badge.classList.add('hidden');
+        return;
+    }
+
+    const dias = DIAS_GRUPO[grupo] || 30;
+    const data = new Date(dataStr + 'T00:00:00');
+    data.setDate(data.getDate() + dias);
+
+    const dd = String(data.getDate()).padStart(2, '0');
+    const mm = String(data.getMonth() + 1).padStart(2, '0');
+    const yyyy = data.getFullYear();
+    texto.textContent = dd + '/' + mm + '/' + yyyy;
+
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    badge.classList.remove('hidden');
+    if (data < hoje) {
+        badge.textContent = 'VENCIDO';
+        badge.className = 'ml-auto text-xs font-bold px-2 py-1 rounded-full bg-red-100 text-red-700';
+        document.getElementById('vencimento_container').classList.add('border', 'border-red-300');
+    } else {
+        badge.textContent = 'VÁLIDO';
+        badge.className = 'ml-auto text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700';
+        document.getElementById('vencimento_container').classList.remove('border', 'border-red-300');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', calcularVencimento);
+</script>
 </body></html>

@@ -1100,7 +1100,7 @@ def produto_aba(request, pk, aba):
         'fiscal':   ['preco_fornecedor', 'taxa_cambio', 'desconto_mapeamento', 'valor_com_desconto',
                      'frete_na_compra', 'ipi', 'ipi_reais', 'icms', 'icms_reais',
                      'difal', 'difal_reais', 'unit_reais'],
-        'compras':  [],
+        'compras':  ['icms_compra'],
         'mkp':      ['lucro_percent', 'iss_percent', 'pis_cofins_percent', 'ir_csll_lp', 'ir_csll_lr', 'mkp'],
         'locacao':  ['custo_loc', 'custo_mensal', 'iss_loc', 'pis_cofins_loc', 'ir_csll_lp_loc', 'ir_csll_lr_loc', 'mkp_loc'],
     }
@@ -1988,10 +1988,26 @@ def dash_analista(request):
 
 @login_required(login_url='/')
 def dash_orcamentista(request):
+    from datetime import date, timedelta
     cargo = get_cargo(request.user)
     if cargo not in CARGOS_COMPRAS | CARGOS_DIRETORIA | CARGOS_GERENCIA:
         return redirect('dash_analista')
-    return render(request, 'dash_orçamentista.html')
+    hoje = date.today()
+    DIAS_GRUPO = {'Grupo 1': 30, 'Grupo 2': 60, 'Grupo 3': 90}
+    # Produtos com cotação vencida
+    todos = Produto.objects.exclude(data_ultima_cotacao=None).values(
+        'id_planilha', 'nome', 'fabricante', 'grupo_financeiro', 'data_ultima_cotacao', 'nome_fornecedor'
+    )
+    vencidos = []
+    for p in todos:
+        dias = DIAS_GRUPO.get(p['grupo_financeiro'], 30)
+        vencimento = p['data_ultima_cotacao'] + timedelta(days=dias)
+        if vencimento < hoje:
+            p['vencimento'] = vencimento
+            p['dias_vencido'] = (hoje - vencimento).days
+            vencidos.append(p)
+    vencidos.sort(key=lambda x: x['vencimento'])
+    return render(request, 'dash_orçamentista.html', {'produtos_vencidos': vencidos})
 
 @login_required(login_url='/')
 def validacao_orcamento(request):
