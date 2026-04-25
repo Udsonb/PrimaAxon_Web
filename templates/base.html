@@ -75,6 +75,13 @@
         </a>
         {% endif %}
 
+        {# Estratégia Financeira — apenas Diretor Geral #}
+        {% if is_diretoria %}
+        <a href="{% url 'estrategia_financeira' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name == 'estrategia_financeira' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
+            <span class="material-symbols-outlined text-xl">finance</span><span class="text-sm">Estratégia Financeira</span>
+        </a>
+        {% endif %}
+
         {# Cargo badge #}
         <div class="px-3 pt-2">
             <span class="text-[9px] uppercase tracking-widest font-bold text-on-surface-variant/50">{{ user_cargo_display }}</span>

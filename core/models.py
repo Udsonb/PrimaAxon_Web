@@ -201,3 +201,40 @@ class ItemMO(models.Model):
 
     def __str__(self):
         return f"{self.projeto.id_projeto_manual} - {self.aba} - {self.descricao}"
+
+
+class ConfiguracaoFinanceira(models.Model):
+    """Singleton — configurações financeiras da empresa (Tela Estratégia Financeira)."""
+
+    # Configurações 1
+    custos_adm          = models.DecimalField("Custos Adm (%)", max_digits=5, decimal_places=2, default=5)
+    ll_minimo           = models.DecimalField("LL Mínimo Desejado (%)", max_digits=5, decimal_places=2, default=15)
+    premiacao_normal    = models.DecimalField("Premiação Normal (%)", max_digits=5, decimal_places=2, default=2.52)
+    premiacao_publicada = models.DecimalField("Premiação Já Publicada (%)", max_digits=5, decimal_places=2, default=1.09)
+    wacc_locacao        = models.DecimalField("WACC Locação (%/mês)", max_digits=5, decimal_places=2, default=1)
+    payback_spare_parts = models.DecimalField("Payback Spare Parts (% do Custo)", max_digits=5, decimal_places=2, default=60)
+
+    # Configurações 2 — Validade cotação por grupo
+    dias_cotacao_grupo1 = models.IntegerField("Validade Grupo 1 (dias)", default=30)
+    dias_cotacao_grupo2 = models.IntegerField("Validade Grupo 2 (dias)", default=60)
+    dias_cotacao_grupo3 = models.IntegerField("Validade Grupo 3 (dias)", default=90)
+
+    # Formatação condicional de cotação (dias antes do vencimento)
+    fmt_vencida_dias  = models.IntegerField("Alerta Vencida (≤ dias)", default=0)
+    fmt_proxima_dias  = models.IntegerField("Alerta Próxima (≤ dias)", default=5)
+
+    # Alçadas de desconto
+    desconto_ev      = models.DecimalField("Desconto EV (%)", max_digits=5, decimal_places=2, default=5)
+    desconto_gerente = models.DecimalField("Desconto Gerente (%)", max_digits=5, decimal_places=2, default=2)
+    desconto_diretor = models.DecimalField("Desconto Diretor (%)", max_digits=5, decimal_places=2, default=3)
+
+    class Meta:
+        verbose_name = "Configuração Financeira"
+
+    def __str__(self):
+        return "Configuração Financeira"
+
+    @classmethod
+    def get(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj

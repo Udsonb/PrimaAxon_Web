@@ -2025,6 +2025,64 @@ def validacao_orcamento(request):
     return render(request, 'validacao_de_orcamento.html')
 
 
+@login_required(login_url='/')
+def estrategia_financeira(request):
+    from .models import ConfiguracaoFinanceira
+    cargo = get_cargo(request.user)
+    if cargo not in CARGOS_DIRETORIA:
+        messages.error(request, 'Acesso restrito à Diretoria.')
+        return redirect('inicio')
+
+    cfg = ConfiguracaoFinanceira.get()
+
+    if request.method == 'POST':
+        dec_fields = [
+            'custos_adm', 'll_minimo', 'premiacao_normal', 'premiacao_publicada',
+            'wacc_locacao', 'payback_spare_parts',
+            'desconto_ev', 'desconto_gerente', 'desconto_diretor',
+        ]
+        int_fields = [
+            'dias_cotacao_grupo1', 'dias_cotacao_grupo2', 'dias_cotacao_grupo3',
+            'fmt_vencida_dias', 'fmt_proxima_dias',
+        ]
+        for f in dec_fields:
+            val = request.POST.get(f)
+            if val is not None:
+                setattr(cfg, f, val or 0)
+        for f in int_fields:
+            val = request.POST.get(f)
+            if val is not None:
+                setattr(cfg, f, int(val or 0))
+        cfg.save()
+        messages.success(request, 'Configurações salvas com sucesso.')
+        return redirect('estrategia_financeira')
+
+    # Calcular valores derivados para exibição
+    from decimal import Decimal
+    acum_ev      = cfg.desconto_ev
+    acum_gerente = cfg.desconto_ev + cfg.desconto_gerente
+    acum_diretor = cfg.desconto_ev + cfg.desconto_gerente + cfg.desconto_diretor
+    fator_base   = (100 - acum_diretor) / 100  # 0.9 quando diretor=10%
+
+    def fator_alcada(acumulado):
+        if fator_base == 0:
+            return None
+        return (100 - float(acumulado)) / 100 / float(fator_base)
+
+    alcadas = [
+        {'nome': 'Cheio',   'desconto': 0,           'acumulado': 0,           'fator': fator_alcada(0)},
+        {'nome': 'EV',      'desconto': cfg.desconto_ev,      'acumulado': acum_ev,      'fator': fator_alcada(acum_ev)},
+        {'nome': 'Gerente', 'desconto': cfg.desconto_gerente, 'acumulado': acum_gerente, 'fator': fator_alcada(acum_gerente)},
+        {'nome': 'Diretor', 'desconto': cfg.desconto_diretor, 'acumulado': acum_diretor, 'fator': fator_alcada(acum_diretor)},
+    ]
+
+    return render(request, 'estrategia_financeira.html', {
+        'cfg': cfg,
+        'alcadas': alcadas,
+        'fator_base': fator_base,
+    })
+
+
 # ============================================================
 # DIAGNÓSTICO (sem login — apenas para verificar o sistema)
 # ============================================================

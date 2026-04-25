@@ -35,6 +35,7 @@ urlpatterns = [
     path('dash/analista/', views.dash_analista, name='dash_analista'),
     path('dash/orcamentista/', views.dash_orcamentista, name='dash_orcamentista'),
     path('validacao/', views.validacao_orcamento, name='validacao_orcamento'),
+    path('estrategia/', views.estrategia_financeira, name='estrategia_financeira'),
 ]
 
 if settings.DEBUG:

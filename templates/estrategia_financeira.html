@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% block title %}Prisma Axon — Estratégia Financeira{% endblock %}
+{% block page_title %}Estratégia Financeira{% endblock %}
+
+{% block content %}
+<div class="flex-1 px-8 pb-16 pt-6 space-y-10 max-w-[1400px] mx-auto w-full">
+
+  <!-- Header -->
+  <div class="flex items-end justify-between">
+    <div>
+      <h1 class="text-3xl font-black text-primary font-headline tracking-tight">Estratégia Financeira</h1>
+      <p class="text-on-surface-variant text-sm mt-1">Configurações globais de precificação, tributos e alçadas de desconto. Restrito à Diretoria.</p>
+    </div>
+    <span class="text-xs font-bold bg-error-container text-on-error-container px-3 py-1 rounded-full uppercase tracking-wider">Acesso Restrito</span>
+  </div>
+
+  {% if messages %}
+  <div class="space-y-1">{% for msg in messages %}<div class="text-sm font-medium p-3 rounded-lg {% if msg.tags == 'error' %}bg-error-container text-on-error-container{% else %}bg-secondary-container text-on-secondary-container{% endif %}">{{ msg }}</div>{% endfor %}</div>
+  {% endif %}
+
+  <form method="post" action="{% url 'estrategia_financeira' %}">
+  {% csrf_token %}
+
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+    <!-- ===== Configurações 1 ===== -->
+    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15 shadow-sm">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2 bg-primary-fixed rounded-lg"><span class="material-symbols-outlined text-primary">tune</span></div>
+        <div>
+          <h2 class="font-headline font-bold text-on-surface">Configurações 1</h2>
+          <p class="text-xs text-on-surface-variant">Parâmetros operacionais base</p>
+        </div>
+      </div>
+      <div class="space-y-5">
+
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Custos Adm (%)</label>
+          <div class="relative">
+            <input name="custos_adm" type="number" step="0.01" min="0" max="50"
+              value="{{ cfg.custos_adm }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none transition-all"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">LL Mínimo Desejado (%)</label>
+          <div class="relative">
+            <input name="ll_minimo" type="number" step="0.01" min="0" max="100"
+              value="{{ cfg.ll_minimo }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none transition-all"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Premiação "Normal" (%)</label>
+          <div class="relative">
+            <input name="premiacao_normal" type="number" step="0.01" min="0" max="20"
+              value="{{ cfg.premiacao_normal }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none transition-all"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Premiação "Já Publicada" (%)</label>
+          <div class="relative">
+            <input name="premiacao_publicada" type="number" step="0.01" min="0" max="20"
+              value="{{ cfg.premiacao_publicada }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none transition-all"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">WACC Locação (%/mês)</label>
+          <div class="relative">
+            <input name="wacc_locacao" type="number" step="0.01" min="0" max="10"
+              value="{{ cfg.wacc_locacao }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none transition-all"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+          </div>
+          <p class="text-xs text-on-surface-variant/60 mt-1">Custo de Capital Locação — usado na fórmula PMT.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Payback Spare Parts (% do Custo)</label>
+          <div class="relative">
+            <input name="payback_spare_parts" type="number" step="0.01" min="0" max="100"
+              value="{{ cfg.payback_spare_parts }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none transition-all"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== Configurações 2 ===== -->
+    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15 shadow-sm">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2 bg-secondary-container rounded-lg"><span class="material-symbols-outlined text-secondary">calendar_month</span></div>
+        <div>
+          <h2 class="font-headline font-bold text-on-surface">Configurações 2</h2>
+          <p class="text-xs text-on-surface-variant">Validade de cotação e alertas</p>
+        </div>
+      </div>
+      <div class="space-y-5">
+
+        <div class="bg-surface-container rounded-lg p-4 space-y-4">
+          <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Validade de Cotação por Grupo</p>
+          <div>
+            <label class="block text-xs text-on-surface-variant mb-1">Grupo 1 (dias)</label>
+            <input name="dias_cotacao_grupo1" type="number" step="1" min="1"
+              value="{{ cfg.dias_cotacao_grupo1 }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none"/>
+          </div>
+          <div>
+            <label class="block text-xs text-on-surface-variant mb-1">Grupo 2 (dias)</label>
+            <input name="dias_cotacao_grupo2" type="number" step="1" min="1"
+              value="{{ cfg.dias_cotacao_grupo2 }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none"/>
+          </div>
+          <div>
+            <label class="block text-xs text-on-surface-variant mb-1">Grupo 3 (dias)</label>
+            <input name="dias_cotacao_grupo3" type="number" step="1" min="1"
+              value="{{ cfg.dias_cotacao_grupo3 }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none"/>
+          </div>
+        </div>
+
+        <div class="bg-surface-container rounded-lg p-4 space-y-4">
+          <p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Formatação Condicional</p>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded bg-red-500 shrink-0"></div>
+            <div class="flex-1">
+              <label class="block text-xs text-on-surface-variant mb-1">Cotação Vencida (≤ dias para vencer)</label>
+              <input name="fmt_vencida_dias" type="number" step="1" min="0"
+                value="{{ cfg.fmt_vencida_dias }}"
+                class="w-full bg-surface-container-high border-none rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none text-sm"/>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded bg-yellow-400 shrink-0"></div>
+            <div class="flex-1">
+              <label class="block text-xs text-on-surface-variant mb-1">Cotação Próxima (≤ dias para vencer)</label>
+              <input name="fmt_proxima_dias" type="number" step="1" min="0"
+                value="{{ cfg.fmt_proxima_dias }}"
+                class="w-full bg-surface-container-high border-none rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none text-sm"/>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-4 h-4 rounded bg-green-500 shrink-0"></div>
+            <div class="flex-1 text-xs text-on-surface-variant py-1">Cotação Distante (acima do limite Próxima)</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===== Alçadas de Desconto ===== -->
+    <div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15 shadow-sm">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="p-2 bg-tertiary-fixed rounded-lg"><span class="material-symbols-outlined text-tertiary">percent</span></div>
+        <div>
+          <h2 class="font-headline font-bold text-on-surface">Alçadas de Desconto</h2>
+          <p class="text-xs text-on-surface-variant">Descontos adicionais por nível hierárquico</p>
+        </div>
+      </div>
+
+      <!-- Tabela dinâmica calculada -->
+      <div class="bg-surface-container rounded-xl overflow-hidden mb-6">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-primary text-white text-[10px] uppercase tracking-widest">
+              <th class="px-4 py-2 text-left">Nível</th>
+              <th class="px-4 py-2 text-center">Desconto<br>Nível</th>
+              <th class="px-4 py-2 text-center">Acumulado</th>
+              <th class="px-4 py-2 text-center">Fator Preço</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline-variant/10">
+            {% for a in alcadas %}
+            <tr class="{% if forloop.last %}bg-primary-fixed/30 font-bold{% else %}hover:bg-surface-container-high{% endif %}">
+              <td class="px-4 py-3 font-semibold">{{ a.nome }}</td>
+              <td class="px-4 py-3 text-center">{{ a.desconto }}%</td>
+              <td class="px-4 py-3 text-center text-on-surface-variant">{{ a.acumulado }}%</td>
+              <td class="px-4 py-3 text-center font-bold font-mono
+                {% if forloop.last %}text-secondary{% else %}text-primary{% endif %}">
+                {% if a.fator %}{% widthratio a.fator 1 100 %}%{% else %}—{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Desconto EV (%)</label>
+          <div class="relative">
+            <input name="desconto_ev" type="number" step="0.01" min="0" max="50"
+              value="{{ cfg.desconto_ev }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none transition-all"
+              onchange="atualizarTabela()"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Desconto Gerente (%)</label>
+          <div class="relative">
+            <input name="desconto_gerente" type="number" step="0.01" min="0" max="50"
+              value="{{ cfg.desconto_gerente }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none transition-all"
+              onchange="atualizarTabela()"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Desconto Diretor (%)</label>
+          <div class="relative">
+            <input name="desconto_diretor" type="number" step="0.01" min="0" max="50"
+              value="{{ cfg.desconto_diretor }}"
+              class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 pr-8 focus:ring-2 focus:ring-primary/40 text-on-surface outline-none transition-all"
+              onchange="atualizarTabela()"/>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+          </div>
+        </div>
+
+        <div class="bg-surface-container rounded-lg p-4 text-xs text-on-surface-variant space-y-1">
+          <p class="font-bold text-on-surface">Fórmula do Fator Preço:</p>
+          <p class="font-mono">(100% − acumulado%) ÷ fator_base</p>
+          <p>Fator base = (100% − máx. acumulado Diretor)</p>
+          <p class="mt-2 text-on-surface">Fator base atual: <span class="font-bold">{{ fator_base|floatformat:4 }}</span> ({{ cfg.desconto_ev|add:cfg.desconto_gerente|add:cfg.desconto_diretor }}% acumulado Diretor)</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end grid -->
+
+  <!-- Botão salvar -->
+  <div class="flex justify-end pt-4 border-t border-outline-variant/20">
+    <button type="submit"
+      class="bg-[#000666] text-white rounded-xl px-10 py-4 flex items-center gap-3 hover:opacity-95 transition-all font-bold tracking-tight uppercase text-sm">
+      <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">save</span>
+      Salvar Configurações
+    </button>
+  </div>
+
+  </form>
+</div>
+{% endblock %}
