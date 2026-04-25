@@ -1038,15 +1038,20 @@ def editar_usuario(request, user_id):
         empresa_id = request.POST.get('empresa', '')
         perfil.empresa_id = int(empresa_id) if empresa_id else None
 
+        print(f'[FOTO DEBUG] FILES keys: {list(request.FILES.keys())}', flush=True)
         if request.FILES.get('foto'):
             try:
+                print(f'[FOTO DEBUG] Salvando foto: {request.FILES["foto"].name} size={request.FILES["foto"].size}', flush=True)
                 perfil.foto = request.FILES['foto']
                 perfil.save()
-                messages.success(request, 'Foto salva com sucesso.')
+                print(f'[FOTO DEBUG] Foto salva. URL={perfil.foto.url}', flush=True)
+                messages.success(request, f'Foto salva: {perfil.foto.url}')
             except Exception as e:
-                import traceback, logging
-                logging.getLogger(__name__).error('Erro ao salvar foto: %s\n%s', e, traceback.format_exc())
+                import traceback
+                print(f'[FOTO DEBUG] ERRO: {e}\n{traceback.format_exc()}', flush=True)
                 messages.error(request, f'Erro ao salvar foto: {e}')
+        else:
+            print('[FOTO DEBUG] Nenhum arquivo em request.FILES["foto"]', flush=True)
 
         try:
             edit_user.save()
