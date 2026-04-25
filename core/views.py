@@ -1040,23 +1040,9 @@ def editar_usuario(request, user_id):
 
         if request.FILES.get('foto'):
             try:
-                from django.core.files.storage import default_storage
-                from django.core.files.base import ContentFile
-                import re, uuid, os
-                _arq = request.FILES['foto']
-                _ext = os.path.splitext(_arq.name)[1].lower() or '.jpg'
-                _safe = re.sub(r'[^a-zA-Z0-9]', '_', os.path.splitext(_arq.name)[0])[:40]
-                _nome = f'usuarios/{_safe}_{uuid.uuid4().hex[:8]}{_ext}'
-                print(f'[FOTO DEBUG] Tentando salvar em: {_nome}', flush=True)
-                _saved = default_storage.save(_nome, ContentFile(_arq.read()))
-                _url = default_storage.url(_saved)
-                print(f'[FOTO DEBUG] Salvo! path={_saved} url={_url}', flush=True)
-                perfil.foto = _saved
+                perfil.foto = request.FILES['foto']
                 perfil.save(update_fields=['foto'])
-                messages.success(request, f'Foto salva: {_url}')
             except Exception as e:
-                import traceback
-                print(f'[FOTO DEBUG] ERRO: {e}\n{traceback.format_exc()}', flush=True)
                 messages.error(request, f'Erro ao salvar foto: {e}')
 
         try:
