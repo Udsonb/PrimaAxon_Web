@@ -5,6 +5,51 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from .models import Produto, Projeto, Empresa, Perfil, ItemProjeto, ItemMO
+from functools import wraps
+
+
+# ============================================================
+# HELPERS DE CARGO / PERMISSÃO
+# ============================================================
+
+# Grupos de cargo para controle de acesso
+CARGOS_DIRETORIA = {'diretor_geral', 'diretor_setor'}
+CARGOS_GERENCIA  = {'gerente_pre_vendas', 'supervisor'}
+CARGOS_COMPRAS   = {'gerente_compras', 'comprador', 'orcamentista'}
+CARGOS_ADMIN     = CARGOS_DIRETORIA  # quem pode gerir usuários/empresas/programa
+
+def get_cargo(user):
+    """Retorna o cargo do usuário ou 'analista' como fallback."""
+    try:
+        return user.perfil.cargo
+    except Exception:
+        return 'analista'
+
+def tem_acesso(user, *cargos_permitidos):
+    """True se o cargo do usuário estiver na lista de permitidos."""
+    return get_cargo(user) in set(cargos_permitidos)
+
+def cargo_required(*cargos_permitidos):
+    """Decorator que bloqueia acesso se cargo não estiver na lista."""
+    def decorator(view_func):
+        @wraps(view_func)
+        @login_required(login_url='/')
+        def wrapper(request, *args, **kwargs):
+            if get_cargo(request.user) not in set(cargos_permitidos):
+                messages.error(request, 'Você não tem permissão para acessar esta página.')
+                return redirect('inicio')
+            return view_func(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
+def dash_url_para_cargo(cargo):
+    """Retorna a URL do dashboard adequado para o cargo."""
+    if cargo in CARGOS_COMPRAS:
+        return 'dash_orcamentista'
+    if cargo == 'analista':
+        return 'dash_analista'
+    # diretores, gerentes pré-vendas, supervisor, comercial, executivo
+    return 'dash_gerencial'
 
 
 FAIXAS_CATEGORIA = {
@@ -954,11 +999,11 @@ def cadastro_usuario(request):
                 user.is_staff = True
             user.save()
 
-            # Criar perfil com foto e função
+            # Criar perfil com foto, cargo e empresa
             empresa_id = request.POST.get('empresa', '')
             perfil = Perfil.objects.create(
                 user=user,
-                funcao=request.POST.get('funcao', ''),
+                cargo=request.POST.get('cargo', 'analista'),
                 empresa_id=int(empresa_id) if empresa_id else None,
             )
             if request.FILES.get('foto'):
@@ -987,9 +1032,9 @@ def editar_usuario(request, user_id):
 
         nivel = request.POST.get('nivel', 'analista')
         edit_user.is_superuser = (nivel == 'admin')
-        edit_user.is_staff = (nivel in ('admin', 'gerente', 'supervisor'))
+        edit_user.is_staff = (nivel in ('admin', 'supervisor'))
 
-        perfil.funcao = request.POST.get('funcao', perfil.funcao)
+        perfil.cargo = request.POST.get('cargo', perfil.cargo)
         empresa_id = request.POST.get('empresa', '')
         perfil.empresa_id = int(empresa_id) if empresa_id else None
 
@@ -1892,18 +1937,36 @@ def gestao_mo(request, projeto_id, aba):
 # ============================================================
 @login_required(login_url='/')
 def dash_gerencial(request):
+    cargo = get_cargo(request.user)
+    # Cargos sem acesso ao dash gerencial são redirecionados ao seu dash
+    if cargo in CARGOS_COMPRAS:
+        return redirect('dash_orcamentista')
+    if cargo == 'analista':
+        return redirect('dash_analista')
     return render(request, 'dash_Gerencial.html')
 
 @login_required(login_url='/')
 def dash_analista(request):
+    cargo = get_cargo(request.user)
+    if cargo in CARGOS_COMPRAS:
+        return redirect('dash_orcamentista')
+    if cargo not in {'analista'} | CARGOS_DIRETORIA | CARGOS_GERENCIA:
+        return redirect('dash_gerencial')
     return render(request, 'dash_analista.html')
 
 @login_required(login_url='/')
 def dash_orcamentista(request):
+    cargo = get_cargo(request.user)
+    if cargo not in CARGOS_COMPRAS | CARGOS_DIRETORIA | CARGOS_GERENCIA:
+        return redirect('dash_analista')
     return render(request, 'dash_orçamentista.html')
 
 @login_required(login_url='/')
 def validacao_orcamento(request):
+    cargo = get_cargo(request.user)
+    if cargo not in CARGOS_DIRETORIA | CARGOS_GERENCIA | CARGOS_COMPRAS:
+        messages.error(request, 'Você não tem permissão para acessar esta página.')
+        return redirect('inicio')
     return render(request, 'validacao_de_orcamento.html')
 
 

@@ -15,9 +15,23 @@ class Empresa(models.Model):
 
 
 class Perfil(models.Model):
+    CARGO_CHOICES = [
+        ('diretor_geral',     'Diretor Geral'),
+        ('diretor_setor',     'Diretor de Setor'),
+        ('gerente_pre_vendas','Gerente Pré-Vendas'),
+        ('supervisor',        'Supervisor'),
+        ('gerente_comercial', 'Gerente Comercial'),
+        ('executivo',         'Executivo'),
+        ('analista',          'Analista'),
+        ('gerente_compras',   'Gerente de Compras'),
+        ('comprador',         'Comprador'),
+        ('orcamentista',      'Orçamentista'),
+    ]
+
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='perfil')
     foto = models.ImageField("Foto", upload_to='usuarios/', blank=True, null=True)
     funcao = models.CharField("Função", max_length=100, blank=True)
+    cargo = models.CharField("Cargo", max_length=30, choices=CARGO_CHOICES, default='analista')
     empresa = models.ForeignKey(Empresa, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):

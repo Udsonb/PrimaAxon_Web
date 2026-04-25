@@ -61,12 +61,25 @@
                             {% endif %}
                         </div>
 
-                        <!-- Função e E-mail -->
+                        <!-- Cargo e E-mail -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-2">
-                                <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Função</label>
-                                <input name="funcao" type="text" value="{{ perfil.funcao|default:'' }}" placeholder="Ex: Analista, Gerente, Orçamentista"
-                                       class="w-full bg-surface-container-high border-none px-4 py-4 rounded-lg focus:ring-2 focus:ring-primary/40 text-on-surface font-medium placeholder:text-on-surface-variant/30">
+                                <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Cargo</label>
+                                <div class="relative">
+                                    <select name="cargo" class="w-full bg-surface-container-high border-none px-4 py-4 rounded-lg focus:ring-2 focus:ring-primary/40 text-on-surface font-medium appearance-none cursor-pointer">
+                                        <option value="diretor_geral"      {% if perfil and perfil.cargo == 'diretor_geral' %}selected{% endif %}>Diretor Geral</option>
+                                        <option value="diretor_setor"      {% if perfil and perfil.cargo == 'diretor_setor' %}selected{% endif %}>Diretor de Setor</option>
+                                        <option value="gerente_pre_vendas" {% if perfil and perfil.cargo == 'gerente_pre_vendas' %}selected{% endif %}>Gerente Pré-Vendas</option>
+                                        <option value="supervisor"         {% if perfil and perfil.cargo == 'supervisor' %}selected{% endif %}>Supervisor</option>
+                                        <option value="gerente_comercial"  {% if perfil and perfil.cargo == 'gerente_comercial' %}selected{% endif %}>Gerente Comercial</option>
+                                        <option value="executivo"          {% if perfil and perfil.cargo == 'executivo' %}selected{% endif %}>Executivo</option>
+                                        <option value="analista"           {% if not perfil or perfil.cargo == 'analista' %}selected{% endif %}>Analista</option>
+                                        <option value="gerente_compras"    {% if perfil and perfil.cargo == 'gerente_compras' %}selected{% endif %}>Gerente de Compras</option>
+                                        <option value="comprador"          {% if perfil and perfil.cargo == 'comprador' %}selected{% endif %}>Comprador</option>
+                                        <option value="orcamentista"       {% if perfil and perfil.cargo == 'orcamentista' %}selected{% endif %}>Orçamentista</option>
+                                    </select>
+                                    <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                                </div>
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">E-mail</label>
@@ -81,9 +94,8 @@
                                 <label class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">Nível de Acesso</label>
                                 <div class="relative">
                                     <select name="nivel" class="w-full bg-surface-container-high border-none px-4 py-4 rounded-lg focus:ring-2 focus:ring-primary/40 text-on-surface font-medium appearance-none cursor-pointer">
-                                        <option value="analista" {% if edit_user and not edit_user.is_staff %}selected{% endif %}>Analista</option>
-                                        <option value="supervisor">Supervisor</option>
-                                        <option value="gerente" {% if edit_user and edit_user.is_staff and not edit_user.is_superuser %}selected{% endif %}>Gerente</option>
+                                        <option value="analista" {% if edit_user and not edit_user.is_staff %}selected{% endif %}>Padrão</option>
+                                        <option value="supervisor" {% if edit_user and edit_user.is_staff and not edit_user.is_superuser %}selected{% endif %}>Staff</option>
                                         <option value="admin" {% if edit_user and edit_user.is_superuser %}selected{% endif %}>Administrador</option>
                                     </select>
                                     <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>

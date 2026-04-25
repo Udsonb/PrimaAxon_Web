@@ -48,15 +48,37 @@
         {% endif %}
     </div>
     <nav class="flex-1 space-y-1">
+        {# Início — todos #}
         <a href="{% url 'inicio' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name == 'inicio' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
             <span class="material-symbols-outlined text-xl">home</span><span class="text-sm">Início</span>
         </a>
-        <a href="{% url 'dash_gerencial' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name in 'dash_gerencial,dash_analista,dash_orcamentista' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
+
+        {# Dashboard — redireciona para o dash correto por cargo #}
+        {% if is_diretoria or is_gerencia or is_comercial %}
+        <a href="{% url 'dash_gerencial' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name == 'dash_gerencial' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
             <span class="material-symbols-outlined text-xl">dashboard</span><span class="text-sm">Dashboard</span>
         </a>
+        {% elif is_analista %}
+        <a href="{% url 'dash_analista' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name == 'dash_analista' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
+            <span class="material-symbols-outlined text-xl">dashboard</span><span class="text-sm">Dashboard</span>
+        </a>
+        {% elif is_compras %}
+        <a href="{% url 'dash_orcamentista' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name == 'dash_orcamentista' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
+            <span class="material-symbols-outlined text-xl">dashboard</span><span class="text-sm">Dashboard</span>
+        </a>
+        {% endif %}
+
+        {# Validação — gerência, supervisão e orçamentistas #}
+        {% if is_diretoria or is_gerencia or is_compras %}
         <a href="{% url 'validacao_orcamento' %}" class="flex items-center gap-2 px-3 py-2.5 {% if request.resolver_match.url_name == 'validacao_orcamento' %}bg-white text-primary font-bold rounded shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-highest rounded{% endif %} transition-all">
             <span class="material-symbols-outlined text-xl">verified</span><span class="text-sm">Validação</span>
         </a>
+        {% endif %}
+
+        {# Cargo badge #}
+        <div class="px-3 pt-2">
+            <span class="text-[9px] uppercase tracking-widest font-bold text-on-surface-variant/50">{{ user_cargo_display }}</span>
+        </div>
     </nav>
 
     <!-- Bloco extra para botões específicos de cada tela -->
@@ -84,6 +106,7 @@
                     <span class="material-symbols-outlined">settings</span>
                 </button>
                 <div class="dd hidden absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-outline-variant/20 py-2 z-50">
+                    {% if can_admin %}
                     <a href="{% url 'gestao_usuarios' %}" class="flex items-center gap-3 px-4 py-3 text-sm text-on-surface hover:bg-surface-container-high transition-colors">
                         <span class="material-symbols-outlined text-primary text-xl">group</span>Gestão de Usuários
                     </a>
@@ -95,6 +118,9 @@
                     <button onclick="abrirGestaoPrograma()" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-primary font-bold hover:bg-primary-fixed transition-colors">
                         <span class="material-symbols-outlined text-xl" style="font-variation-settings:'FILL' 1;">admin_panel_settings</span>Gestão do Programa
                     </button>
+                    {% endif %}
+                    {% else %}
+                    <div class="px-4 py-3 text-xs text-on-surface-variant">Sem opções administrativas</div>
                     {% endif %}
                 </div>
             </div>
