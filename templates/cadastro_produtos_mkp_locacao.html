@@ -319,16 +319,32 @@ body { font-family: 'Inter', sans-serif; background-color: #fbf8ff; }
 </div>
 </div>
 <div>
-<label class="field-label">Fator E18 <span class="normal-case font-normal text-on-surface-variant/60">(Controles!E18)</span></label>
+<label class="field-label">Alçada de Desconto</label>
 <div class="relative">
-<input id="fator_e18" type="number" step="0.0001" min="0"
-  value="1.0" class="field-input pr-2" oninput="calcular()"/>
+<select id="alcada_sel" onchange="calcular()" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none appearance-none cursor-pointer">
+<option value="cheio">Cheio (0%) → 111,11%</option>
+<option value="ev">EV (+5%) → 105,56%</option>
+<option value="gerente">Gerente (+2%) → 103,33%</option>
+<option value="diretor">Diretor (+3%) → 100,00%</option>
+<option value="manual">Manual (variável)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
 </div>
-<p class="text-xs text-on-surface-variant/70 mt-1 text-orange-600 font-semibold">⚠ Confirme o valor de Controles!E18 na planilha.</p>
+<p class="text-xs text-on-surface-variant/70 mt-1">Fator = (100% − descontos acumulados) ÷ 0,9</p>
 </div>
-<div class="bg-primary-container/30 rounded-xl p-4 border border-primary/10 text-center">
-<p class="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">Fórmula Venda</p>
-<p class="font-mono text-xs text-on-surface/80">Custo Mensal × MKP × E18</p>
+<div>
+<label class="field-label">Desconto Manual (%)</label>
+<div class="relative">
+<input id="desconto_manual" type="number" step="0.01" min="-20" max="20"
+  value="0" class="field-input pr-8" oninput="calcular()"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+</div>
+<p id="manual_hint" class="text-xs text-on-surface-variant/70 mt-1 hidden">Apenas ativo na alçada Manual. Pode ser negativo.</p>
+</div>
+<div>
+<label class="field-label">Fator E18 (calculado)</label>
+<div id="e18_display" class="field-input bg-surface-container text-xl font-black text-primary text-center cursor-default">—</div>
+<p class="text-xs text-on-surface-variant/70 mt-1">Controles!E18 — calculado automaticamente.</p>
 </div>
 </div>
 </div>
@@ -348,13 +364,36 @@ body { font-family: 'Inter', sans-serif; background-color: #fbf8ff; }
 </footer>
 
 <script>
-// Parâmetros fixos (planilha Controles)
-const WACC_MENSAL = 1.0 / 100; // Controles!D11 = 1% mensal
-const CUSTO_ADM   = 5.0;       // 5% fixo
-const MARGEM      = parseFloat("{{ produto.lucro_percent|default:'15' }}") || 15.0;
+// ============================================================
+// Parâmetros fixos — Planilha Controles
+// ============================================================
+const WACC_MENSAL = 1.0 / 100;  // Controles!D11 = 1% ao mês
+const CUSTO_ADM   = 5.0;        // Controles!D7  = 5%
+const MARGEM      = parseFloat("{{ produto.lucro_percent|default:'15' }}") || 15.0; // Controles!D8
 
-// PMT = PGTO do Excel
-// PMT(taxa, nper, pv) → pagamento mensal para amortizar pv em nper períodos à taxa%
+// Alçadas de desconto — Controles (2)!C21:D25
+// Desconto cumulativo para cada nível (C21..C25 = rótulo, D21..D25 = taxa adicional)
+const ALCADAS = {
+  cheio:   { acumulado: 0 },            // D21=0%
+  ev:      { acumulado: 5 },            // D21+D22 = 0+5 = 5%
+  gerente: { acumulado: 7 },            // +D23=2 → 7%
+  diretor: { acumulado: 10 },           // +D24=3 → 10%
+  manual:  { acumulado: null },         // variável (D25)
+};
+// Fator normalizador = (1 - max_desconto_total) = 1 - 10% = 0.9
+const FATOR_BASE = 0.9;
+
+// E18 = (100 − acumulado%) ÷ 0.9   → como decimal (ex: Cheio = 1.1111)
+function calcularE18(alcada, manualPct) {
+  let acumulado = ALCADAS[alcada].acumulado;
+  if (alcada === 'manual') {
+    // Manual acumula sobre os 10% do Diretor + desconto manual
+    acumulado = 10 + (manualPct || 0);
+  }
+  return (100 - acumulado) / 100 / FATOR_BASE;
+}
+
+// PMT = PGTO do Excel: amortiza pv em nper períodos com taxa periódica
 function PMT(rate, nper, pv) {
   if (rate === 0) return pv / nper;
   const pvif = Math.pow(1 + rate, nper);
@@ -362,37 +401,44 @@ function PMT(rate, nper, pv) {
 }
 
 function calcular() {
+  // ---- Alçada / E18 ----
+  const alcada       = document.getElementById('alcada_sel').value;
+  const manualPct    = parseFloat(document.getElementById('desconto_manual').value) || 0;
+  const hintManual   = document.getElementById('manual_hint');
+  hintManual.classList.toggle('hidden', alcada !== 'manual');
+
+  const e18 = calcularE18(alcada, manualPct);
+  document.getElementById('e18_display').textContent = (e18 * 100).toFixed(2) + '%  (×' + e18.toFixed(4) + ')';
+
+  // ---- PMT ----
   const custoLoc  = parseFloat(document.getElementById('custo_loc').value) || 0;
   const nMeses    = parseInt(document.getElementById('n_meses').value) || 12;
-
-  // Custo Mensal = PGTO(WACC_mensal, N_meses, CustoLoc)
   const custoMensal = PMT(WACC_MENSAL, nMeses, custoLoc);
   document.getElementById('custo_mensal').value = custoMensal.toFixed(2);
 
+  // ---- Tributos ----
   const iss    = parseFloat(document.getElementById('iss_loc').value) || 0;
   const pisCof = parseFloat(document.getElementById('pis_cofins_loc').value) || 0;
   const irLP   = parseFloat(document.getElementById('ir_csll_lp_loc').value) || 0;
   const irLR   = parseFloat(document.getElementById('ir_csll_lr_loc').value) || 0;
 
-  // MKP Locação LR: 1/(1 - (CustAdm + Margem + ISS + PIS/COF + IR_CSLL_LR)/100)
-  // MKP Locação LP: 1/(1 - (CustAdm + Margem + ISS + PIS/COF + IR_CSLL_LP)/100)
+  // MKP = 1 / (1 - soma%)
   const somaLR = (CUSTO_ADM + MARGEM + iss + pisCof + irLR) / 100;
   const somaLP = (CUSTO_ADM + MARGEM + iss + pisCof + irLP) / 100;
-
-  const mkpLR = somaLR < 1 ? 1 / (1 - somaLR) : null;
-  const mkpLP = somaLP < 1 ? 1 / (1 - somaLP) : null;
+  const mkpLR  = somaLR < 1 ? 1 / (1 - somaLR) : null;
+  const mkpLP  = somaLP < 1 ? 1 / (1 - somaLP) : null;
 
   document.getElementById('mkp_lr_display').textContent = mkpLR ? mkpLR.toFixed(4) : 'Inválido';
   document.getElementById('mkp_lp_display').textContent = mkpLP ? mkpLP.toFixed(4) : 'Inválido';
 
-  // Unitário Mensal Venda = custo_mensal × mkp × Controles!E18
-  const fator = parseFloat(document.getElementById('fator_e18').value) || 1;
+  // ---- MKP salvo e Venda Mensal ----
   const regime = document.getElementById('regime_sel').value;
-  const mkp = regime === 'lr' ? mkpLR : mkpLP;
+  const mkp    = regime === 'lr' ? mkpLR : mkpLP;
 
   if (mkp) {
     document.getElementById('mkp_loc').value = mkp.toFixed(4);
-    const vendaMensal = custoMensal * mkp * fator;
+    // Unitário Mensal Venda = BB15 × BH15 × E18
+    const vendaMensal = custoMensal * mkp * e18;
     document.getElementById('venda_mensal_display').textContent =
       'R$ ' + vendaMensal.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
   } else {
@@ -404,9 +450,7 @@ function aplicarMKP() { calcular(); }
 
 function toggleISS() {
   const tipo = document.getElementById('tipo_loc').value;
-  if (tipo === 'material') {
-    document.getElementById('iss_loc').value = '0.00';
-  }
+  if (tipo === 'material') document.getElementById('iss_loc').value = '0.00';
   calcular();
 }
 
