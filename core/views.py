@@ -1041,11 +1041,22 @@ def editar_usuario(request, user_id):
         print(f'[FOTO DEBUG] FILES keys: {list(request.FILES.keys())}', flush=True)
         if request.FILES.get('foto'):
             try:
-                print(f'[FOTO DEBUG] Salvando foto: {request.FILES["foto"].name} size={request.FILES["foto"].size}', flush=True)
-                perfil.foto = request.FILES['foto']
-                perfil.save()
-                print(f'[FOTO DEBUG] Foto salva. URL={perfil.foto.url}', flush=True)
-                messages.success(request, f'Foto salva: {perfil.foto.url}')
+                from django.core.files.storage import default_storage
+                from django.conf import settings as _s
+                print(f'[FOTO DEBUG] storage backend: {_s.DEFAULT_FILE_STORAGE}', flush=True)
+                print(f'[FOTO DEBUG] USE_GCS env: {__import__("os").environ.get("USE_GCS")}', flush=True)
+                print(f'[FOTO DEBUG] GS_BUCKET_NAME env: {__import__("os").environ.get("GS_BUCKET_NAME")}', flush=True)
+                # tenta upload direto via storage para ver o erro real
+                from django.core.files.base import ContentFile
+                _arq = request.FILES['foto']
+                _nome = _upload_usuario(perfil, _arq.name)
+                print(f'[FOTO DEBUG] Path que será salvo: {_nome}', flush=True)
+                _saved = default_storage.save(_nome, ContentFile(_arq.read()))
+                print(f'[FOTO DEBUG] default_storage.save retornou: {_saved}', flush=True)
+                print(f'[FOTO DEBUG] URL: {default_storage.url(_saved)}', flush=True)
+                perfil.foto = _saved
+                perfil.save(update_fields=['foto'])
+                messages.success(request, f'Foto salva: {default_storage.url(_saved)}')
             except Exception as e:
                 import traceback
                 print(f'[FOTO DEBUG] ERRO: {e}\n{traceback.format_exc()}', flush=True)
