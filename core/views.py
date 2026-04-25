@@ -6,6 +6,32 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
 from .models import Produto, Projeto, Empresa, Perfil, ItemProjeto, ItemMO
 from functools import wraps
+import re as _re, uuid as _uuid, os as _os
+
+
+def _gcs_upload(file_obj, pasta):
+    """Faz upload direto para o GCS e retorna o path relativo (sem media/)."""
+    from django.conf import settings as _s
+    if not getattr(_s, 'USE_GCS', False) and not _os.environ.get('USE_GCS') == 'True':
+        # desenvolvimento local — usa storage padrão
+        from django.core.files.storage import default_storage
+        from django.core.files.base import ContentFile
+        ext = _os.path.splitext(file_obj.name)[1].lower() or '.jpg'
+        safe = _re.sub(r'[^a-zA-Z0-9]', '_', _os.path.splitext(file_obj.name)[0])[:40]
+        nome = f'{pasta}/{safe}_{_uuid.uuid4().hex[:8]}{ext}'
+        default_storage.save(nome, ContentFile(file_obj.read()))
+        return nome
+
+    from google.cloud import storage as _gcs
+    bucket_name = _os.environ.get('GS_BUCKET_NAME', 'primaaxon-media-files')
+    ext = _os.path.splitext(file_obj.name)[1].lower() or '.jpg'
+    safe = _re.sub(r'[^a-zA-Z0-9]', '_', _os.path.splitext(file_obj.name)[0])[:40]
+    blob_name = f'media/{pasta}/{safe}_{_uuid.uuid4().hex[:8]}{ext}'
+    client = _gcs.Client()
+    blob = client.bucket(bucket_name).blob(blob_name)
+    file_obj.seek(0)
+    blob.upload_from_file(file_obj, content_type=file_obj.content_type)
+    return blob_name.replace('media/', '', 1)  # path relativo para o ImageField
 
 
 # ============================================================
@@ -935,7 +961,7 @@ def cadastro_empresa(request):
                 cnpj=cnpj,
             )
             if request.FILES.get('logo'):
-                empresa.logo = request.FILES['logo']
+                empresa.logo = _gcs_upload(request.FILES['logo'], 'logos')
             empresa.save()
             return redirect('gestao_empresas')
         except Exception as e:
@@ -950,7 +976,7 @@ def editar_empresa(request, empresa_id):
         edit_empresa.razao_social = request.POST.get('razao_social', edit_empresa.razao_social)
         edit_empresa.nome_fantasia = request.POST.get('nome_fantasia', edit_empresa.nome_fantasia)
         if request.FILES.get('logo'):
-            edit_empresa.logo = request.FILES['logo']
+            edit_empresa.logo = _gcs_upload(request.FILES['logo'], 'logos')
         try:
             edit_empresa.save()
             return redirect('gestao_empresas')
@@ -1007,7 +1033,7 @@ def cadastro_usuario(request):
                 empresa_id=int(empresa_id) if empresa_id else None,
             )
             if request.FILES.get('foto'):
-                perfil.foto = request.FILES['foto']
+                perfil.foto = _gcs_upload(request.FILES['foto'], 'usuarios')
                 perfil.save()
 
             return redirect('gestao_usuarios')
@@ -1040,24 +1066,9 @@ def editar_usuario(request, user_id):
 
         if request.FILES.get('foto'):
             try:
-                from google.cloud import storage as _gcs
-                import re, uuid, os
-                _arq = request.FILES['foto']
-                _ext = os.path.splitext(_arq.name)[1].lower() or '.jpg'
-                _safe = re.sub(r'[^a-zA-Z0-9]', '_', os.path.splitext(_arq.name)[0])[:40]
-                _blob_name = f'media/usuarios/{_safe}_{uuid.uuid4().hex[:8]}{_ext}'
-                _bucket_name = 'primaaxon-media-files'
-                _client = _gcs.Client()
-                _bucket = _client.bucket(_bucket_name)
-                _blob = _bucket.blob(_blob_name)
-                _blob.upload_from_file(_arq, content_type=_arq.content_type)
-                print(f'[GCS DIRECT] Salvo em gs://{_bucket_name}/{_blob_name}', flush=True)
-                perfil.foto = _blob_name.replace('media/', '', 1)  # remove prefixo media/ para o campo
+                perfil.foto = _gcs_upload(request.FILES['foto'], 'usuarios')
                 perfil.save(update_fields=['foto'])
-                messages.success(request, f'Foto salva!')
             except Exception as e:
-                import traceback
-                print(f'[GCS DIRECT] ERRO: {e}\n{traceback.format_exc()}', flush=True)
                 messages.error(request, f'Erro ao salvar foto: {e}')
 
         try:
@@ -1117,7 +1128,7 @@ def produto_aba(request, pk, aba):
         if aba == 'cadastro':
             produto.preco_variavel = request.POST.get('preco_variavel') == 'on'
             if request.FILES.get('foto'):
-                produto.foto = request.FILES['foto']
+                produto.foto = _gcs_upload(request.FILES['foto'], 'produtos')
         try:
             produto.save()
             messages.success(request, 'Dados salvos.')
