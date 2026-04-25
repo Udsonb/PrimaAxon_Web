@@ -120,14 +120,17 @@
 <label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Nome</label>
 <input name="nome" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" type="text" value="{{ produto.nome }}"/>
 </div>
-<!-- Modelo & P/N -->
+<!-- Modelo & P/N — pelo menos um obrigatório -->
 <div>
-<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Modelo</label>
-<input name="modelo" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" type="text" value="{{ produto.modelo }}"/>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">Modelo <span class="text-error text-xs">(ou P/N)</span></label>
+<input id="campo-modelo" name="modelo" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" type="text" value="{{ produto.modelo }}" oninput="validarModeloPN()"/>
 </div>
 <div>
-<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">P/N (Part Number)</label>
-<input name="part_number" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" type="text" value="{{ produto.part_number }}"/>
+<label class="block text-sm font-semibold text-on-surface-variant mb-2 font-body">P/N (Part Number) <span class="text-error text-xs">(ou Modelo)</span></label>
+<input id="campo-pn" name="part_number" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-4 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all" type="text" value="{{ produto.part_number }}" oninput="validarModeloPN()"/>
+</div>
+<div id="aviso-modelo-pn" class="col-span-full hidden">
+    <p class="text-error text-xs font-bold">Preencha pelo menos Modelo ou P/N antes de salvar.</p>
 </div>
 <!-- Fabricante & Unidade -->
 <div>
@@ -191,7 +194,65 @@
 <footer class="fixed bottom-0 left-0 w-full flex justify-end gap-6 p-4 pr-10 bg-white z-50 border-t border-outline-variant">
 <a href="{% url 'bom_selector' %}" class="text-[#454652] flex items-center gap-2 px-6 py-2 hover:opacity-90 transition-opacity active:translate-y-0.5 duration-100 uppercase text-xs font-bold tracking-tighter font-label">
 <span class="material-symbols-outlined text-base">cancel</span>VOLTAR</a>
-<button form="form-cadastro" type="submit" class="bg-[#000666] text-white rounded-md px-8 py-3 flex items-center gap-2 hover:opacity-95 transition-all active:scale-[0.98] duration-100 uppercase text-xs font-bold tracking-tighter font-label">
+<button type="button" onclick="confirmarSalvar()" class="bg-[#000666] text-white rounded-md px-8 py-3 flex items-center gap-2 hover:opacity-95 transition-all active:scale-[0.98] duration-100 uppercase text-xs font-bold tracking-tighter font-label">
 <span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">check_circle</span>CONFIRMAR</button>
 </footer>
+
+<!-- Modal: produto sem foto -->
+<div id="modal-sem-foto" class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center px-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-8 flex flex-col gap-5">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-amber-500 text-3xl" style="font-variation-settings:'FILL' 1">image_not_supported</span>
+            <h3 class="font-headline font-bold text-on-surface text-lg">Produto sem imagem</h3>
+        </div>
+        <p class="text-sm text-on-surface-variant">Este produto não tem foto cadastrada. O produto tem imagem?</p>
+        <div class="flex gap-3 justify-end">
+            <button onclick="semFotoNao()" class="px-4 py-2 rounded-lg border border-outline-variant text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">Não tem imagem</button>
+            <label for="foto-upload-modal" class="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold cursor-pointer hover:opacity-90 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">upload</span>Adicionar foto
+            </label>
+            <input id="foto-upload-modal" type="file" accept="image/*" class="hidden" form="form-cadastro" name="foto" onchange="semFotoComImagem(this)"/>
+        </div>
+    </div>
+</div>
+
+<script>
+const temFoto = {{ produto.foto|yesno:"true,false" }};
+
+function validarModeloPN() {
+    const modelo = document.getElementById('campo-modelo').value.trim();
+    const pn = document.getElementById('campo-pn').value.trim();
+    const aviso = document.getElementById('aviso-modelo-pn');
+    aviso.classList.toggle('hidden', !!(modelo || pn));
+}
+
+function confirmarSalvar() {
+    // Valida modelo ou PN
+    const modelo = document.getElementById('campo-modelo').value.trim();
+    const pn = document.getElementById('campo-pn').value.trim();
+    if (!modelo && !pn) {
+        document.getElementById('aviso-modelo-pn').classList.remove('hidden');
+        document.getElementById('campo-modelo').focus();
+        return;
+    }
+    // Se não tem foto, pergunta
+    if (!temFoto) {
+        document.getElementById('modal-sem-foto').classList.remove('hidden');
+        return;
+    }
+    document.getElementById('form-cadastro').submit();
+}
+
+function semFotoNao() {
+    document.getElementById('modal-sem-foto').classList.add('hidden');
+    document.getElementById('form-cadastro').submit();
+}
+
+function semFotoComImagem(input) {
+    if (input.files && input.files[0]) {
+        document.getElementById('modal-sem-foto').classList.add('hidden');
+        document.getElementById('form-cadastro').submit();
+    }
+}
+</script>
 </body></html>
