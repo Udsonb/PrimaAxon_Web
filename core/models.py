@@ -92,7 +92,7 @@ class Produto(models.Model):
     estado_origem = models.CharField("Estado de Origem", max_length=100)
     grupo_financeiro = models.CharField("Grupo Financeiro", max_length=50)
     ncm = models.CharField("NCM", max_length=20)
-    data_ultima_cotacao = models.DateField("Data da Última Cotação")
+    data_ultima_cotacao = models.DateField("Data da Última Cotação", null=True, blank=True)
 
     # LILÁS - LUCRO E TRIBUTOS
     lucro_percent = models.DecimalField("Lucro %", max_digits=5, decimal_places=2)
