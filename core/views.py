@@ -1097,7 +1097,9 @@ def produto_aba(request, pk, aba):
     }
     CAMPOS_DEC = {
         'cadastro': [],
-        'fiscal':   ['preco_fornecedor', 'unit_reais', 'frete_na_compra', 'ipi', 'icms'],
+        'fiscal':   ['preco_fornecedor', 'taxa_cambio', 'desconto_mapeamento', 'valor_com_desconto',
+                     'frete_na_compra', 'ipi', 'ipi_reais', 'icms', 'icms_reais',
+                     'difal', 'difal_reais', 'unit_reais'],
         'compras':  [],
         'mkp':      ['lucro_percent', 'iss_percent', 'pis_cofins_percent', 'ir_csll_lp', 'ir_csll_lr', 'mkp'],
         'locacao':  ['custo_loc', 'custo_mensal', 'iss_loc', 'pis_cofins_loc', 'ir_csll_lp_loc', 'ir_csll_lr_loc', 'mkp_loc'],

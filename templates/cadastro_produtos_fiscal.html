@@ -7,206 +7,366 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "on-primary-fixed": "#000767","secondary": "#006b5e","primary-fixed": "#e0e0ff","on-error-container": "#93000a","inverse-primary": "#bdc2ff","on-tertiary-fixed-variant": "#663d00","secondary-container": "#94f0df","on-secondary": "#ffffff","on-primary-fixed-variant": "#343d96","surface": "#fbf8ff","on-secondary-fixed": "#00201b","tertiary-container": "#472900","surface-variant": "#e2e1ed","tertiary": "#2a1700","outline": "#767683","surface-container-lowest": "#ffffff","on-primary-container": "#8690ee","surface-bright": "#fbf8ff","secondary-fixed": "#97f3e2","background": "#fbf8ff","secondary-fixed-dim": "#7ad7c6","primary-container": "#1a237e","on-surface": "#1a1b23","error": "#ba1a1a","inverse-on-surface": "#f1f0fb","error-container": "#ffdad6","on-error": "#ffffff","on-background": "#1a1b23","surface-container": "#eeedf8","on-tertiary-container": "#d68500","on-secondary-fixed-variant": "#005047","surface-dim": "#dad9e4","outline-variant": "#c6c5d4","surface-container-highest": "#e2e1ed","on-surface-variant": "#454652","surface-tint": "#4c56af","primary": "#000666","on-primary": "#ffffff","tertiary-fixed": "#ffddba","inverse-surface": "#2f3038","tertiary-fixed-dim": "#ffb865","on-tertiary": "#ffffff","surface-container-high": "#e8e7f2","on-secondary-container": "#006f62","surface-container-low": "#f3f2fe","primary-fixed-dim": "#bdc2ff","on-tertiary-fixed": "#2b1700"
-                    },
-                    fontFamily: {"headline": ["Manrope"],"body": ["Inter"],"label": ["Inter"]},
-                    borderRadius: {"DEFAULT": "0.125rem","lg": "0.25rem","xl": "0.5rem","full": "0.75rem"},
-                },
+    tailwind.config = {
+        darkMode: "class",
+        theme: { extend: {
+            colors: {
+                "on-primary-fixed":"#000767","secondary":"#006b5e","primary-fixed":"#e0e0ff","on-error-container":"#93000a","inverse-primary":"#bdc2ff","secondary-container":"#94f0df","on-secondary":"#ffffff","on-primary-fixed-variant":"#343d96","surface":"#fbf8ff","on-secondary-fixed":"#00201b","tertiary-container":"#472900","surface-variant":"#e2e1ed","tertiary":"#2a1700","outline":"#767683","surface-container-lowest":"#ffffff","on-primary-container":"#8690ee","surface-bright":"#fbf8ff","secondary-fixed":"#97f3e2","background":"#fbf8ff","secondary-fixed-dim":"#7ad7c6","primary-container":"#1a237e","on-surface":"#1a1b23","error":"#ba1a1a","inverse-on-surface":"#f1f0fb","error-container":"#ffdad6","on-error":"#ffffff","on-background":"#1a1b23","surface-container":"#eeedf8","on-tertiary-container":"#d68500","surface-dim":"#dad9e4","outline-variant":"#c6c5d4","surface-container-highest":"#e2e1ed","on-surface-variant":"#454652","primary":"#000666","on-primary":"#ffffff","tertiary-fixed":"#ffddba","inverse-surface":"#2f3038","tertiary-fixed-dim":"#ffb865","on-tertiary":"#ffffff","surface-container-high":"#e8e7f2","on-secondary-container":"#006f62","surface-container-low":"#f3f2fe","primary-fixed-dim":"#bdc2ff","on-tertiary-fixed":"#2b1700"
             },
-        }
-    </script>
+            fontFamily: {"headline":["Manrope"],"body":["Inter"]},
+        }}
+    }
+</script>
 <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
-        .sidebar-item { @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high; }
-        .sidebar-item.active { @apply bg-primary-fixed text-primary font-bold; }
-    </style>
+    .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
+    body { font-family:'Inter',sans-serif; }
+    .sidebar-item { display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:8px; transition:all .2s; color:#454652; }
+    .sidebar-item:hover { background:#e8e7f2; }
+    .sidebar-item.active { background:#e0e0ff; color:#000666; font-weight:700; }
+    .field-label { font-size:0.6875rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#454652; margin-bottom:4px; display:block; }
+    .field-input { width:100%; background:#e8e7f2; border:none; border-radius:6px; padding:10px 14px; font-size:0.875rem; font-weight:600; color:#1a1b23; outline:none; }
+    .field-input:focus { box-shadow:0 0 0 2px rgba(0,6,102,.3); }
+    .field-input.readonly { background:#f3f2fe; color:#767683; cursor:default; }
+    .field-input.calculated { background:#e0e0ff; color:#000666; font-weight:700; cursor:default; }
+    .duo-group { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .duo-label { font-size:0.6875rem; font-weight:700; color:#767683; text-align:center; display:block; margin-bottom:2px; }
+    .result-box { background:#1a237e; border-radius:12px; padding:20px; color:#fff; }
+</style>
 </head>
 <body class="bg-surface text-on-surface min-h-screen flex flex-col">
+
 <!-- TopAppBar -->
 <header class="bg-[#fbf8ff] flex justify-between items-center w-full px-6 py-4 sticky top-0 z-40 border-b border-outline-variant">
 <div class="flex items-center gap-6">
 <span class="text-lg font-bold tracking-tight text-[#1A237E]">Cadastro de Produtos</span>
 <div class="h-8 w-[1px] bg-outline-variant hidden md:block"></div>
-<div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-sm">
-<div class="flex gap-1"><span class="text-on-surface-variant font-medium">Nome:</span><span class="text-primary font-bold">{{ produto.nome }}</span></div>
-<div class="flex gap-1"><span class="text-on-surface-variant font-medium">Modelo:</span><span class="text-primary font-bold">{{ produto.modelo }}</span></div>
-<div class="flex gap-1"><span class="text-on-surface-variant font-medium">Fabricante:</span><span class="text-primary font-bold">{{ produto.fabricante }}</span></div>
+<div class="hidden md:flex items-center gap-6 text-sm">
+<span class="text-on-surface-variant">Nome: <strong class="text-primary">{{ produto.nome }}</strong></span>
+<span class="text-on-surface-variant">Modelo: <strong class="text-primary">{{ produto.modelo }}</strong></span>
+<span class="text-on-surface-variant">ID: <strong class="text-primary">#{{ produto.id_planilha }}</strong></span>
 </div>
 </div>
-<div class="flex items-center gap-4">
-<button class="p-2 hover:bg-[#e2e1ed] transition-colors duration-200 rounded-full"><span class="material-symbols-outlined text-on-surface-variant">settings</span></button>
-<button class="p-2 hover:bg-[#e2e1ed] transition-colors duration-200 rounded-full"><span class="material-symbols-outlined text-on-surface-variant">help</span></button>
-<div class="flex items-center gap-3 pl-4 border-l border-outline-variant ml-2">
-<div class="flex flex-col items-end">
-<span class="text-[10px] font-bold uppercase tracking-[0.1em] text-on-surface-variant leading-none">Perfil</span>
-<span class="text-xs font-extrabold text-primary uppercase tracking-tight">{{ request.user.username }}</span>
-</div>
-<div class="h-9 w-9 rounded-full bg-primary-fixed flex items-center justify-center border border-primary-fixed-dim/50 group cursor-pointer hover:bg-primary-container hover:text-on-primary-fixed transition-all duration-200">
-<span class="material-symbols-outlined text-primary group-hover:text-white transition-colors">person</span>
-</div>
-</div>
-</div>
+<span class="text-xs font-bold text-primary uppercase">{{ request.user.username }}</span>
 </header>
+
 <div class="flex flex-grow overflow-hidden">
-<!-- Navigation Sidebar -->
-<aside class="w-64 bg-surface-container-low border-r border-outline-variant p-4 flex flex-col gap-2 hidden lg:flex">
-<a class="sidebar-item {% if aba == 'cadastro' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='cadastro' %}"><span class="material-symbols-outlined">inventory_2</span><span>Cadastro</span></a>
-<a class="sidebar-item {% if aba == 'fiscal' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='fiscal' %}"><span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>description</span><span>Fiscal</span></a>
-<a class="sidebar-item {% if aba == 'compras' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='compras' %}"><span class="material-symbols-outlined">shopping_cart</span><span>Compras</span></a>
-<a class="sidebar-item {% if aba == 'mkp' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='mkp' %}"><span class="material-symbols-outlined">analytics</span><span>Lucro e Tributos</span></a>
-<a class="sidebar-item {% if aba == 'locacao' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='locacao' %}"><span class="material-symbols-outlined">location_on</span><span>Locação</span></a>
+<!-- Sidebar -->
+<aside class="w-56 bg-surface-container-low border-r border-outline-variant p-3 flex flex-col gap-1 hidden lg:flex">
+<a class="sidebar-item {% if aba == 'cadastro' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='cadastro' %}"><span class="material-symbols-outlined text-xl">inventory_2</span>Cadastro</a>
+<a class="sidebar-item {% if aba == 'fiscal' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='fiscal' %}"><span class="material-symbols-outlined text-xl">description</span>Fiscal</a>
+<a class="sidebar-item {% if aba == 'compras' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='compras' %}"><span class="material-symbols-outlined text-xl">shopping_cart</span>Compras</a>
+<a class="sidebar-item {% if aba == 'mkp' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='mkp' %}"><span class="material-symbols-outlined text-xl">analytics</span>Lucro e Tributos</a>
+<a class="sidebar-item {% if aba == 'locacao' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='locacao' %}"><span class="material-symbols-outlined text-xl">location_on</span>Locação</a>
 </aside>
-<main class="flex-grow overflow-y-auto px-6 py-10">
-<div class="max-w-7xl mx-auto">
-<!-- Header Section -->
-<section class="mb-10 flex flex-col md:flex-row justify-between items-end gap-6">
-<div class="flex-1">
-<span class="text-xs font-bold uppercase tracking-widest text-secondary mb-2 block">Módulo Tributário</span>
-<h1 class="text-4xl font-extrabold text-primary tracking-tight">Registro Fiscal de Ativos</h1>
-<p class="text-on-surface-variant max-w-2xl mt-2 text-sm">Configuração de custos de importação, tributação direta e paridade cambial para dispositivos de segurança eletrônica.</p>
+
+<main class="flex-grow overflow-y-auto px-6 py-8">
+<div class="max-w-4xl mx-auto">
+
+<div class="mb-6">
+    <span class="text-xs font-bold uppercase tracking-widest text-secondary">Módulo Tributário</span>
+    <h1 class="text-3xl font-extrabold text-primary mt-1">Registro Fiscal</h1>
 </div>
-<div class="bg-surface-container-low p-4 rounded-xl flex items-center gap-6 shadow-sm border border-outline-variant/15">
-<div class="flex flex-col">
-<span class="text-[0.6875rem] font-bold text-on-surface-variant uppercase tracking-tighter">Moeda</span>
-<span class="text-xl font-bold font-headline text-primary">{{ produto.moeda }}</span>
-</div>
-</div>
-</section>
+
 {% if messages %}
-<div class="mb-6 space-y-1">{% for msg in messages %}<div class="text-sm font-medium {% if msg.tags == 'error' %}text-error{% else %}text-secondary{% endif %} p-3 rounded-lg bg-surface-container-low">{{ msg }}</div>{% endfor %}</div>
+<div class="mb-4 space-y-1">{% for msg in messages %}<div class="text-sm font-medium p-3 rounded-lg {% if msg.tags == 'error' %}bg-red-50 text-error{% else %}bg-green-50 text-secondary{% endif %}">{{ msg }}</div>{% endfor %}</div>
 {% endif %}
-<form method="post" action="{% url 'produto_aba' pk=produto.id_planilha aba='fiscal' %}">
+
+<form method="post" action="{% url 'produto_aba' pk=produto.id_planilha aba='fiscal' %}" id="form-fiscal">
 {% csrf_token %}
-<!-- Bento Grid Layout -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-<!-- Main Cost Parameters -->
-<div class="md:col-span-8 space-y-6">
-<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm ring-1 ring-outline-variant/10">
-<h3 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
-<span class="material-symbols-outlined">payments</span>Parâmetros de Custo Base</h3>
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-<div class="flex flex-col gap-1.5">
-<label class="text-[0.6875rem] font-bold text-on-surface-variant uppercase px-1">Moeda Origem</label>
-<select name="moeda" class="bg-surface-container-high border-none rounded-md py-3 px-4 focus:ring-2 focus:ring-primary/40 text-sm font-medium">
-<option {% if produto.moeda == 'reais' or produto.moeda == 'R$ (BRL)' %}selected{% endif %}>R$ (BRL)</option>
-<option {% if produto.moeda == 'dolar' or produto.moeda == 'Dolar (USD)' %}selected{% endif %}>Dolar (USD)</option>
-<option {% if produto.moeda == 'euro' or produto.moeda == 'Euro (EUR)' %}selected{% endif %}>Euro (EUR)</option>
-</select>
+
+<!-- BLOCO 1: PREÇO FORNECEDOR -->
+<div class="bg-white rounded-xl p-6 border border-outline-variant/20 shadow-sm mb-5">
+    <h3 class="text-sm font-bold text-primary mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">payments</span>Preço do Fornecedor
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div>
+            <label class="field-label">Moeda</label>
+            <select name="moeda" id="sel-moeda" class="field-input" onchange="calcular()">
+                <option {% if produto.moeda == 'R$ (BRL)' or produto.moeda == 'reais' %}selected{% endif %}>R$ (BRL)</option>
+                <option {% if produto.moeda == 'Dolar (USD)' or produto.moeda == 'dolar' %}selected{% endif %}>Dolar (USD)</option>
+                <option {% if produto.moeda == 'Euro (EUR)' or produto.moeda == 'euro' %}selected{% endif %}>Euro (EUR)</option>
+            </select>
+        </div>
+        <div>
+            <label class="field-label">Preço Fornecedor</label>
+            <input id="preco-fornecedor" name="preco_fornecedor" type="number" step="0.01" min="0"
+                   value="{{ produto.preco_fornecedor }}" class="field-input" oninput="calcular()"/>
+        </div>
+        <div id="bloco-cambio" class="{% if produto.moeda == 'R$ (BRL)' or produto.moeda == 'reais' %}hidden{% endif %}">
+            <label class="field-label">Taxa de Câmbio (R$)</label>
+            <input id="taxa-cambio" name="taxa_cambio" type="number" step="0.0001" min="0"
+                   value="{{ produto.taxa_cambio }}" class="field-input" oninput="calcular()"/>
+        </div>
+        <div>
+            <label class="field-label">Desconto Mapeamento (%)</label>
+            <input id="desconto-map" name="desconto_mapeamento" type="number" step="0.01" min="0" max="100"
+                   value="{{ produto.desconto_mapeamento }}" class="field-input" oninput="calcular()"/>
+        </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4 mt-4">
+        <div>
+            <label class="field-label">Valor em R$ (antes do desconto)</label>
+            <input id="valor-brl" type="text" readonly class="field-input readonly" placeholder="Calculado"/>
+        </div>
+        <div>
+            <label class="field-label">Valor com Desconto (R$)</label>
+            <input id="valor-desconto" name="valor_com_desconto" type="number" step="0.01" readonly
+                   class="field-input calculated" placeholder="Calculado"/>
+        </div>
+    </div>
 </div>
-<div class="flex flex-col gap-1.5">
-<label class="text-[0.6875rem] font-bold text-on-surface-variant uppercase px-1">Preço Fornecedor</label>
-<input name="preco_fornecedor" class="bg-surface-container-high border-none rounded-md py-3 px-4 focus:ring-2 focus:ring-primary/40 text-sm font-semibold" type="text" value="{{ produto.preco_fornecedor }}"/>
+
+<!-- BLOCO 2: TRIBUTOS -->
+<div class="bg-white rounded-xl p-6 border border-outline-variant/20 shadow-sm mb-5">
+    <h3 class="text-sm font-bold text-primary mb-4 flex items-center gap-2">
+        <span class="material-symbols-outlined text-lg">account_balance</span>Tributos na Compra
+    </h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- IPI -->
+        <div class="bg-surface-container-low rounded-lg p-4">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-bold text-on-surface">IPI</span>
+                <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded">FEDERAL</span>
+            </div>
+            <div class="duo-group">
+                <div>
+                    <span class="duo-label">%</span>
+                    <div class="relative">
+                        <input id="ipi-pct" name="ipi" type="number" step="0.01" min="0"
+                               value="{{ produto.ipi }}" class="field-input text-center pr-5" oninput="ipiPctToR()"/>
+                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-outline">%</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="duo-label">R$</span>
+                    <div class="relative">
+                        <input id="ipi-rs" name="ipi_reais" type="number" step="0.01" min="0"
+                               value="{{ produto.ipi_reais }}" class="field-input text-center pl-6" oninput="ipiRsToPCT()"/>
+                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-outline">R$</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ICMS -->
+        <div class="bg-surface-container-low rounded-lg p-4">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-bold text-on-surface">ICMS</span>
+                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">ESTADUAL</span>
+            </div>
+            <div class="duo-group">
+                <div>
+                    <span class="duo-label">%</span>
+                    <div class="relative">
+                        <input id="icms-pct" name="icms" type="number" step="0.01" min="0"
+                               value="{{ produto.icms }}" class="field-input text-center pr-5" oninput="icmsPctToR()"/>
+                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-outline">%</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="duo-label">R$</span>
+                    <div class="relative">
+                        <input id="icms-rs" name="icms_reais" type="number" step="0.01" min="0"
+                               value="{{ produto.icms_reais }}" class="field-input text-center pl-6" oninput="icmsRsToPCT()"/>
+                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-outline">R$</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DIFAL -->
+        <div class="bg-surface-container-low rounded-lg p-4">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-bold text-on-surface">DIFAL</span>
+                <button type="button" onclick="buscarDifal()" class="bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded hover:opacity-90 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-xs">sync</span>API
+                </button>
+            </div>
+            <div class="duo-group">
+                <div>
+                    <span class="duo-label">%</span>
+                    <div class="relative">
+                        <input id="difal-pct" name="difal" type="number" step="0.01" min="0"
+                               value="{{ produto.difal }}" class="field-input text-center pr-5" oninput="difalPctToR()"/>
+                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-outline">%</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="duo-label">R$</span>
+                    <div class="relative">
+                        <input id="difal-rs" name="difal_reais" type="number" step="0.01" min="0"
+                               value="{{ produto.difal_reais }}" class="field-input text-center pl-6" oninput="difalRsToPCT()"/>
+                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-outline">R$</span>
+                    </div>
+                </div>
+            </div>
+            <p id="difal-info" class="text-[10px] text-on-surface-variant mt-2 hidden"></p>
+        </div>
+
+    </div>
+
+    <!-- Frete -->
+    <div class="mt-4 grid grid-cols-2 gap-4">
+        <div>
+            <label class="field-label">Frete na Compra (R$) — opcional</label>
+            <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-outline font-bold">R$</span>
+                <input id="frete" name="frete_na_compra" type="number" step="0.01" min="0"
+                       value="{{ produto.frete_na_compra }}" class="field-input pl-9" oninput="calcular()"/>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="flex flex-col gap-1.5">
-<label class="text-[0.6875rem] font-bold text-on-surface-variant uppercase px-1">Valor Convertido (R$)</label>
-<input name="unit_reais" class="bg-surface-container-high border-none rounded-md py-3 px-4 focus:ring-2 focus:ring-primary/40 text-sm font-bold" type="text" value="{{ produto.unit_reais }}"/>
+
+<!-- BLOCO 3: CUSTO FINAL -->
+<div class="result-box mb-24">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div>
+            <span class="text-[10px] font-bold text-white/50 uppercase">Valor c/ Desconto</span>
+            <div id="res-desconto" class="text-xl font-bold text-white mt-1">R$ —</div>
+        </div>
+        <div>
+            <span class="text-[10px] font-bold text-white/50 uppercase">+ Frete</span>
+            <div id="res-frete" class="text-xl font-bold text-white mt-1">R$ —</div>
+        </div>
+        <div>
+            <span class="text-[10px] font-bold text-white/50 uppercase">+ IPI + ICMS + DIFAL</span>
+            <div id="res-tributos" class="text-xl font-bold text-white mt-1">R$ —</div>
+        </div>
+        <div class="border-l border-white/20 pl-6">
+            <span class="text-[10px] font-bold text-white/50 uppercase">= Custo Total</span>
+            <div id="res-custo" class="text-3xl font-extrabold text-white mt-1">R$ —</div>
+            <input id="unit-reais" name="unit_reais" type="hidden" value="{{ produto.unit_reais }}"/>
+        </div>
+    </div>
 </div>
-</div>
-</div>
-<!-- Logistics & Freight -->
-<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm ring-1 ring-outline-variant/10">
-<h3 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
-<span class="material-symbols-outlined">local_shipping</span>Logística e Fretes</h3>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-<div class="group">
-<label class="text-[0.6875rem] font-bold text-on-surface-variant uppercase block mb-2">Frete Compra (FOB/CIF)</label>
-<div class="flex items-center gap-3">
-<div class="relative flex-1">
-<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">R$</span>
-<input name="frete_na_compra" class="w-full bg-surface-container-high border-none rounded-md py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/40" type="text" value="{{ produto.frete_na_compra }}"/>
-</div>
-<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">info</span>
-</div>
-</div>
-<div class="group">
-<label class="text-[0.6875rem] font-bold text-on-surface-variant uppercase block mb-2">Frete Venda Sugerido</label>
-<div class="flex items-center gap-3">
-<div class="relative flex-1">
-<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">R$</span>
-<input class="w-full bg-surface-container-high border-none rounded-md py-3 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/40" type="text" placeholder="0,00"/>
-</div>
-<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">info</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Side Taxes and Final Values -->
-<div class="md:col-span-4 space-y-6">
-<!-- Taxes Card -->
-<div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant/20">
-<h3 class="text-sm font-bold text-on-surface uppercase tracking-wider mb-6 pb-2 border-b border-outline-variant/10">Incidência Tributária</h3>
-<div class="space-y-6">
-<!-- IPI -->
-<div>
-<div class="flex justify-between items-center mb-2">
-<span class="text-xs font-bold text-on-surface-variant">IPI</span>
-<span class="bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded text-[10px] font-bold">NACIONAL</span>
-</div>
-<div class="flex gap-2">
-<div class="relative w-24">
-<input name="ipi" class="w-full bg-white border-none rounded-md py-2 px-3 text-sm font-bold text-center focus:ring-1 focus:ring-primary" type="text" value="{{ produto.ipi }}"/>
-</div>
-<div class="relative flex-1">
-<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-outline">R$</span>
-<input class="w-full bg-surface-container-highest border-none rounded-md py-2 pl-7 pr-3 text-sm font-bold text-right text-primary" readonly type="text" value="—"/>
-</div>
-</div>
-</div>
-<!-- ICMS -->
-<div>
-<div class="flex justify-between items-center mb-2">
-<span class="text-xs font-bold text-on-surface-variant">ICMS</span>
-<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-bold">ESTADUAL</span>
-</div>
-<div class="flex gap-2">
-<div class="relative w-24">
-<input name="icms" class="w-full bg-white border-none rounded-md py-2 px-3 text-sm font-bold text-center focus:ring-1 focus:ring-primary" type="text" value="{{ produto.icms }}"/>
-</div>
-<div class="relative flex-1">
-<span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-outline">R$</span>
-<input class="w-full bg-surface-container-highest border-none rounded-md py-2 pl-7 pr-3 text-sm font-bold text-right text-primary" readonly type="text" value="—"/>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Final Totals Card -->
-<div class="bg-primary-container p-6 rounded-xl shadow-lg relative overflow-hidden">
-<div class="absolute -right-12 -top-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-<h3 class="text-xs font-bold text-white/60 uppercase tracking-widest mb-6">Consolidação Final</h3>
-<div class="space-y-4">
-<div class="flex flex-col">
-<span class="text-[10px] font-bold text-on-primary-container uppercase">Custo (R$)</span>
-<span class="text-2xl font-bold font-headline text-white">R$ {{ produto.unit_reais }}</span>
-</div>
-<div class="h-px bg-white/10 w-full"></div>
-<div class="flex flex-col">
-<span class="text-[10px] font-bold text-on-primary-container uppercase">Preço Fornecedor</span>
-<span class="text-3xl font-extrabold font-headline text-inverse-primary">{{ produto.moeda }} {{ produto.preco_fornecedor }}</span>
-</div>
-</div>
-</div>
-</div>
-</div>
+
 </form>
-<!-- Bottom Spacer -->
-<div class="h-24"></div>
 </div>
 </main>
 </div>
-<!-- BottomNavBar -->
-<footer class="fixed bottom-0 left-0 w-full flex justify-end gap-4 p-4 pr-10 bg-white/90 backdrop-blur-md z-50 border-t border-outline-variant shadow-[0px_-12px_32px_rgba(26,27,35,0.06)]">
-<a href="{% url 'bom_selector' %}" class="text-[#454652] flex items-center gap-2 px-6 py-2 hover:opacity-90 transition-opacity active:translate-y-0.5 duration-100 uppercase text-xs font-bold tracking-tighter">
-<span class="material-symbols-outlined text-sm">cancel</span>Voltar</a>
-<button type="submit" onclick="document.querySelector('form').submit()" class="bg-gradient-to-br from-[#000666] to-[#1A237E] text-white rounded-md px-6 py-2 flex items-center gap-2 hover:opacity-90 transition-opacity active:translate-y-0.5 duration-100 uppercase text-xs font-bold tracking-tighter shadow-md shadow-primary/20">
-<span class="material-symbols-outlined text-sm" style='font-variation-settings: "FILL" 1;'>check_circle</span>Confirmar</button>
+
+<!-- Footer -->
+<footer class="fixed bottom-0 left-0 w-full flex justify-end gap-4 p-4 pr-10 bg-white/90 backdrop-blur-md z-50 border-t border-outline-variant">
+<a href="{% url 'produto_aba' pk=produto.id_planilha aba='cadastro' %}" class="text-on-surface-variant flex items-center gap-2 px-6 py-2 text-xs font-bold uppercase tracking-tighter hover:opacity-70">
+<span class="material-symbols-outlined text-sm">arrow_back</span>Voltar</a>
+<button type="submit" form="form-fiscal" class="bg-primary text-white rounded-md px-6 py-2 flex items-center gap-2 text-xs font-bold uppercase tracking-tighter hover:opacity-90">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings:'FILL' 1;">check_circle</span>Confirmar</button>
 </footer>
+
+<script>
+function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function fmt(n) { return 'R$ ' + n.toFixed(2).replace('.', ','); }
+
+function calcular() {
+    const moeda = document.getElementById('sel-moeda').value;
+    const cambio = moeda === 'R$ (BRL)' ? 1 : v('taxa-cambio');
+    document.getElementById('bloco-cambio').classList.toggle('hidden', moeda === 'R$ (BRL)');
+
+    const precoBrl = v('preco-fornecedor') * cambio;
+    document.getElementById('valor-brl').value = precoBrl.toFixed(2);
+
+    const descPct = v('desconto-map') / 100;
+    const comDesconto = precoBrl * (1 - descPct);
+    document.getElementById('valor-desconto').value = comDesconto.toFixed(2);
+
+    // Atualiza R$ de tributos a partir dos %
+    const ipiRs = comDesconto * v('ipi-pct') / 100;
+    document.getElementById('ipi-rs').value = ipiRs.toFixed(2);
+    const icmsRs = comDesconto * v('icms-pct') / 100;
+    document.getElementById('icms-rs').value = icmsRs.toFixed(2);
+    const difalRs = comDesconto * v('difal-pct') / 100;
+    document.getElementById('difal-rs').value = difalRs.toFixed(2);
+
+    const frete = v('frete');
+    const tributos = ipiRs + icmsRs + difalRs;
+    const custo = comDesconto + frete + tributos;
+
+    document.getElementById('unit-reais').value = custo.toFixed(2);
+    document.getElementById('res-desconto').textContent = fmt(comDesconto);
+    document.getElementById('res-frete').textContent = fmt(frete);
+    document.getElementById('res-tributos').textContent = fmt(tributos);
+    document.getElementById('res-custo').textContent = fmt(custo);
+}
+
+function baseCalc() { return parseFloat(document.getElementById('valor-desconto').value) || 0; }
+
+function ipiPctToR() {
+    const rs = baseCalc() * v('ipi-pct') / 100;
+    document.getElementById('ipi-rs').value = rs.toFixed(2);
+    calcular();
+}
+function ipiRsToPCT() {
+    const base = baseCalc();
+    if (base > 0) document.getElementById('ipi-pct').value = (v('ipi-rs') / base * 100).toFixed(2);
+    calcular();
+}
+function icmsPctToR() {
+    const rs = baseCalc() * v('icms-pct') / 100;
+    document.getElementById('icms-rs').value = rs.toFixed(2);
+    calcular();
+}
+function icmsRsToPCT() {
+    const base = baseCalc();
+    if (base > 0) document.getElementById('icms-pct').value = (v('icms-rs') / base * 100).toFixed(2);
+    calcular();
+}
+function difalPctToR() {
+    const rs = baseCalc() * v('difal-pct') / 100;
+    document.getElementById('difal-rs').value = rs.toFixed(2);
+    calcular();
+}
+function difalRsToPCT() {
+    const base = baseCalc();
+    if (base > 0) document.getElementById('difal-pct').value = (v('difal-rs') / base * 100).toFixed(2);
+    calcular();
+}
+
+// Busca DIFAL via API BrasilAPI (ICMS por estado)
+async function buscarDifal() {
+    const estadoDestino = '{{ produto.estado_obra|default:"" }}' || prompt('Estado de destino (UF):');
+    const estadoOrigem  = '{{ produto.estado_origem|default:"" }}' || prompt('Estado de origem (UF):');
+    if (!estadoDestino || !estadoOrigem) return;
+
+    const info = document.getElementById('difal-info');
+    info.textContent = 'Buscando...';
+    info.classList.remove('hidden');
+
+    try {
+        // BrasilAPI - alíquotas ICMS por estado
+        const [rDest, rOrig] = await Promise.all([
+            fetch(`https://brasilapi.com.br/api/ibge/uf/v1/${estadoDestino}`),
+            fetch(`https://brasilapi.com.br/api/ibge/uf/v1/${estadoOrigem}`)
+        ]);
+        // BrasilAPI não tem ICMS direto — usamos tabela embutida
+        const icmsTable = {
+            'AC':17,'AL':19,'AM':20,'AP':18,'BA':20.5,'CE':20,'DF':20,'ES':17,
+            'GO':19,'MA':22,'MG':18,'MS':17,'MT':17,'PA':19,'PB':20,'PE':20.5,
+            'PI':21,'PR':19.5,'RJ':20,'RN':20,'RO':17.5,'RR':20,'RS':17.5,
+            'SC':17,'SE':19,'SP':18,'TO':20
+        };
+        const icmsInterest = { // interestaduais: sul/sudeste→outros=7%, outros→outros=12%
+            'SP':{'default':12,'SP':18,'PR':12,'SC':12,'RS':12,'MG':12,'RJ':12,'ES':12},
+            'MG':{'default':12}, 'RJ':{'default':12}, 'PR':{'default':12},
+            'SC':{'default':12}, 'RS':{'default':12}, 'ES':{'default':12},
+        };
+        const ufDest = estadoDestino.toUpperCase();
+        const ufOrig = estadoOrigem.toUpperCase();
+        const icmsDest = icmsTable[ufDest] || 18;
+        const icmsOrig = 12; // padrão interestadual
+        const difal = Math.max(0, icmsDest - icmsOrig);
+
+        document.getElementById('difal-pct').value = difal.toFixed(2);
+        info.textContent = `ICMS ${ufDest}: ${icmsDest}% − Interestadual: ${icmsOrig}% = DIFAL: ${difal}%`;
+        difalPctToR();
+    } catch(e) {
+        info.textContent = 'Erro ao buscar. Insira o DIFAL manualmente.';
+    }
+}
+
+// Init: calcula ao carregar
+document.addEventListener('DOMContentLoaded', calcular);
+</script>
 </body></html>

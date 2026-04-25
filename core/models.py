@@ -79,15 +79,23 @@ class Produto(models.Model):
     preco_variavel = models.BooleanField("Preço Variável (M.O)", default=False,
         help_text="Marque se o preço deste item é definido pela Mão de Obra do projeto")
     
-    # VERDE - CUSTO
-    moeda = models.CharField("Moeda", max_length=20) 
-    preco_fornecedor = models.DecimalField("Preço Fornecedor", max_digits=12, decimal_places=2)
-    unit_reais = models.DecimalField("Unit (Reais)", max_digits=12, decimal_places=2)
-    
-    # LARANJA - COMPRAS
-    frete_na_compra = models.DecimalField("Frete na Compra", max_digits=12, decimal_places=2, default=0)
+    # VERDE - CUSTO / FISCAL
+    moeda = models.CharField("Moeda", max_length=20)
+    preco_fornecedor = models.DecimalField("Preço Fornecedor", max_digits=12, decimal_places=2, default=0)
+    taxa_cambio = models.DecimalField("Taxa de Câmbio", max_digits=10, decimal_places=4, default=1)
+    desconto_mapeamento = models.DecimalField("Desconto Mapeamento (%)", max_digits=5, decimal_places=2, default=0)
+    valor_com_desconto = models.DecimalField("Valor c/ Desconto (R$)", max_digits=12, decimal_places=2, default=0)
+    frete_na_compra = models.DecimalField("Frete na Compra (R$)", max_digits=12, decimal_places=2, default=0)
     ipi = models.DecimalField("IPI (%)", max_digits=5, decimal_places=2, default=0)
+    ipi_reais = models.DecimalField("IPI (R$)", max_digits=12, decimal_places=2, default=0)
     icms = models.DecimalField("ICMS (%)", max_digits=5, decimal_places=2, default=0)
+    icms_reais = models.DecimalField("ICMS (R$)", max_digits=12, decimal_places=2, default=0)
+    difal = models.DecimalField("DIFAL (%)", max_digits=5, decimal_places=2, default=0)
+    difal_reais = models.DecimalField("DIFAL (R$)", max_digits=12, decimal_places=2, default=0)
+    unit_reais = models.DecimalField("Custo Total (R$)", max_digits=12, decimal_places=2, default=0)
+
+    # LARANJA - COMPRAS
+    icms_compra = models.DecimalField("ICMS Compra (%)", max_digits=5, decimal_places=2, default=0)
     nome_fornecedor = models.CharField("Nome do Fornecedor", max_length=1000)
     estado_origem = models.CharField("Estado de Origem", max_length=100)
     grupo_financeiro = models.CharField("Grupo Financeiro", max_length=50)
