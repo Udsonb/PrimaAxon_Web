@@ -1116,6 +1116,13 @@ def produto_aba(request, pk, aba):
         from django.http import Http404
         raise Http404
 
+    # Aba MKP e Locação: restrita a gestão/diretoria
+    if aba in ('mkp', 'locacao'):
+        cargo = get_cargo(request.user)
+        if cargo not in CARGOS_DIRETORIA | CARGOS_GERENCIA | {'orcamentista', 'gerente_compras'}:
+            messages.error(request, 'Acesso restrito à gestão.')
+            return redirect('produto_aba', pk=pk, aba='cadastro')
+
     if request.method == 'POST':
         for field in CAMPOS_TEXTO.get(aba, []):
             val = request.POST.get(field, '').strip()

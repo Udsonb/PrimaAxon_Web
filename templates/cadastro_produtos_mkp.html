@@ -4,35 +4,38 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Lucro e Tributos - {{ produto.nome }}</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "on-primary-fixed": "#000767","secondary": "#006b5e","primary-fixed": "#e0e0ff","on-error-container": "#93000a","inverse-primary": "#bdc2ff","on-tertiary-fixed-variant": "#663d00","secondary-container": "#94f0df","on-secondary": "#ffffff","on-primary-fixed-variant": "#343d96","surface": "#fbf8ff","on-secondary-fixed": "#00201b","tertiary-container": "#472900","surface-variant": "#e2e1ed","tertiary": "#2a1700","outline": "#767683","surface-container-lowest": "#ffffff","on-primary-container": "#8690ee","surface-bright": "#fbf8ff","secondary-fixed": "#97f3e2","background": "#fbf8ff","secondary-fixed-dim": "#7ad7c6","primary-container": "#1a237e","on-surface": "#1a1b23","error": "#ba1a1a","inverse-on-surface": "#f1f0fb","error-container": "#ffdad6","on-error": "#ffffff","on-background": "#1a1b23","surface-container": "#eeedf8","on-tertiary-container": "#d68500","on-secondary-fixed-variant": "#005047","surface-dim": "#dad9e4","outline-variant": "#c6c5d4","surface-container-highest": "#e2e1ed","on-surface-variant": "#454652","surface-tint": "#4c56af","primary": "#000666","on-primary": "#ffffff","tertiary-fixed": "#ffddba","inverse-surface": "#2f3038","tertiary-fixed-dim": "#ffb865","on-tertiary": "#ffffff","surface-container-high": "#e8e7f2","on-secondary-container": "#006f62","surface-container-low": "#f3f2fe","primary-fixed-dim": "#bdc2ff","on-tertiary-fixed": "#2b1700"
-            },
-            fontFamily: {"headline": ["Manrope"],"body": ["Inter"],"label": ["Inter"]},
-            borderRadius: {"DEFAULT": "0.125rem","lg": "0.25rem","xl": "0.5rem","full": "0.75rem"},
-          },
-        },
-      }
-    </script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "on-primary-fixed":"#000767","secondary":"#006b5e","primary-fixed":"#e0e0ff","on-error-container":"#93000a","inverse-primary":"#bdc2ff","on-tertiary-fixed-variant":"#663d00","secondary-container":"#94f0df","on-secondary":"#ffffff","on-primary-fixed-variant":"#343d96","surface":"#fbf8ff","on-secondary-fixed":"#00201b","tertiary-container":"#472900","surface-variant":"#e2e1ed","tertiary":"#2a1700","outline":"#767683","surface-container-lowest":"#ffffff","on-primary-container":"#8690ee","surface-bright":"#fbf8ff","secondary-fixed":"#97f3e2","background":"#fbf8ff","secondary-fixed-dim":"#7ad7c6","primary-container":"#1a237e","on-surface":"#1a1b23","error":"#ba1a1a","inverse-on-surface":"#f1f0fb","error-container":"#ffdad6","on-error":"#ffffff","on-background":"#1a1b23","surface-container":"#eeedf8","on-tertiary-container":"#d68500","on-secondary-fixed-variant":"#005047","surface-dim":"#dad9e4","outline-variant":"#c6c5d4","surface-container-highest":"#e2e1ed","on-surface-variant":"#454652","surface-tint":"#4c56af","primary":"#000666","on-primary":"#ffffff","tertiary-fixed":"#ffddba","inverse-surface":"#2f3038","tertiary-fixed-dim":"#ffb865","on-tertiary":"#ffffff","surface-container-high":"#e8e7f2","on-secondary-container":"#006f62","surface-container-low":"#f3f2fe","primary-fixed-dim":"#bdc2ff","on-tertiary-fixed":"#2b1700"
+      },
+      fontFamily: {"headline":["Manrope"],"body":["Inter"],"label":["Inter"]},
+      borderRadius: {"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},
+    },
+  },
+}
+</script>
 <style>
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-        body { font-family: 'Inter', sans-serif; }
-        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
-        .sidebar-item { @apply flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high; }
-        .sidebar-item.active { @apply bg-primary-fixed text-primary font-bold; }
-    </style>
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+body { font-family: 'Inter', sans-serif; background-color: #fbf8ff; }
+.sidebar-item { @apply flex items-center gap-3 px-6 py-3 transition-all duration-200 text-on-surface-variant hover:bg-surface-container-high font-body; }
+.sidebar-item.active { @apply bg-transparent text-primary border-r-4 border-primary font-bold; }
+.field-label { @apply block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2; }
+.field-input { @apply w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none transition-all; }
+.field-input-readonly { @apply w-full bg-surface-container rounded-lg px-4 py-3 text-on-surface-variant font-body outline-none cursor-default; }
+</style>
 </head>
-<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+
 <!-- TopAppBar -->
 <header class="bg-[#fbf8ff] flex justify-between items-center w-full px-6 py-4 sticky top-0 z-40 border-b border-outline-variant">
 <div class="flex items-center gap-6">
-<span class="text-lg font-bold tracking-tight text-[#1A237E]">Cadastro de Produtos</span>
+<span class="text-lg font-bold tracking-tight text-[#1A237E] font-headline">Cadastro de Produtos</span>
 <div class="h-8 w-[1px] bg-outline-variant hidden md:block"></div>
 <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-sm">
 <div class="flex gap-1"><span class="text-on-surface-variant font-medium">Nome:</span><span class="text-primary font-bold">{{ produto.nome }}</span></div>
@@ -41,114 +44,329 @@
 </div>
 </div>
 <div class="flex items-center gap-4">
-<button class="p-2 hover:bg-[#e2e1ed] transition-colors duration-200 rounded-full"><span class="material-symbols-outlined text-on-surface-variant">settings</span></button>
-<button class="p-2 hover:bg-[#e2e1ed] transition-colors duration-200 rounded-full"><span class="material-symbols-outlined text-on-surface-variant">help</span></button>
+<button class="p-2 rounded-full hover:bg-[#e2e1ed] transition-colors"><span class="material-symbols-outlined text-on-surface-variant">settings</span></button>
+<button class="p-2 rounded-full hover:bg-[#e2e1ed] transition-colors"><span class="material-symbols-outlined text-on-surface-variant">help</span></button>
 <div class="flex items-center gap-3 pl-4 border-l border-outline-variant ml-2">
 <div class="flex flex-col items-end">
 <span class="text-[10px] font-bold uppercase tracking-[0.1em] text-on-surface-variant leading-none">Perfil</span>
 <span class="text-xs font-extrabold text-primary uppercase tracking-tight">{{ request.user.username }}</span>
 </div>
-<div class="h-9 w-9 rounded-full bg-primary-fixed flex items-center justify-center border border-primary-fixed-dim/50 group cursor-pointer hover:bg-primary-container hover:text-on-primary-fixed transition-all duration-200">
+<div class="h-9 w-9 rounded-full bg-primary-fixed flex items-center justify-center border border-primary-fixed-dim/50 group cursor-pointer hover:bg-primary-container transition-all">
 <span class="material-symbols-outlined text-primary group-hover:text-white transition-colors">person</span>
 </div>
 </div>
 </div>
 </header>
+
 <div class="flex flex-grow overflow-hidden">
 <!-- Navigation Sidebar -->
-<aside class="w-64 bg-surface-container-low border-r border-outline-variant p-4 flex flex-col gap-2 hidden lg:flex">
+<aside class="w-64 bg-surface-container-low border-r border-outline-variant py-4 flex flex-col gap-1 hidden lg:flex">
 <a class="sidebar-item {% if aba == 'cadastro' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='cadastro' %}"><span class="material-symbols-outlined">inventory_2</span><span>Cadastro</span></a>
 <a class="sidebar-item {% if aba == 'fiscal' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='fiscal' %}"><span class="material-symbols-outlined">description</span><span>Fiscal</span></a>
 <a class="sidebar-item {% if aba == 'compras' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='compras' %}"><span class="material-symbols-outlined">shopping_cart</span><span>Compras</span></a>
-<a class="sidebar-item {% if aba == 'mkp' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='mkp' %}"><span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>analytics</span><span>Lucro e Tributos</span></a>
+<a class="sidebar-item {% if aba == 'mkp' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='mkp' %}"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">analytics</span><span>Lucro e Tributos</span></a>
 <a class="sidebar-item {% if aba == 'locacao' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='locacao' %}"><span class="material-symbols-outlined">location_on</span><span>Locação</span></a>
 </aside>
-<main class="flex-grow overflow-y-auto px-6 py-10">
-<div class="max-w-5xl mx-auto w-full">
-<div class="w-full mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-<div class="max-w-2xl">
-<h1 class="text-5xl font-extrabold tracking-tight text-primary leading-tight">Configuração de Lucratividade</h1>
-<p class="text-on-surface-variant mt-4 font-body leading-relaxed max-w-lg">Ajuste as margens de lucro e as alíquotas tributárias para cálculo automático de precificação.</p>
+
+<main class="flex-grow overflow-y-auto">
+<div class="flex flex-col md:flex-row p-8 gap-8 mb-24 max-w-[1600px] mx-auto w-full">
+
+<!-- Left summary panel -->
+<aside class="w-full md:w-72 flex flex-col gap-4 shrink-0">
+<div class="bg-primary-container rounded-xl p-6 text-on-primary-container">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined">analytics</span>
+<h3 class="font-headline font-bold">Custo Base</h3>
+</div>
+<div class="space-y-3 text-sm">
+<div class="flex justify-between">
+<span class="opacity-80">Custo Total (R$)</span>
+<span class="font-bold">R$ {{ produto.unit_reais }}</span>
+</div>
+<div class="border-t border-white/20 pt-3 flex justify-between">
+<span class="opacity-80">IPI (%)</span>
+<span class="font-bold">{{ produto.ipi }}%</span>
+</div>
+<div class="flex justify-between">
+<span class="opacity-80">ICMS (%)</span>
+<span class="font-bold">{{ produto.icms }}%</span>
+</div>
+<div class="flex justify-between">
+<span class="opacity-80">ICMS Compra (%)</span>
+<span class="font-bold">{{ produto.icms_compra }}%</span>
 </div>
 </div>
+</div>
+
+<!-- Referência de configuração (somente leitura) -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/15">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-secondary text-lg">tune</span>
+<h3 class="font-headline font-bold text-sm text-on-surface">Parâmetros Fixos</h3>
+</div>
+<div class="space-y-2 text-xs text-on-surface-variant">
+<div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
+<span>Custos Adm</span><span class="font-bold text-on-surface">5,00%</span>
+</div>
+<div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
+<span>LL Mínimo Desejado</span><span class="font-bold text-on-surface">15,00%</span>
+</div>
+<div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
+<span>PIS + COFINS (LR)</span><span class="font-bold text-on-surface">9,25%</span>
+</div>
+<div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
+<span>PIS + COFINS (LP)</span><span class="font-bold text-on-surface">3,65%</span>
+</div>
+</div>
+<p class="text-[10px] text-on-surface-variant/60 mt-3 leading-relaxed">Valores fixos da planilha de configurações. Ajuste conforme regime tributário da empresa.</p>
+</div>
+
+<!-- MKP resultado -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/15">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-tertiary text-lg">calculate</span>
+<h3 class="font-headline font-bold text-sm text-on-surface">MKP Calculado</h3>
+</div>
+<div class="space-y-4">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant mb-1">Lucro Real (LR)</p>
+<div id="mkp_lr_display" class="text-3xl font-black font-headline text-primary">—</div>
+</div>
+<div class="border-t border-outline-variant/15 pt-4">
+<p class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant mb-1">Lucro Presumido (LP)</p>
+<div id="mkp_lp_display" class="text-3xl font-black font-headline text-secondary">—</div>
+</div>
+</div>
+</div>
+</aside>
+
+<!-- Main form -->
+<section class="flex-1 bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/15 flex flex-col gap-8 shadow-sm">
 {% if messages %}
-<div class="mb-6 space-y-1">{% for msg in messages %}<div class="text-sm font-medium {% if msg.tags == 'error' %}text-error{% else %}text-secondary{% endif %} p-3 rounded-lg bg-surface-container-low">{{ msg }}</div>{% endfor %}</div>
+<div class="space-y-1">{% for msg in messages %}<div class="text-sm font-medium {% if msg.tags == 'error' %}text-error{% else %}text-secondary{% endif %}">{{ msg }}</div>{% endfor %}</div>
 {% endif %}
-<form method="post" action="{% url 'produto_aba' pk=produto.id_planilha aba='mkp' %}">
+
+<div class="flex items-center gap-4">
+<div class="h-8 w-1 bg-primary rounded-full"></div>
+<h2 class="font-headline text-2xl font-bold text-on-surface">Lucro e Tributos</h2>
+<span class="ml-auto text-xs font-bold bg-error-container text-on-error-container px-3 py-1 rounded-full uppercase">Acesso Restrito</span>
+</div>
+
+<form method="post" action="{% url 'produto_aba' pk=produto.id_planilha aba='mkp' %}" id="mkp-form">
 {% csrf_token %}
-<div class="grid grid-cols-1 md:grid-cols-12 gap-6 w-full">
-<!-- Profit Margin Card -->
-<div class="md:col-span-4 bg-surface-container-lowest p-8 rounded-xl shadow-[0px_12px_32px_rgba(26,27,35,0.06)] flex flex-col items-center justify-center text-center">
+
+<!-- Bloco 1: Margem -->
+<div class="space-y-4">
+<div class="flex items-center gap-2 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-primary text-xl">payments</span>
+<h3 class="text-sm font-bold text-primary uppercase tracking-wider">Margem Operacional</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 <div>
-<div class="flex items-center gap-3 mb-8 flex-col">
-<span class="material-symbols-outlined text-primary-container p-2 bg-primary-fixed rounded-lg">payments</span>
-<h2 class="text-xl font-bold text-primary">Margem Operacional</h2>
+<label class="field-label">Custos Adm (%)</label>
+<div class="field-input-readonly flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-outline">lock</span>
+<span>5,00</span>
 </div>
-<div class="space-y-2">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">LUCRO %</label>
-<div class="relative group">
-<input name="lucro_percent" class="w-full bg-surface-container-high border-none rounded-md px-4 py-4 text-2xl font-bold text-primary-container focus:ring-2 focus:ring-primary/40 transition-all outline-none text-center" type="text" value="{{ produto.lucro_percent }}"/>
-<span class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 font-bold">%</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Tax Matrix Card -->
-<div class="md:col-span-8 bg-surface-container-low p-8 rounded-xl border border-white/50">
-<div class="flex items-center gap-3 mb-8">
-<span class="material-symbols-outlined text-secondary p-2 bg-secondary-container rounded-lg">account_balance</span>
-<h2 class="text-xl font-bold text-primary">Matriz de Tributos Federais e Municipais</h2>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
-<div class="space-y-2">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">ISS %</label>
-<input name="iss_percent" class="w-full bg-surface-container-high border-none rounded-md px-4 py-3 font-medium text-on-surface focus:ring-2 focus:ring-primary/40 outline-none" type="text" value="{{ produto.iss_percent }}"/>
-</div>
-<div class="space-y-2">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">PIS/COFINS %</label>
-<input name="pis_cofins_percent" class="w-full bg-surface-container-high border-none rounded-md px-4 py-3 font-medium text-on-surface focus:ring-2 focus:ring-primary/40 outline-none" type="text" value="{{ produto.pis_cofins_percent }}"/>
-</div>
-<div class="space-y-2">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">IR e CSLL (LP) %</label>
-<input name="ir_csll_lp" class="w-full bg-surface-container-high border-none rounded-md px-4 py-3 font-medium text-on-surface focus:ring-2 focus:ring-primary/40 outline-none" type="text" value="{{ produto.ir_csll_lp }}"/>
-</div>
-<div class="space-y-2">
-<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">IR e CSLL (LR) %</label>
-<input name="ir_csll_lr" class="w-full bg-surface-container-high border-none rounded-md px-4 py-3 font-medium text-on-surface focus:ring-2 focus:ring-primary/40 outline-none" type="text" value="{{ produto.ir_csll_lr }}"/>
-</div>
-</div>
-</div>
-<!-- Markup Display -->
-<div class="md:col-span-12 mt-4">
-<div class="bg-gradient-to-r from-primary-container to-primary p-[1px] rounded-xl shadow-lg">
-<div class="bg-surface-container-lowest rounded-xl p-8 flex flex-col md:flex-row items-center justify-between gap-8">
-<div class="flex items-center gap-6">
-<div class="h-16 w-16 rounded-full bg-tertiary-fixed flex items-center justify-center">
-<span class="material-symbols-outlined text-tertiary text-3xl">calculate</span>
 </div>
 <div>
-<h3 class="text-2xl font-extrabold text-primary uppercase leading-none">MKP</h3>
-<p class="text-on-surface-variant text-sm mt-1">Fator Multiplicador</p>
+<label class="field-label">Margem / LL Mínimo (%)</label>
+<div class="relative">
+<input id="lucro_percent" name="lucro_percent" type="number" step="0.01" min="0" max="100"
+  class="field-input pr-8" value="{{ produto.lucro_percent }}" oninput="recalcular()"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
 </div>
 </div>
-<div class="w-full md:w-64 flex flex-col">
-<label class="text-xs font-black text-primary uppercase mb-2">MKP</label>
-<input name="mkp" class="text-center bg-surface-container-high border-none rounded-md px-6 py-4 text-3xl font-mono font-bold text-tertiary outline-none ring-offset-2 ring-2 ring-tertiary-fixed-dim" type="text" value="{{ produto.mkp }}"/>
+<div>
+<label class="field-label">Tipo de Item</label>
+<div class="relative">
+<select id="tipo_item" onchange="toggleISS()" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none appearance-none cursor-pointer">
+<option value="material">Material</option>
+<option value="servico">Serviço / M.O</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
 </div>
 </div>
 </div>
 </div>
+
+<!-- Bloco 2: Tributos Municipais -->
+<div class="space-y-4">
+<div class="flex items-center gap-2 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-primary text-xl">account_balance</span>
+<h3 class="text-sm font-bold text-primary uppercase tracking-wider">Tributos Municipais</h3>
 </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="field-label">ISS (%)</label>
+<div class="relative">
+<input id="iss_percent" name="iss_percent" type="number" step="0.01" min="0" max="10"
+  class="field-input pr-8" value="{{ produto.iss_percent }}" oninput="recalcular()"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+</div>
+<p id="iss_hint" class="text-xs text-on-surface-variant/70 mt-1">0% para material. Para serviço: alíquota do município (máx 5%).</p>
+</div>
+<div class="bg-surface-container rounded-lg p-4 flex flex-col justify-center gap-1">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Referência ISS</p>
+<p class="text-xs text-on-surface-variant/80 leading-relaxed">Material → 0% &nbsp;|&nbsp; Serviço → 2% a 5% conforme município</p>
+<p class="text-xs text-on-surface-variant/60 mt-1">Padrão aplicado quando não há tabela municipal: 5% × 60% = 3%</p>
+</div>
+</div>
+</div>
+
+<!-- Bloco 3: PIS e COFINS -->
+<div class="space-y-4">
+<div class="flex items-center gap-2 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-primary text-xl">receipt_long</span>
+<h3 class="text-sm font-bold text-primary uppercase tracking-wider">PIS e COFINS</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div>
+<label class="field-label">PIS + COFINS (%)<br><span class="text-[10px] text-secondary font-normal normal-case tracking-normal">Aplicável ao produto</span></label>
+<div class="relative">
+<input id="pis_cofins_percent" name="pis_cofins_percent" type="number" step="0.01" min="0" max="20"
+  class="field-input pr-8" value="{{ produto.pis_cofins_percent }}" oninput="recalcular()"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-lg p-4 text-xs text-on-surface-variant">
+<p class="font-bold uppercase tracking-wider mb-2">LR (Lucro Real)</p>
+<p>PIS: 1,65% + COFINS: 7,60%</p>
+<p class="font-bold text-on-surface">= 9,25%</p>
+<p class="text-[10px] mt-1 opacity-70">Material com crédito ICMS: menor</p>
+</div>
+<div class="bg-surface-container rounded-lg p-4 text-xs text-on-surface-variant">
+<p class="font-bold uppercase tracking-wider mb-2">LP (Lucro Presumido)</p>
+<p>PIS: 0,65% + COFINS: 3,00%</p>
+<p class="font-bold text-on-surface">= 3,65%</p>
+<p class="text-[10px] mt-1 opacity-70">Regime cumulativo</p>
+</div>
+</div>
+</div>
+
+<!-- Bloco 4: IR e CSLL -->
+<div class="space-y-4">
+<div class="flex items-center gap-2 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-primary text-xl">business_center</span>
+<h3 class="text-sm font-bold text-primary uppercase tracking-wider">IR e CSLL</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="field-label">IR + CSLL — Lucro Presumido / LP (%)</label>
+<div class="relative">
+<input id="ir_csll_lp" name="ir_csll_lp" type="number" step="0.01" min="0" max="50"
+  class="field-input pr-8" value="{{ produto.ir_csll_lp }}" oninput="recalcular()"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+</div>
+<p class="text-xs text-on-surface-variant/70 mt-1">Serviço LP: IR 4,80% + CSLL 2,88% = 7,68% &nbsp;|&nbsp; Material LP: IR 1,20% + CSLL 1,08% = 2,28%</p>
+</div>
+<div>
+<label class="field-label">IR + CSLL — Lucro Real / LR (%)</label>
+<div class="relative">
+<input id="ir_csll_lr" name="ir_csll_lr" type="number" step="0.01" min="0" max="50"
+  class="field-input pr-8" value="{{ produto.ir_csll_lr }}" oninput="recalcular()"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60 text-sm font-bold">%</span>
+</div>
+<p class="text-xs text-on-surface-variant/70 mt-1">Serviço LR: IR 15% + CSLL 9% = 34% sobre lucro tributável</p>
+</div>
+</div>
+</div>
+
+<!-- Bloco 5: MKP resultado para salvar -->
+<div class="space-y-4">
+<div class="flex items-center gap-2 border-b border-outline-variant pb-2">
+<span class="material-symbols-outlined text-primary text-xl">calculate</span>
+<h3 class="text-sm font-bold text-primary uppercase tracking-wider">Fator MKP a Salvar</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+<div>
+<label class="field-label">Regime utilizado</label>
+<div class="relative">
+<select id="regime_sel" onchange="aplicarMKP()" class="w-full bg-surface-container-high border-none rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary/40 text-on-surface font-body outline-none appearance-none cursor-pointer">
+<option value="lr">Lucro Real (LR)</option>
+<option value="lp">Lucro Presumido (LP)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div>
+<label class="field-label">MKP (salvo no produto)</label>
+<div class="relative">
+<input id="mkp" name="mkp" type="number" step="0.0001" min="1"
+  class="field-input text-xl font-bold pr-4" value="{{ produto.mkp }}" oninput="recalcular()"/>
+</div>
+<p class="text-xs text-on-surface-variant/70 mt-1">Preenchido automaticamente ao selecionar o regime. Pode ser ajustado manualmente.</p>
+</div>
+<div class="bg-primary-container/30 rounded-xl p-5 border border-primary/10 text-center">
+<p class="text-[10px] font-bold uppercase tracking-widest text-primary mb-2">Fórmula</p>
+<p class="font-mono text-xs text-on-surface/80">1 ÷ (1 − CustAdm − Margem − ISS − PIS/COF − IR/CSLL)</p>
+</div>
+</div>
+</div>
+
 </form>
-<div class="h-24"></div>
+</section>
 </div>
 </main>
 </div>
+
 <!-- Bottom Action Bar -->
-<footer class="fixed bottom-0 left-0 w-full flex justify-end gap-4 p-4 pr-10 bg-white/90 backdrop-blur-md z-50 border-t border-outline-variant shadow-[0px_-12px_32px_rgba(26,27,35,0.06)]">
-<a href="{% url 'bom_selector' %}" class="text-[#454652] flex items-center gap-2 px-6 py-2 hover:opacity-90 transition-opacity active:translate-y-0.5 duration-100 uppercase text-xs font-bold tracking-tighter">
-<span class="material-symbols-outlined">cancel</span>Voltar</a>
-<button type="submit" onclick="document.querySelector('form').submit()" class="bg-gradient-to-br from-[#000666] to-[#1A237E] text-white rounded-md px-6 py-2 flex items-center gap-2 hover:opacity-90 transition-opacity active:translate-y-0.5 duration-100 uppercase text-xs font-bold tracking-tighter">
-<span class="material-symbols-outlined" style='font-variation-settings: "FILL" 1;'>check_circle</span>Confirmar</button>
+<footer class="fixed bottom-0 left-0 w-full flex justify-end gap-6 p-4 pr-10 bg-white z-50 border-t border-outline-variant">
+<a href="{% url 'bom_selector' %}" class="text-[#454652] flex items-center gap-2 px-6 py-2 hover:opacity-90 transition-opacity uppercase text-xs font-bold tracking-tighter font-label">
+<span class="material-symbols-outlined text-base">cancel</span>VOLTAR</a>
+<button type="submit" onclick="document.getElementById('mkp-form').submit()" class="bg-[#000666] text-white rounded-md px-8 py-3 flex items-center gap-2 hover:opacity-95 transition-all uppercase text-xs font-bold tracking-tighter font-label">
+<span class="material-symbols-outlined text-base" style="font-variation-settings:'FILL' 1;">check_circle</span>CONFIRMAR</button>
 </footer>
+
+<script>
+// Constantes fixas (planilha de configurações)
+const CUSTO_ADM = 5.0;
+
+function recalcular() {
+  const margem  = parseFloat(document.getElementById('lucro_percent').value) || 0;
+  const iss     = parseFloat(document.getElementById('iss_percent').value) || 0;
+  const pisLR   = 9.25;   // LR padrão
+  const pisLP   = 3.65;   // LP padrão
+  const pisCof  = parseFloat(document.getElementById('pis_cofins_percent').value) || 0;
+  const irLR    = parseFloat(document.getElementById('ir_csll_lr').value) || 0;
+  const irLP    = parseFloat(document.getElementById('ir_csll_lp').value) || 0;
+
+  // MKP = 1 / (1 - soma/100)
+  const somaLR = (CUSTO_ADM + margem + iss + pisCof + irLR) / 100;
+  const somaLP = (CUSTO_ADM + margem + iss + pisCof + irLP) / 100;
+
+  const mkpLR = somaLR < 1 ? 1 / (1 - somaLR) : null;
+  const mkpLP = somaLP < 1 ? 1 / (1 - somaLP) : null;
+
+  document.getElementById('mkp_lr_display').textContent = mkpLR ? mkpLR.toFixed(4) : 'Inválido';
+  document.getElementById('mkp_lp_display').textContent = mkpLP ? mkpLP.toFixed(4) : 'Inválido';
+
+  aplicarMKP(mkpLR, mkpLP);
+}
+
+function aplicarMKP(mkpLR, mkpLP) {
+  // Permite chamar sem args (re-lê os displays)
+  if (mkpLR === undefined) {
+    const lr = document.getElementById('mkp_lr_display').textContent;
+    const lp = document.getElementById('mkp_lp_display').textContent;
+    mkpLR = parseFloat(lr) || null;
+    mkpLP = parseFloat(lp) || null;
+  }
+  const regime = document.getElementById('regime_sel').value;
+  const val = regime === 'lr' ? mkpLR : mkpLP;
+  if (val) document.getElementById('mkp').value = val.toFixed(4);
+}
+
+function toggleISS() {
+  const tipo = document.getElementById('tipo_item').value;
+  const issInput = document.getElementById('iss_percent');
+  if (tipo === 'material') {
+    issInput.value = '0.00';
+  }
+  recalcular();
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', recalcular);
+</script>
 </body></html>
