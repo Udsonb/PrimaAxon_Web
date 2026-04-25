@@ -1039,7 +1039,14 @@ def editar_usuario(request, user_id):
         perfil.empresa_id = int(empresa_id) if empresa_id else None
 
         if request.FILES.get('foto'):
-            perfil.foto = request.FILES['foto']
+            try:
+                perfil.foto = request.FILES['foto']
+                perfil.save()
+                messages.success(request, 'Foto salva com sucesso.')
+            except Exception as e:
+                import traceback, logging
+                logging.getLogger(__name__).error('Erro ao salvar foto: %s\n%s', e, traceback.format_exc())
+                messages.error(request, f'Erro ao salvar foto: {e}')
 
         try:
             edit_user.save()
