@@ -1,12 +1,31 @@
+import os, re, uuid
 from django.db import models
 from django.utils import timezone
+
+
+def _upload_usuario(instance, filename):
+    ext = os.path.splitext(filename)[1].lower() or '.jpg'
+    safe = re.sub(r'[^a-zA-Z0-9]', '_', os.path.splitext(filename)[0])[:40]
+    return f'usuarios/{safe}_{uuid.uuid4().hex[:8]}{ext}'
+
+
+def _upload_logo(instance, filename):
+    ext = os.path.splitext(filename)[1].lower() or '.png'
+    safe = re.sub(r'[^a-zA-Z0-9]', '_', os.path.splitext(filename)[0])[:40]
+    return f'logos/{safe}_{uuid.uuid4().hex[:8]}{ext}'
+
+
+def _upload_produto(instance, filename):
+    ext = os.path.splitext(filename)[1].lower() or '.jpg'
+    safe = re.sub(r'[^a-zA-Z0-9]', '_', os.path.splitext(filename)[0])[:40]
+    return f'produtos/{safe}_{uuid.uuid4().hex[:8]}{ext}'
 
 
 class Empresa(models.Model):
     razao_social = models.CharField("Razão Social", max_length=255)
     nome_fantasia = models.CharField("Nome Fantasia", max_length=255)
     cnpj = models.CharField("CNPJ", max_length=20, unique=True)
-    logo = models.ImageField("Logo", upload_to='logos/', blank=True, null=True)
+    logo = models.ImageField("Logo", upload_to=_upload_logo, blank=True, null=True)
     is_sistema = models.BooleanField("Empresa do Sistema", default=False,
         help_text="Marque se esta é a Prisma Axon System (não aparece na combo do login)")
 
@@ -29,7 +48,7 @@ class Perfil(models.Model):
     ]
 
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE, related_name='perfil')
-    foto = models.ImageField("Foto", upload_to='usuarios/', blank=True, null=True)
+    foto = models.ImageField("Foto", upload_to=_upload_usuario, blank=True, null=True)
     funcao = models.CharField("Função", max_length=100, blank=True)
     cargo = models.CharField("Cargo", max_length=30, choices=CARGO_CHOICES, default='analista')
     empresa = models.ForeignKey(Empresa, on_delete=models.SET_NULL, null=True, blank=True)
@@ -56,7 +75,7 @@ class Produto(models.Model):
     categoria = models.CharField("Categoria", max_length=100)
     descricao = models.TextField("Descrição", blank=True, null=True)
     status = models.CharField("Status", max_length=10, choices=STATUS_CHOICES, default='verde')
-    foto = models.ImageField("Foto do Produto", upload_to='produtos/', blank=True, null=True)
+    foto = models.ImageField("Foto do Produto", upload_to=_upload_produto, blank=True, null=True)
     preco_variavel = models.BooleanField("Preço Variável (M.O)", default=False,
         help_text="Marque se o preço deste item é definido pela Mão de Obra do projeto")
     
