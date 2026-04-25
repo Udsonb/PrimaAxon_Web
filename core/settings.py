@@ -121,8 +121,9 @@ if USE_GCS:
     STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME', os.environ.get('GCS_BUCKET_NAME', 'primaaxon-media-files'))
     GS_PROJECT_ID = os.environ.get('GCP_PROJECT_ID')
-    GS_DEFAULT_ACL = 'publicRead'       # arquivos enviados ficam públicos
+    GS_DEFAULT_ACL = None               # herda permissão do bucket (uniform access)
     GS_QUERYSTRING_AUTH = False         # URLs sem assinatura (acesso direto)
+    GS_LOCATION = 'media'              # salva em /media/ dentro do bucket
     MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
     STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
 else:
