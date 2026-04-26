@@ -272,13 +272,10 @@ function calcular() {
     const comDesconto = precoBrl * (1 - descPct);
     document.getElementById('valor-desconto').value = comDesconto.toFixed(2);
 
-    // Atualiza R$ de tributos a partir dos %
-    const ipiRs = comDesconto * v('ipi-pct') / 100;
-    document.getElementById('ipi-rs').value = ipiRs.toFixed(2);
-    const icmsRs = comDesconto * v('icms-pct') / 100;
-    document.getElementById('icms-rs').value = icmsRs.toFixed(2);
-    const difalRs = comDesconto * v('difal-pct') / 100;
-    document.getElementById('difal-rs').value = difalRs.toFixed(2);
+    // NÃO sobrescreve R$ tributos — lê os valores já inseridos/salvos
+    const ipiRs  = v('ipi-rs');
+    const icmsRs = v('icms-rs');
+    const difalRs = v('difal-rs');
 
     const frete = v('frete');
     const tributos = ipiRs + icmsRs + difalRs;
