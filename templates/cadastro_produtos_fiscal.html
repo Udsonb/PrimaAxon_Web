@@ -107,12 +107,13 @@
     <div class="grid grid-cols-2 gap-4 mt-4">
         <div>
             <label class="field-label">Valor em R$ (antes do desconto)</label>
-            <input id="valor-brl" type="text" readonly class="field-input readonly" placeholder="Calculado"/>
+            <input id="valor-brl" type="text" readonly class="field-input readonly"
+                   value="{{ produto.valor_com_desconto }}" placeholder="Calculado"/>
         </div>
         <div>
             <label class="field-label">Valor com Desconto (R$)</label>
             <input id="valor-desconto" name="valor_com_desconto" type="number" step="0.01" readonly
-                   class="field-input calculated" placeholder="Calculado"/>
+                   class="field-input calculated" value="{{ produto.valor_com_desconto }}" placeholder="Calculado"/>
         </div>
     </div>
 </div>
@@ -366,7 +367,26 @@ async function buscarDifal() {
     }
 }
 
-// Init: calcula ao carregar
-document.addEventListener('DOMContentLoaded', calcular);
+// Init: ao carregar, apenas atualiza o painel resumo com os valores já salvos
+// SEM recalcular os campos R$ (que viriam do banco corretos)
+document.addEventListener('DOMContentLoaded', function() {
+    const moeda = document.getElementById('sel-moeda').value;
+    document.getElementById('bloco-cambio').classList.toggle('hidden', moeda === 'R$ (BRL)');
+
+    // Usa os valores já presentes nos campos (vindos do banco)
+    const comDesconto = v('valor-desconto');
+    const frete       = v('frete');
+    const ipiRs       = v('ipi-rs');
+    const icmsRs      = v('icms-rs');
+    const difalRs     = v('difal-rs');
+    const tributos    = ipiRs + icmsRs + difalRs;
+    const custo       = comDesconto + frete + tributos;
+
+    document.getElementById('unit-reais').value = custo.toFixed(2);
+    document.getElementById('res-desconto').textContent  = fmt(comDesconto);
+    document.getElementById('res-frete').textContent     = fmt(frete);
+    document.getElementById('res-tributos').textContent  = fmt(tributos);
+    document.getElementById('res-custo').textContent     = fmt(custo);
+});
 </script>
 </body></html>
