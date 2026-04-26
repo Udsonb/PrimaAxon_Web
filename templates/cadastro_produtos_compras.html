@@ -67,6 +67,9 @@
 <!-- Sidebar Summary -->
 <aside class="w-full md:w-1/3 flex flex-col gap-6">
 <div class="relative overflow-hidden rounded-xl h-[240px] bg-surface-container-low shadow-sm group">
+{% if produto.foto %}
+<img src="{{ produto.foto.url }}" alt="{{ produto.nome }}" class="absolute inset-0 w-full h-full object-cover"/>
+{% endif %}
 <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent flex flex-col justify-end p-8">
 <h1 class="text-white font-headline text-3xl font-extrabold tracking-tight mb-2">Item Ativo</h1>
 <p class="text-primary-fixed-dim font-body text-sm leading-relaxed max-w-xs">{{ produto.nome }} — {{ produto.modelo }}</p>
