@@ -2254,7 +2254,7 @@ def template_importacao_produtos(request):
     colunas = [
         # (nome_coluna, secao, calculado)
         # CADASTRO
-        ('ID',                   'cadastro', False),
+        ('ID',                   'cadastro', True),   # automático se deixado em branco
         ('Nome',                 'cadastro', False),
         ('Modelo',               'cadastro', False),
         ('P/N',                  'cadastro', False),
@@ -2429,9 +2429,13 @@ def importar_produtos_excel(request):
         if not any(row):
             continue
         try:
-            id_p = int(float(str(col(row, 'ID') or 0)))
-            if id_p == 0:
-                continue
+            raw_id = col(row, 'ID')
+            if raw_id and str(raw_id).strip() not in ('', '0', 'None'):
+                id_p = int(float(str(raw_id)))
+            else:
+                # Gera próximo ID disponível
+                ultimo = Produto.objects.order_by('-id_planilha').values_list('id_planilha', flat=True).first()
+                id_p = (ultimo or 0) + 1
 
             # Campos texto
             nome = str(col(row, 'Nome') or '').strip()
