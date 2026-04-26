@@ -107,13 +107,12 @@
     <div class="grid grid-cols-2 gap-4 mt-4">
         <div>
             <label class="field-label">Valor em R$ (antes do desconto)</label>
-            <input id="valor-brl" type="text" readonly class="field-input readonly"
-                   value="{{ produto.valor_com_desconto }}" placeholder="Calculado"/>
+            <input id="valor-brl" type="text" readonly class="field-input readonly" placeholder="0,00"/>
         </div>
         <div>
             <label class="field-label">Valor com Desconto (R$)</label>
             <input id="valor-desconto" name="valor_com_desconto" type="number" step="0.01" readonly
-                   class="field-input calculated" value="{{ produto.valor_com_desconto }}" placeholder="Calculado"/>
+                   class="field-input calculated" value="{{ produto.valor_com_desconto }}" placeholder="0,00"/>
         </div>
     </div>
 </div>
@@ -367,13 +366,17 @@ async function buscarDifal() {
     }
 }
 
-// Init: ao carregar, apenas atualiza o painel resumo com os valores já salvos
-// SEM recalcular os campos R$ (que viriam do banco corretos)
+// Init: atualiza apenas displays — NÃO sobrescreve campos de tributos
 document.addEventListener('DOMContentLoaded', function() {
     const moeda = document.getElementById('sel-moeda').value;
     document.getElementById('bloco-cambio').classList.toggle('hidden', moeda === 'R$ (BRL)');
 
-    // Usa os valores já presentes nos campos (vindos do banco)
+    // valor-brl: preço antes do desconto = preco_fornecedor × câmbio
+    const cambio  = moeda === 'R$ (BRL)' ? 1 : v('taxa-cambio');
+    const precoBrl = v('preco-fornecedor') * cambio;
+    document.getElementById('valor-brl').value = precoBrl.toFixed(2);
+
+    // Lê valores salvos do banco (já estão nos campos via value="{{ produto.xxx }}")
     const comDesconto = v('valor-desconto');
     const frete       = v('frete');
     const ipiRs       = v('ipi-rs');
@@ -382,7 +385,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const tributos    = ipiRs + icmsRs + difalRs;
     const custo       = comDesconto + frete + tributos;
 
-    document.getElementById('unit-reais').value = custo.toFixed(2);
+    // Atualiza só o painel de resumo (nunca os inputs de tributos)
+    document.getElementById('unit-reais').value          = custo.toFixed(2);
     document.getElementById('res-desconto').textContent  = fmt(comDesconto);
     document.getElementById('res-frete').textContent     = fmt(frete);
     document.getElementById('res-tributos').textContent  = fmt(tributos);
