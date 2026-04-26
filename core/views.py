@@ -1127,9 +1127,15 @@ def produto_aba(request, pk, aba):
         for field in CAMPOS_TEXTO.get(aba, []):
             val = request.POST.get(field, '').strip()
             setattr(produto, field, val)
+        from decimal import Decimal, InvalidOperation
         for field in CAMPOS_DEC.get(aba, []):
-            val = request.POST.get(field)
-            setattr(produto, field, val or 0)
+            raw = request.POST.get(field, '').strip()
+            if raw == '':
+                continue  # campo vazio: mantém valor existente no banco
+            try:
+                setattr(produto, field, Decimal(raw))
+            except InvalidOperation:
+                pass  # valor inválido: mantém existente
         if aba == 'compras':
             dt = request.POST.get('data_ultima_cotacao')
             if dt:
