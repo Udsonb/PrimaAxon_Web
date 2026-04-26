@@ -106,10 +106,10 @@ body { font-family: 'Inter', sans-serif; background-color: #fbf8ff; }
 </div>
 <div class="space-y-2 text-xs text-on-surface-variant">
 <div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
-<span>Custos Adm</span><span class="font-bold text-on-surface">5,00%</span>
+<span>Custos Adm</span><span class="font-bold text-on-surface">{{ cfg.custos_adm }}%</span>
 </div>
 <div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
-<span>LL Mínimo Desejado</span><span class="font-bold text-on-surface">15,00%</span>
+<span>LL Mínimo Desejado</span><span class="font-bold text-on-surface">{{ cfg.ll_minimo }}%</span>
 </div>
 <div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
 <span>PIS + COFINS (LR)</span><span class="font-bold text-on-surface">9,25%</span>
@@ -319,8 +319,8 @@ body { font-family: 'Inter', sans-serif; background-color: #fbf8ff; }
 </footer>
 
 <script>
-// Constantes fixas (planilha de configurações)
-const CUSTO_ADM = 5.0;
+// Parâmetros vindos de ConfiguracaoFinanceira (Estratégia Financeira)
+const CUSTO_ADM = parseFloat("{{ cfg.custos_adm }}") || 5.0;
 
 function recalcular() {
   const margem  = parseFloat(document.getElementById('lucro_percent').value) || 0;

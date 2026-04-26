@@ -1145,7 +1145,9 @@ def produto_aba(request, pk, aba):
             messages.error(request, f'Erro: {e}')
         return redirect('produto_aba', pk=pk, aba=aba)
 
-    return render(request, TEMPLATES[aba], {'produto': produto, 'aba': aba})
+    from .models import ConfiguracaoFinanceira
+    cfg = ConfiguracaoFinanceira.get()
+    return render(request, TEMPLATES[aba], {'produto': produto, 'aba': aba, 'cfg': cfg})
 
 
 # ============================================================
@@ -2213,3 +2215,344 @@ def status_diagnostico(request):
         },
         'debug': settings.DEBUG,
     }, json_dumps_params={'ensure_ascii': False, 'indent': 2})
+
+
+# ============================================================
+# IMPORTAÇÃO DE PRODUTOS VIA EXCEL
+# ============================================================
+
+@login_required(login_url='/')
+def template_importacao_produtos(request):
+    """Gera e baixa o template Excel para importação de produtos."""
+    from openpyxl import Workbook
+    from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    from django.http import HttpResponse
+    import io
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Produtos"
+
+    # Cores por seção (ARGB)
+    CORES = {
+        'cadastro': ('CCE5FF', '004085'),   # azul
+        'fiscal':   ('D4EDDA', '155724'),   # verde
+        'compras':  ('FFE0B2', '7B3F00'),   # laranja
+        'mkp':      ('E8D5F5', '4A148C'),   # lilás
+        'locacao':  ('FFF9C4', '7B6000'),   # amarelo
+        'calc':     ('E0E0E0', '424242'),   # cinza (calculado)
+    }
+
+    def header(label, secao, calculado=False):
+        cor = 'calc' if calculado else secao
+        bg, fg = CORES[cor]
+        cell_font = Font(bold=True, color=fg, size=9)
+        fill = PatternFill('solid', fgColor=bg)
+        return label, cell_font, fill
+
+    colunas = [
+        # (nome_coluna, secao, calculado)
+        # CADASTRO
+        ('ID',                   'cadastro', False),
+        ('Nome',                 'cadastro', False),
+        ('Modelo',               'cadastro', False),
+        ('P/N',                  'cadastro', False),
+        ('Fabricante',           'cadastro', False),
+        ('Unidade',              'cadastro', False),
+        ('Categoria',            'cadastro', False),
+        ('Descrição',            'cadastro', False),
+        ('Moeda',                'cadastro', False),  # BRL/USD/EUR
+        ('Preço Variável (S/N)', 'cadastro', False),
+        # FISCAL
+        ('Preço Fornecedor',        'fiscal', False),
+        ('Taxa Câmbio',             'fiscal', False),
+        ('Desconto Mapeamento (%)', 'fiscal', False),
+        ('Frete na Compra (R$)',    'fiscal', False),
+        ('IPI (%)',                 'fiscal', False),
+        ('ICMS (%)',                'fiscal', False),
+        ('DIFAL (%)',               'fiscal', False),
+        ('Valor c/ Desconto (R$)',  'fiscal', True),
+        ('IPI (R$)',                'fiscal', True),
+        ('ICMS (R$)',               'fiscal', True),
+        ('DIFAL (R$)',              'fiscal', True),
+        ('Custo Total (R$)',        'fiscal', True),
+        # COMPRAS
+        ('Nome Fornecedor',       'compras', False),
+        ('Estado de Origem',      'compras', False),
+        ('Grupo Financeiro',      'compras', False),  # Grupo 1/2/3
+        ('NCM',                   'compras', False),
+        ('Data Última Cotação',   'compras', False),  # AAAA-MM-DD
+        ('ICMS Compra (%)',       'compras', False),
+        # MKP
+        ('ISS (%)',               'mkp', False),
+        ('PIS/COFINS (%)',        'mkp', False),
+        ('IR CSLL LP (%)',        'mkp', False),
+        ('IR CSLL LR (%)',        'mkp', False),
+        ('MKP (calculado)',       'mkp', True),
+        # LOCAÇÃO
+        ('ISS LOC (%)',           'locacao', False),
+        ('PIS/COFINS LOC (%)',    'locacao', False),
+        ('IR CSLL LP LOC (%)',    'locacao', False),
+        ('IR CSLL LR LOC (%)',    'locacao', False),
+        ('Custo LOC (R$)',        'locacao', False),
+        ('MKP LOC (calculado)',   'locacao', True),
+        ('Custo Mensal (R$)',     'locacao', True),
+    ]
+
+    # Linha 1: seção (merged label)
+    secao_atual = None
+    col_inicio = 1
+    secao_ranges = []
+    for i, (nome, secao, calc) in enumerate(colunas, 1):
+        if secao != secao_atual:
+            if secao_atual is not None:
+                secao_ranges.append((secao_atual, col_inicio, i - 1))
+            secao_atual = secao
+            col_inicio = i
+    secao_ranges.append((secao_atual, col_inicio, len(colunas)))
+
+    LABELS_SECAO = {
+        'cadastro': 'ABA 1 — CADASTRO',
+        'fiscal':   'ABA 2 — FISCAL',
+        'compras':  'ABA 3 — COMPRAS',
+        'mkp':      'ABA 4 — LUCRO E TRIBUTOS',
+        'locacao':  'ABA 5 — LOCAÇÃO',
+        'calc':     'CALCULADO',
+    }
+    for secao, c1, c2 in secao_ranges:
+        cell = ws.cell(row=1, column=c1, value=LABELS_SECAO.get(secao, secao.upper()))
+        bg, fg = CORES[secao]
+        cell.fill = PatternFill('solid', fgColor=bg)
+        cell.font = Font(bold=True, color=fg, size=10)
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        if c2 > c1:
+            ws.merge_cells(start_row=1, start_column=c1, end_row=1, end_column=c2)
+
+    # Linha 2: headers de coluna
+    thin = Side(style='thin', color='AAAAAA')
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    for i, (nome, secao, calc) in enumerate(colunas, 1):
+        cor = 'calc' if calc else secao
+        bg, fg = CORES[cor]
+        cell = ws.cell(row=2, column=i, value=nome + (' *' if not calc else ' [auto]'))
+        cell.fill = PatternFill('solid', fgColor=bg)
+        cell.font = Font(bold=True, color=fg, size=8)
+        cell.alignment = Alignment(horizontal='center', wrap_text=True)
+        cell.border = border
+        ws.column_dimensions[get_column_letter(i)].width = 18
+
+    # Linha 3: instrução
+    ws.cell(row=3, column=1, value='→ Preencha a partir desta linha. Campos [auto] são calculados na importação. Não altere os cabeçalhos.').font = Font(italic=True, color='666666', size=8)
+    ws.merge_cells(start_row=3, start_column=1, end_row=3, end_column=len(colunas))
+
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 36
+    ws.freeze_panes = 'A4'
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    resp = HttpResponse(buf.read(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    resp['Content-Disposition'] = 'attachment; filename="template_importacao_produtos.xlsx"'
+    return resp
+
+
+@login_required(login_url='/')
+def importar_produtos_excel(request):
+    """Importa produtos a partir de planilha Excel preenchida com o template."""
+    from .models import ConfiguracaoFinanceira
+    from decimal import Decimal, InvalidOperation
+    import io
+    from openpyxl import load_workbook
+    from datetime import datetime
+
+    cargo = get_cargo(request.user)
+    if cargo not in CARGOS_DIRETORIA | CARGOS_GERENCIA | CARGOS_COMPRAS:
+        messages.error(request, 'Sem permissão para importar produtos.')
+        return redirect('bom_selector')
+
+    if request.method != 'POST' or not request.FILES.get('arquivo'):
+        messages.error(request, 'Nenhum arquivo enviado.')
+        return redirect('bom_selector')
+
+    cfg = ConfiguracaoFinanceira.get()
+    custo_adm   = float(cfg.custos_adm)
+    ll_minimo   = float(cfg.ll_minimo)
+    wacc_mensal = float(cfg.wacc_locacao) / 100
+    desc_ev     = float(cfg.desconto_ev)
+    desc_ger    = float(cfg.desconto_gerente)
+    desc_dir    = float(cfg.desconto_diretor)
+    acum_dir    = desc_ev + desc_ger + desc_dir
+    fator_base  = (100 - acum_dir) / 100
+
+    def D(val, pct=False):
+        try:
+            if val is None or str(val).strip() in ('', '-', 'N/A'):
+                return Decimal('0')
+            v = float(str(val).replace(',', '.').replace('%', '').strip())
+            if pct and 0 < v <= 1.0:
+                v *= 100
+            return Decimal(str(round(v, 4)))
+        except (InvalidOperation, ValueError):
+            return Decimal('0')
+
+    def mkp_calc(iss, pis_cof, ir_csll, lucro):
+        soma = (custo_adm + float(lucro) + float(iss) + float(pis_cof) + float(ir_csll)) / 100
+        return Decimal(str(round(1 / (1 - soma), 4))) if soma < 1 else Decimal('1')
+
+    def pmt(rate, nper, pv):
+        if rate == 0 or nper == 0:
+            return float(pv) / (nper or 1)
+        pvif = (1 + rate) ** nper
+        return rate * float(pv) * pvif / (pvif - 1)
+
+    wb = load_workbook(request.FILES['arquivo'], data_only=True)
+    ws = wb.active
+
+    # Ler headers da linha 2
+    headers = [str(ws.cell(row=2, column=c).value or '').replace(' *', '').replace(' [auto]', '').strip()
+               for c in range(1, ws.max_column + 1)]
+
+    def col(row_vals, nome):
+        try:
+            idx = next(i for i, h in enumerate(headers) if h.lower() == nome.lower())
+            return row_vals[idx]
+        except StopIteration:
+            return None
+
+    criados = 0
+    atualizados = 0
+    erros = []
+
+    for row in ws.iter_rows(min_row=4, values_only=True):
+        if not any(row):
+            continue
+        try:
+            id_p = int(float(str(col(row, 'ID') or 0)))
+            if id_p == 0:
+                continue
+
+            # Campos texto
+            nome = str(col(row, 'Nome') or '').strip()
+            if not nome:
+                continue
+
+            moeda = str(col(row, 'Moeda') or 'BRL').strip().upper()
+            grupo = str(col(row, 'Grupo Financeiro') or 'Grupo 1').strip()
+
+            # Fiscal — calcular fórmulas
+            preco_forn   = D(col(row, 'Preço Fornecedor'))
+            taxa_cambio  = D(col(row, 'Taxa Câmbio')) or Decimal('1')
+            desc_map     = D(col(row, 'Desconto Mapeamento (%)'))
+            frete        = D(col(row, 'Frete na Compra (R$)'))
+            ipi_pct      = D(col(row, 'IPI (%)'), pct=True)
+            icms_pct     = D(col(row, 'ICMS (%)'), pct=True)
+            difal_pct    = D(col(row, 'DIFAL (%)'), pct=True)
+
+            valor_desc   = preco_forn * taxa_cambio * (1 - desc_map / 100)
+            ipi_r        = valor_desc * ipi_pct / 100
+            icms_r       = valor_desc * icms_pct / 100
+            difal_r      = valor_desc * difal_pct / 100
+            unit_reais   = valor_desc + frete + ipi_r + icms_r + difal_r
+
+            # MKP (usando regime LR como padrão)
+            lucro        = D(col(row, 'ISS (%)'))  # placeholder, usaremos ll_minimo
+            iss          = D(col(row, 'ISS (%)'), pct=True)
+            pis_cof      = D(col(row, 'PIS/COFINS (%)'), pct=True)
+            ir_csll_lr   = D(col(row, 'IR CSLL LR (%)'), pct=True)
+            ir_csll_lp   = D(col(row, 'IR CSLL LP (%)'), pct=True)
+            mkp_v        = mkp_calc(iss, pis_cof, ir_csll_lr, ll_minimo)
+            mkp_lp_v     = mkp_calc(iss, pis_cof, ir_csll_lp, ll_minimo)
+
+            # Locação
+            iss_loc      = D(col(row, 'ISS LOC (%)'), pct=True)
+            pis_loc      = D(col(row, 'PIS/COFINS LOC (%)'), pct=True)
+            ir_lr_loc    = D(col(row, 'IR CSLL LR LOC (%)'), pct=True)
+            ir_lp_loc    = D(col(row, 'IR CSLL LP LOC (%)'), pct=True)
+            custo_loc    = D(col(row, 'Custo LOC (R$)')) or unit_reais
+            mkp_loc_v    = mkp_calc(iss_loc, pis_loc, ir_lr_loc, ll_minimo)
+            custo_mensal_v = Decimal(str(round(pmt(wacc_mensal, 12, float(custo_loc)), 2)))
+
+            # Data cotação
+            data_cot = None
+            raw_data = col(row, 'Data Última Cotação')
+            if raw_data:
+                try:
+                    if isinstance(raw_data, (datetime,)):
+                        data_cot = raw_data.date()
+                    else:
+                        data_cot = datetime.strptime(str(raw_data)[:10], '%Y-%m-%d').date()
+                except Exception:
+                    data_cot = None
+
+            defaults = {
+                'nome':                str(col(row, 'Nome') or ''),
+                'modelo':              str(col(row, 'Modelo') or ''),
+                'part_number':         str(col(row, 'P/N') or '') or None,
+                'fabricante':          str(col(row, 'Fabricante') or ''),
+                'unidade':             str(col(row, 'Unidade') or 'Un'),
+                'categoria':           str(col(row, 'Categoria') or ''),
+                'descricao':           str(col(row, 'Descrição') or '') or None,
+                'moeda':               moeda,
+                'preco_variavel':      str(col(row, 'Preço Variável (S/N)') or 'N').upper() == 'S',
+                'preco_fornecedor':    preco_forn,
+                'taxa_cambio':         taxa_cambio,
+                'desconto_mapeamento': desc_map,
+                'valor_com_desconto':  valor_desc.quantize(Decimal('0.01')),
+                'frete_na_compra':     frete,
+                'ipi':                 ipi_pct,
+                'ipi_reais':           ipi_r.quantize(Decimal('0.01')),
+                'icms':                icms_pct,
+                'icms_reais':          icms_r.quantize(Decimal('0.01')),
+                'difal':               difal_pct,
+                'difal_reais':         difal_r.quantize(Decimal('0.01')),
+                'unit_reais':          unit_reais.quantize(Decimal('0.01')),
+                'nome_fornecedor':     str(col(row, 'Nome Fornecedor') or ''),
+                'estado_origem':       str(col(row, 'Estado de Origem') or ''),
+                'grupo_financeiro':    grupo,
+                'ncm':                 str(col(row, 'NCM') or ''),
+                'data_ultima_cotacao': data_cot,
+                'icms_compra':         D(col(row, 'ICMS Compra (%)'), pct=True),
+                'lucro_percent':       Decimal(str(ll_minimo)),
+                'iss_percent':         iss,
+                'pis_cofins_percent':  pis_cof,
+                'ir_csll_lp':          ir_csll_lp,
+                'ir_csll_lr':          ir_csll_lr,
+                'mkp':                 mkp_v,
+                'iss_loc':             iss_loc,
+                'pis_cofins_loc':      pis_loc,
+                'ir_csll_lp_loc':      ir_lp_loc,
+                'ir_csll_lr_loc':      ir_lr_loc,
+                'mkp_loc':             mkp_loc_v,
+                'custo_loc':           custo_loc.quantize(Decimal('0.01')),
+                'custo_mensal':        custo_mensal_v,
+                # campos obrigatórios sem valor padrão (usando 0)
+                'iss_percent':         iss,
+                'pis_cofins_percent':  pis_cof,
+                'ir_csll_lp':          ir_csll_lp,
+                'ir_csll_lr':          ir_csll_lr,
+                'mkp':                 mkp_v,
+                'custo_loc':           custo_loc.quantize(Decimal('0.01')),
+                'custo_mensal':        custo_mensal_v,
+                'iss_loc':             iss_loc,
+                'pis_cofins_loc':      pis_loc,
+                'ir_csll_lp_loc':      ir_lp_loc,
+                'ir_csll_lr_loc':      ir_lr_loc,
+                'mkp_loc':             mkp_loc_v,
+            }
+
+            _, created = Produto.objects.update_or_create(id_planilha=id_p, defaults=defaults)
+            if created:
+                criados += 1
+            else:
+                atualizados += 1
+
+        except Exception as e:
+            erros.append(f'ID {col(row, "ID")}: {e}')
+
+    msg = f'Importação concluída: {criados} criados, {atualizados} atualizados.'
+    if erros:
+        msg += f' Erros ({len(erros)}): ' + ' | '.join(erros[:5])
+    messages.success(request, msg)
+    return redirect('bom_selector')

@@ -103,13 +103,13 @@ body { font-family: 'Inter', sans-serif; background-color: #fbf8ff; }
 </div>
 <div class="space-y-2 text-xs text-on-surface-variant">
 <div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
-<span>Custos Adm</span><span class="font-bold text-on-surface">5,00%</span>
+<span>Custos Adm</span><span class="font-bold text-on-surface">{{ cfg.custos_adm }}%</span>
 </div>
 <div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
 <span>LL Mínimo (Margem)</span><span class="font-bold text-on-surface">{{ produto.lucro_percent }}%</span>
 </div>
 <div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
-<span>WACC Locação (mensal)</span><span class="font-bold text-on-surface">1,00%</span>
+<span>WACC Locação (mensal)</span><span class="font-bold text-on-surface">{{ cfg.wacc_locacao }}%</span>
 </div>
 <div class="flex justify-between items-center py-1 border-b border-outline-variant/10">
 <span>PIS + COFINS (LR)</span><span class="font-bold text-on-surface">9,25%</span>
@@ -365,23 +365,26 @@ body { font-family: 'Inter', sans-serif; background-color: #fbf8ff; }
 
 <script>
 // ============================================================
-// Parâmetros fixos — Planilha Controles
+// Parâmetros de ConfiguracaoFinanceira (Estratégia Financeira)
 // ============================================================
-const WACC_MENSAL = 1.0 / 100;  // Controles!D11 = 1% ao mês
-const CUSTO_ADM   = 5.0;        // Controles!D7  = 5%
-const MARGEM      = parseFloat("{{ produto.lucro_percent|default:'15' }}") || 15.0; // Controles!D8
+const WACC_MENSAL = parseFloat("{{ cfg.wacc_locacao }}") / 100;  // % ao mês
+const CUSTO_ADM   = parseFloat("{{ cfg.custos_adm }}") || 5.0;
+const MARGEM      = parseFloat("{{ produto.lucro_percent }}") || parseFloat("{{ cfg.ll_minimo }}") || 15.0;
 
-// Alçadas de desconto — Controles (2)!C21:D25
-// Desconto cumulativo para cada nível (C21..C25 = rótulo, D21..D25 = taxa adicional)
+// Alçadas de desconto — Controles (2)
+const _EV      = parseFloat("{{ cfg.desconto_ev }}") || 5;
+const _GER     = parseFloat("{{ cfg.desconto_gerente }}") || 2;
+const _DIR     = parseFloat("{{ cfg.desconto_diretor }}") || 3;
+
 const ALCADAS = {
-  cheio:   { acumulado: 0 },            // D21=0%
-  ev:      { acumulado: 5 },            // D21+D22 = 0+5 = 5%
-  gerente: { acumulado: 7 },            // +D23=2 → 7%
-  diretor: { acumulado: 10 },           // +D24=3 → 10%
-  manual:  { acumulado: null },         // variável (D25)
+  cheio:   { acumulado: 0 },
+  ev:      { acumulado: _EV },
+  gerente: { acumulado: _EV + _GER },
+  diretor: { acumulado: _EV + _GER + _DIR },
+  manual:  { acumulado: null },
 };
-// Fator normalizador = (1 - max_desconto_total) = 1 - 10% = 0.9
-const FATOR_BASE = 0.9;
+// Fator base = (100% − máx acumulado Diretor) / 100
+const FATOR_BASE = (100 - (_EV + _GER + _DIR)) / 100;
 
 // E18 = (100 − acumulado%) ÷ 0.9   → como decimal (ex: Cheio = 1.1111)
 function calcularE18(alcada, manualPct) {

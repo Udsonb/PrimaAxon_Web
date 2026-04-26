@@ -36,6 +36,8 @@ urlpatterns = [
     path('dash/orcamentista/', views.dash_orcamentista, name='dash_orcamentista'),
     path('validacao/', views.validacao_orcamento, name='validacao_orcamento'),
     path('estrategia/', views.estrategia_financeira, name='estrategia_financeira'),
+    path('produtos/template/', views.template_importacao_produtos, name='template_importacao_produtos'),
+    path('produtos/importar/', views.importar_produtos_excel, name='importar_produtos_excel'),
 ]
 
 if settings.DEBUG:
