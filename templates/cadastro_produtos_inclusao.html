@@ -34,9 +34,13 @@
 <span class="text-lg font-bold tracking-tight text-[#1A237E] font-headline">Cadastro de Produtos</span>
 <div class="h-8 w-[1px] bg-outline-variant hidden md:block"></div>
 <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 text-sm">
+{% if novo %}
+<span class="text-primary font-bold font-body">Novo Produto</span>
+{% else %}
 <div class="flex gap-1"><span class="text-on-surface-variant font-medium font-body">Nome:</span><span class="text-primary font-bold font-body">{{ produto.nome }}</span></div>
 <div class="flex gap-1"><span class="text-on-surface-variant font-medium font-body">Modelo:</span><span class="text-primary font-bold font-body">{{ produto.modelo }}</span></div>
 <div class="flex gap-1"><span class="text-on-surface-variant font-medium font-body">Fabricante:</span><span class="text-primary font-bold font-body">{{ produto.fabricante }}</span></div>
+{% endif %}
 </div>
 </div>
 <div class="flex items-center gap-4">
@@ -56,6 +60,14 @@
 <div class="flex flex-grow overflow-hidden">
 <!-- Navigation Sidebar -->
 <aside class="w-64 bg-surface-container-low border-r border-outline-variant py-4 flex flex-col gap-1 hidden lg:flex">
+{% if novo %}
+<span class="sidebar-item active"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span><span>Cadastro</span></span>
+<span class="sidebar-item opacity-30 cursor-not-allowed"><span class="material-symbols-outlined">description</span><span>Fiscal</span></span>
+<span class="sidebar-item opacity-30 cursor-not-allowed"><span class="material-symbols-outlined">shopping_cart</span><span>Compras</span></span>
+<span class="sidebar-item opacity-30 cursor-not-allowed"><span class="material-symbols-outlined">analytics</span><span>Lucro e Tributos</span></span>
+<span class="sidebar-item opacity-30 cursor-not-allowed"><span class="material-symbols-outlined">location_on</span><span>Locação</span></span>
+<p class="text-[10px] text-on-surface-variant px-4 mt-2 leading-snug">Salve o cadastro para liberar as demais abas.</p>
+{% else %}
 <a class="sidebar-item {% if aba == 'cadastro' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='cadastro' %}">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">inventory_2</span><span>Cadastro</span></a>
 <a class="sidebar-item {% if aba == 'fiscal' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='fiscal' %}">
@@ -66,6 +78,7 @@
 <span class="material-symbols-outlined">analytics</span><span>Lucro e Tributos</span></a>
 <a class="sidebar-item {% if aba == 'locacao' %}active{% endif %}" href="{% url 'produto_aba' pk=produto.id_planilha aba='locacao' %}">
 <span class="material-symbols-outlined">location_on</span><span>Locação</span></a>
+{% endif %}
 </aside>
 <main class="flex-grow overflow-y-auto">
 <div class="flex flex-col md:flex-row p-8 gap-8 mb-24 max-w-[1600px] mx-auto w-full">
@@ -77,30 +90,30 @@
 <img src="{{ produto.foto.url }}" alt="{{ produto.nome }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"/>
 {% endif %}
 <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent flex flex-col justify-end p-8">
-<h1 class="text-white font-headline text-3xl font-extrabold tracking-tight mb-1">{{ produto.nome }}</h1>
-<p class="text-primary-fixed-dim font-body text-sm leading-relaxed max-w-xs">{{ produto.modelo }} — {{ produto.fabricante }}</p>
+<h1 class="text-white font-headline text-3xl font-extrabold tracking-tight mb-1">{% if novo %}Novo Produto{% else %}{{ produto.nome }}{% endif %}</h1>
+<p class="text-primary-fixed-dim font-body text-sm leading-relaxed max-w-xs">{% if not novo %}{{ produto.modelo }} — {{ produto.fabricante }}{% else %}Preencha os dados ao lado{% endif %}</p>
 </div>
 <!-- Upload overlay -->
 <label class="absolute top-3 right-3 bg-white/80 hover:bg-white text-primary rounded-lg px-3 py-2 flex items-center gap-2 cursor-pointer text-xs font-bold shadow transition-all" for="foto-upload">
 <span class="material-symbols-outlined text-base">photo_camera</span>
 {% if produto.foto %}Trocar foto{% else %}Adicionar foto{% endif %}
 </label>
-<input id="foto-upload" name="foto" type="file" accept="image/*" class="hidden" form="form-cadastro" onchange="this.form.submit()"/>
+<input id="foto-upload" name="foto" type="file" accept="image/*" class="hidden" form="form-cadastro" {% if not novo %}onchange="this.form.submit()"{% endif %}/>
 </div>
 <!-- ID Card -->
 <div class="bg-surface-container-lowest p-6 rounded-lg border border-outline-variant/15 flex flex-col gap-2">
 <label class="text-on-surface-variant font-label text-[0.6875rem] uppercase tracking-wider block">ID do Produto</label>
-<div class="font-headline text-3xl font-bold text-primary">#{{ produto.id_planilha }}</div>
+<div class="font-headline text-3xl font-bold text-primary">{% if novo %}#AUTO{% else %}#{{ produto.id_planilha }}{% endif %}</div>
 </div>
 <!-- Prices Grid -->
 <div class="grid grid-cols-2 gap-4">
 <div class="bg-surface-container-low p-6 rounded-lg">
 <label class="text-on-surface-variant font-label text-[0.6875rem] uppercase tracking-wider mb-2 block">Custo (R$)</label>
-<div class="font-headline text-xl font-bold text-on-surface">R$ {{ produto.unit_reais }}</div>
+<div class="font-headline text-xl font-bold text-on-surface">{% if novo %}—{% else %}R$ {{ produto.unit_reais }}{% endif %}</div>
 </div>
 <div class="bg-surface-container-low p-6 rounded-lg">
 <label class="text-on-surface-variant font-label text-[0.6875rem] uppercase tracking-wider mb-2 block">Status</label>
-<div class="font-headline text-xl font-bold text-secondary">{{ produto.get_status_display }}</div>
+<div class="font-headline text-xl font-bold text-secondary">{% if novo %}Novo{% else %}{{ produto.get_status_display }}{% endif %}</div>
 </div>
 </div>
 </aside>
@@ -113,7 +126,7 @@
 <div class="h-8 w-1 bg-primary rounded-full"></div>
 <h2 class="font-headline text-2xl font-bold text-on-surface">Dados Cadastrais</h2>
 </div>
-<form id="form-cadastro" method="post" enctype="multipart/form-data" action="{% url 'produto_aba' pk=produto.id_planilha aba='cadastro' %}" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
+<form id="form-cadastro" method="post" enctype="multipart/form-data" action="{% if novo %}{% url 'cadastro_produto' %}{% else %}{% url 'produto_aba' pk=produto.id_planilha aba='cadastro' %}{% endif %}" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
 {% csrf_token %}
 <!-- Nome -->
 <div class="col-span-full">
@@ -193,12 +206,12 @@
 <!-- BottomNavBar -->
 <footer class="fixed bottom-0 left-0 w-full flex justify-between items-center gap-6 p-4 px-10 bg-white z-50 border-t border-outline-variant">
   <div>
-    {% if pode_excluir %}
+    {% if not novo and pode_excluir %}
       <button type="button" onclick="document.getElementById('modal-excluir').classList.remove('hidden')"
         class="text-error flex items-center gap-2 px-4 py-2 rounded-md border border-error hover:bg-red-50 transition-all uppercase text-xs font-bold tracking-tighter font-label">
         <span class="material-symbols-outlined text-base">delete</span>EXCLUIR PRODUTO
       </button>
-    {% elif request.user.perfil.cargo == 'analista' %}
+    {% elif not novo and request.user.perfil.cargo == 'analista' %}
       {% if pedido_pendente %}
         <span class="text-xs text-amber-600 font-bold flex items-center gap-1">
           <span class="material-symbols-outlined text-base">hourglass_top</span>Pedido de exclusão pendente

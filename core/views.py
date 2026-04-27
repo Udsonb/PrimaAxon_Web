@@ -874,59 +874,30 @@ def cadastro_produto(request):
         categoria = request.POST.get('categoria', 'OUTROS')
         novo_id = gerar_proximo_id(categoria)
         try:
-            Produto.objects.create(
+            p = Produto(
                 id_planilha=novo_id, nome=request.POST.get('nome', ''),
                 modelo=request.POST.get('modelo', ''), part_number=request.POST.get('part_number', ''),
                 fabricante=request.POST.get('fabricante', ''), unidade=request.POST.get('unidade', 'peça'),
                 categoria=categoria, descricao=request.POST.get('descricao', ''),
-                moeda=request.POST.get('moeda', 'reais'),
-                preco_fornecedor=request.POST.get('preco_fornecedor', 0) or 0,
-                unit_reais=request.POST.get('unit_reais', 0) or 0,
-                frete_na_compra=request.POST.get('frete_na_compra', 0) or 0,
-                ipi=request.POST.get('ipi', 0) or 0, icms=request.POST.get('icms', 0) or 0,
-                nome_fornecedor=request.POST.get('nome_fornecedor', ''),
-                estado_origem=request.POST.get('estado_origem', ''),
-                grupo_financeiro=request.POST.get('grupo_financeiro', ''),
-                ncm=request.POST.get('ncm', ''),
-                data_ultima_cotacao=request.POST.get('data_ultima_cotacao') or None,
-                lucro_percent=request.POST.get('lucro_percent', 0) or 0,
-                iss_percent=request.POST.get('iss_percent', 0) or 0,
-                pis_cofins_percent=request.POST.get('pis_cofins_percent', 0) or 0,
-                ir_csll_lp=request.POST.get('ir_csll_lp', 0) or 0,
-                ir_csll_lr=request.POST.get('ir_csll_lr', 0) or 0,
-                mkp=request.POST.get('mkp', 0) or 0,
-                custo_loc=request.POST.get('custo_loc', 0) or 0,
-                custo_mensal=request.POST.get('custo_mensal', 0) or 0,
-                iss_loc=request.POST.get('iss_loc', 0) or 0,
-                pis_cofins_loc=request.POST.get('pis_cofins_loc', 0) or 0,
-                ir_csll_lp_loc=request.POST.get('ir_csll_lp_loc', 0) or 0,
-                ir_csll_lr_loc=request.POST.get('ir_csll_lr_loc', 0) or 0,
-                mkp_loc=request.POST.get('mkp_loc', 0) or 0,
-                status='amarelo',  # Novo produto = aguardando validação
+                moeda='R$ (BRL)', preco_variavel=request.POST.get('preco_variavel') == 'on',
+                status='amarelo',
             )
-            return redirect('inicio')
+            if request.FILES.get('foto'):
+                p.foto = _gcs_upload(request.FILES['foto'], 'produtos')
+            p.save()
+            messages.success(request, 'Produto cadastrado. Preencha os dados fiscais.')
+            return redirect('produto_aba', pk=novo_id, aba='fiscal')
         except Exception as e:
             messages.error(request, f'Erro: {e}')
-    return render(request, 'cadastro_produto.html', {'modo': 'criar'})
+    return render(request, 'cadastro_produtos_inclusao.html', {
+        'produto': None, 'aba': 'cadastro', 'novo': True,
+        'pode_excluir': False, 'pedido_pendente': None,
+    })
 
 
 @login_required(login_url='/')
 def detalhe_produto(request, pk):
-    produto = get_object_or_404(Produto, pk=pk)
-    if request.method == 'POST':
-        for field in ['nome','modelo','part_number','fabricante','unidade','categoria','descricao','moeda',
-                       'nome_fornecedor','estado_origem','grupo_financeiro','ncm']:
-            setattr(produto, field, request.POST.get(field, getattr(produto, field)))
-        for field in ['preco_fornecedor','unit_reais','frete_na_compra','ipi','icms',
-                       'lucro_percent','iss_percent','pis_cofins_percent','ir_csll_lp','ir_csll_lr','mkp',
-                       'custo_loc','custo_mensal','iss_loc','pis_cofins_loc','ir_csll_lp_loc','ir_csll_lr_loc','mkp_loc']:
-            setattr(produto, field, request.POST.get(field, getattr(produto, field)) or 0)
-        try:
-            produto.save()
-            return redirect('detalhe_produto', pk=produto.pk)
-        except Exception as e:
-            messages.error(request, f'Erro: {e}')
-    return render(request, 'cadastro_produto.html', {'produto': produto, 'modo': 'detalhe'})
+    return redirect('produto_aba', pk=pk, aba='cadastro')
 
 
 # ============================================================
