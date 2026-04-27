@@ -1153,7 +1153,93 @@ def produto_aba(request, pk, aba):
 
     from .models import ConfiguracaoFinanceira
     cfg = ConfiguracaoFinanceira.get()
-    return render(request, TEMPLATES[aba], {'produto': produto, 'aba': aba, 'cfg': cfg})
+    cargo = get_cargo(request.user)
+    pode_excluir = cargo in CARGOS_DIRETORIA | CARGOS_GERENCIA | {'orcamentista'}
+    pedido_pendente = produto.pedidos_exclusao.filter(status='pendente').first()
+    return render(request, TEMPLATES[aba], {
+        'produto': produto, 'aba': aba, 'cfg': cfg,
+        'pode_excluir': pode_excluir,
+        'pedido_pendente': pedido_pendente,
+    })
+
+
+# ============================================================
+# EXCLUIR PRODUTO
+# ============================================================
+@login_required(login_url='/')
+def excluir_produto(request, pk):
+    produto = get_object_or_404(Produto, pk=pk)
+    cargo = get_cargo(request.user)
+    pode_excluir = cargo in CARGOS_DIRETORIA | CARGOS_GERENCIA | {'orcamentista'}
+    if not pode_excluir:
+        messages.error(request, 'Sem permissão para excluir produtos.')
+        return redirect('produto_aba', pk=pk, aba='cadastro')
+    if request.method == 'POST':
+        nome = produto.nome
+        try:
+            produto.delete()
+            messages.success(request, f'Produto "{nome}" excluído com sucesso.')
+        except Exception as e:
+            messages.error(request, f'Erro ao excluir: {e}')
+        return redirect('bom_selector')
+    return redirect('produto_aba', pk=pk, aba='cadastro')
+
+
+# ============================================================
+# SOLICITAR EXCLUSÃO (analista)
+# ============================================================
+@login_required(login_url='/')
+def solicitar_exclusao_produto(request, pk):
+    from .models import PedidoExclusaoProduto
+    produto = get_object_or_404(Produto, pk=pk)
+    if request.method == 'POST':
+        justificativa = request.POST.get('justificativa', '').strip()
+        if not justificativa:
+            messages.error(request, 'Informe uma justificativa.')
+            return redirect('produto_aba', pk=pk, aba='cadastro')
+        # Evita duplicata pendente
+        if not produto.pedidos_exclusao.filter(status='pendente').exists():
+            PedidoExclusaoProduto.objects.create(
+                produto=produto,
+                solicitante=request.user,
+                justificativa=justificativa,
+            )
+            messages.success(request, 'Pedido de exclusão enviado para aprovação.')
+        else:
+            messages.warning(request, 'Já existe um pedido pendente para este produto.')
+    return redirect('produto_aba', pk=pk, aba='cadastro')
+
+
+# ============================================================
+# AVALIAR PEDIDO DE EXCLUSÃO (orçamentista / gerente)
+# ============================================================
+@login_required(login_url='/')
+def avaliar_exclusao_produto(request, pedido_id):
+    from .models import PedidoExclusaoProduto
+    from django.utils import timezone
+    pedido = get_object_or_404(PedidoExclusaoProduto, pk=pedido_id)
+    cargo = get_cargo(request.user)
+    if cargo not in CARGOS_DIRETORIA | CARGOS_GERENCIA | {'orcamentista'}:
+        messages.error(request, 'Sem permissão.')
+        return redirect('inicio')
+    if request.method == 'POST':
+        acao = request.POST.get('acao')
+        pedido.avaliador = request.user
+        pedido.data_avaliacao = timezone.now()
+        if acao == 'aprovar':
+            pedido.status = 'aprovado'
+            pedido.save()
+            nome = pedido.produto.nome
+            pedido.produto.delete()
+            messages.success(request, f'Produto "{nome}" excluído após aprovação.')
+            return redirect('bom_selector')
+        elif acao == 'rejeitar':
+            pedido.status = 'rejeitado'
+            pedido.motivo_rejeicao = request.POST.get('motivo_rejeicao', '').strip()
+            pedido.save()
+            messages.success(request, 'Pedido de exclusão rejeitado.')
+            return redirect('produto_aba', pk=pedido.produto.pk, aba='cadastro')
+    return redirect('inicio')
 
 
 # ============================================================
@@ -2022,7 +2108,12 @@ def dash_orcamentista(request):
             p['dias_vencido'] = (hoje - vencimento).days
             vencidos.append(p)
     vencidos.sort(key=lambda x: x['vencimento'])
-    return render(request, 'dash_orçamentista.html', {'produtos_vencidos': vencidos})
+    from .models import PedidoExclusaoProduto
+    pedidos_exclusao = PedidoExclusaoProduto.objects.filter(status='pendente').select_related('produto', 'solicitante')
+    return render(request, 'dash_orçamentista.html', {
+        'produtos_vencidos': vencidos,
+        'pedidos_exclusao': pedidos_exclusao,
+    })
 
 @login_required(login_url='/')
 def validacao_orcamento(request):

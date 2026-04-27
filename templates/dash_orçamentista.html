@@ -111,5 +111,94 @@
 </div>
 {% endif %}
 </section>
+
+<!-- Pedidos de Exclusão de Produto -->
+{% if pedidos_exclusao %}
+<section class="space-y-4 mt-8">
+<div class="flex items-center justify-between">
+  <h3 class="text-lg font-extrabold text-primary tracking-tight flex items-center">
+    <span class="material-symbols-outlined mr-2 text-amber-600">delete_sweep</span>Pedidos de Exclusão — Aguardando Aprovação
+  </h3>
+  <span class="text-xs font-bold px-3 py-1 rounded-full uppercase bg-amber-100 text-amber-800">
+    {{ pedidos_exclusao|length }} pendente{{ pedidos_exclusao|length|pluralize:"s" }}
+  </span>
+</div>
+<div class="bg-amber-50 rounded-xl overflow-hidden border border-amber-200">
+  <table class="w-full text-left border-collapse">
+    <thead class="bg-amber-100 text-amber-900 text-[10px] font-black uppercase tracking-widest">
+      <tr>
+        <th class="px-5 py-3">Produto</th>
+        <th class="px-5 py-3">Solicitante</th>
+        <th class="px-5 py-3">Data</th>
+        <th class="px-5 py-3">Justificativa</th>
+        <th class="px-5 py-3">Ações</th>
+      </tr>
+    </thead>
+    <tbody class="text-sm text-on-surface divide-y divide-amber-100">
+      {% for pedido in pedidos_exclusao %}
+      <tr class="hover:bg-amber-100/50 transition-colors">
+        <td class="px-5 py-3">
+          <a href="{% url 'produto_aba' pk=pedido.produto.id_planilha aba='cadastro' %}" class="font-bold text-primary hover:underline">
+            #{{ pedido.produto.id_planilha }} — {{ pedido.produto.nome|truncatechars:30 }}
+          </a>
+        </td>
+        <td class="px-5 py-3">{{ pedido.solicitante.get_full_name|default:pedido.solicitante.username }}</td>
+        <td class="px-5 py-3 text-xs text-on-surface-variant">{{ pedido.data_solicitacao|date:"d/m/Y H:i" }}</td>
+        <td class="px-5 py-3 text-xs max-w-xs">{{ pedido.justificativa|truncatechars:80 }}</td>
+        <td class="px-5 py-3">
+          <div class="flex gap-2">
+            <!-- Aprovar -->
+            <form method="post" action="{% url 'avaliar_exclusao_produto' pedido_id=pedido.id %}" onsubmit="return confirm('Confirmar exclusão de {{ pedido.produto.nome }}?')">
+              {% csrf_token %}
+              <input type="hidden" name="acao" value="aprovar"/>
+              <button type="submit" class="bg-error text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:opacity-90 flex items-center gap-1">
+                <span class="material-symbols-outlined text-xs">delete</span>Excluir
+              </button>
+            </form>
+            <!-- Rejeitar -->
+            <button type="button" onclick="abrirRejeitar({{ pedido.id }}, '{{ pedido.produto.nome|escapejs }}')"
+              class="border border-outline-variant text-on-surface-variant text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-surface-container-high flex items-center gap-1">
+              <span class="material-symbols-outlined text-xs">block</span>Rejeitar
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- Modal Rejeitar -->
+<div id="modal-rejeitar" class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center px-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 flex flex-col gap-5">
+    <h3 class="font-headline font-bold text-on-surface text-lg flex items-center gap-2">
+      <span class="material-symbols-outlined text-amber-500">block</span>Rejeitar Pedido de Exclusão
+    </h3>
+    <p class="text-sm text-on-surface-variant">Produto: <strong id="rejeitar-nome"></strong></p>
+    <form method="post" id="form-rejeitar" class="flex flex-col gap-4">
+      {% csrf_token %}
+      <input type="hidden" name="acao" value="rejeitar"/>
+      <textarea name="motivo_rejeicao" rows="3" placeholder="Informe o motivo da rejeição..."
+        class="w-full border border-outline-variant rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/30 resize-none"></textarea>
+      <div class="flex gap-3 justify-end">
+        <button type="button" onclick="document.getElementById('modal-rejeitar').classList.add('hidden')"
+          class="px-4 py-2 rounded-lg border border-outline-variant text-sm font-bold text-on-surface-variant hover:bg-surface-container-high">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:opacity-90 flex items-center gap-2">
+          <span class="material-symbols-outlined text-base">send</span>Confirmar Rejeição
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+function abrirRejeitar(pedidoId, nomeProduto) {
+  document.getElementById('rejeitar-nome').textContent = nomeProduto;
+  document.getElementById('form-rejeitar').action = '/exclusao/' + pedidoId + '/avaliar/';
+  document.getElementById('modal-rejeitar').classList.remove('hidden');
+}
+</script>
+{% endif %}
+
 </div>
 {% endblock %}

@@ -38,6 +38,9 @@ urlpatterns = [
     path('estrategia/', views.estrategia_financeira, name='estrategia_financeira'),
     path('produtos/template/', views.template_importacao_produtos, name='template_importacao_produtos'),
     path('produtos/importar/', views.importar_produtos_excel, name='importar_produtos_excel'),
+    path('produto/<int:pk>/excluir/', views.excluir_produto, name='excluir_produto'),
+    path('produto/<int:pk>/solicitar-exclusao/', views.solicitar_exclusao_produto, name='solicitar_exclusao_produto'),
+    path('exclusao/<int:pedido_id>/avaliar/', views.avaliar_exclusao_produto, name='avaliar_exclusao_produto'),
 ]
 
 if settings.DEBUG:

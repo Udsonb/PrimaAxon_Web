@@ -191,12 +191,79 @@
 </main>
 </div>
 <!-- BottomNavBar -->
-<footer class="fixed bottom-0 left-0 w-full flex justify-end gap-6 p-4 pr-10 bg-white z-50 border-t border-outline-variant">
-<a href="{% url 'bom_selector' %}" class="text-[#454652] flex items-center gap-2 px-6 py-2 hover:opacity-90 transition-opacity active:translate-y-0.5 duration-100 uppercase text-xs font-bold tracking-tighter font-label">
-<span class="material-symbols-outlined text-base">cancel</span>VOLTAR</a>
-<button type="button" onclick="confirmarSalvar()" class="bg-[#000666] text-white rounded-md px-8 py-3 flex items-center gap-2 hover:opacity-95 transition-all active:scale-[0.98] duration-100 uppercase text-xs font-bold tracking-tighter font-label">
-<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">check_circle</span>CONFIRMAR</button>
+<footer class="fixed bottom-0 left-0 w-full flex justify-between items-center gap-6 p-4 px-10 bg-white z-50 border-t border-outline-variant">
+  <div>
+    {% if pode_excluir %}
+      <button type="button" onclick="document.getElementById('modal-excluir').classList.remove('hidden')"
+        class="text-error flex items-center gap-2 px-4 py-2 rounded-md border border-error hover:bg-red-50 transition-all uppercase text-xs font-bold tracking-tighter font-label">
+        <span class="material-symbols-outlined text-base">delete</span>EXCLUIR PRODUTO
+      </button>
+    {% elif request.user.perfil.cargo == 'analista' %}
+      {% if pedido_pendente %}
+        <span class="text-xs text-amber-600 font-bold flex items-center gap-1">
+          <span class="material-symbols-outlined text-base">hourglass_top</span>Pedido de exclusão pendente
+        </span>
+      {% else %}
+        <button type="button" onclick="document.getElementById('modal-solicitar-exclusao').classList.remove('hidden')"
+          class="text-amber-700 flex items-center gap-2 px-4 py-2 rounded-md border border-amber-400 hover:bg-amber-50 transition-all uppercase text-xs font-bold tracking-tighter font-label">
+          <span class="material-symbols-outlined text-base">delete_sweep</span>SOLICITAR EXCLUSÃO
+        </button>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div class="flex gap-6">
+    <a href="{% url 'bom_selector' %}" class="text-[#454652] flex items-center gap-2 px-6 py-2 hover:opacity-90 transition-opacity active:translate-y-0.5 duration-100 uppercase text-xs font-bold tracking-tighter font-label">
+      <span class="material-symbols-outlined text-base">cancel</span>VOLTAR
+    </a>
+    <button type="button" onclick="confirmarSalvar()" class="bg-[#000666] text-white rounded-md px-8 py-3 flex items-center gap-2 hover:opacity-95 transition-all active:scale-[0.98] duration-100 uppercase text-xs font-bold tracking-tighter font-label">
+      <span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">check_circle</span>CONFIRMAR
+    </button>
+  </div>
 </footer>
+
+<!-- Modal: Confirmar exclusão (orçamentista/gerente) -->
+<div id="modal-excluir" class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center px-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-8 flex flex-col gap-5">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-error text-3xl" style="font-variation-settings:'FILL' 1">warning</span>
+      <h3 class="font-headline font-bold text-on-surface text-lg">Excluir produto?</h3>
+    </div>
+    <p class="text-sm text-on-surface-variant">Você está prestes a excluir <strong>{{ produto.nome }}</strong> (#{{ produto.id_planilha }}). Esta ação é irreversível.</p>
+    <div class="flex gap-3 justify-end">
+      <button onclick="document.getElementById('modal-excluir').classList.add('hidden')"
+        class="px-4 py-2 rounded-lg border border-outline-variant text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">Cancelar</button>
+      <form method="post" action="{% url 'excluir_produto' pk=produto.id_planilha %}">
+        {% csrf_token %}
+        <button type="submit" class="px-4 py-2 rounded-lg bg-error text-white text-sm font-bold hover:opacity-90 transition-all flex items-center gap-2">
+          <span class="material-symbols-outlined text-base">delete</span>Confirmar Exclusão
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Solicitar exclusão (analista) -->
+<div id="modal-solicitar-exclusao" class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center px-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 flex flex-col gap-5">
+    <div class="flex items-center gap-3">
+      <span class="material-symbols-outlined text-amber-500 text-3xl" style="font-variation-settings:'FILL' 1">delete_sweep</span>
+      <h3 class="font-headline font-bold text-on-surface text-lg">Solicitar Exclusão</h3>
+    </div>
+    <p class="text-sm text-on-surface-variant">Informe o motivo para excluir <strong>{{ produto.nome }}</strong>. O pedido será enviado para aprovação.</p>
+    <form method="post" action="{% url 'solicitar_exclusao_produto' pk=produto.id_planilha %}" class="flex flex-col gap-4">
+      {% csrf_token %}
+      <textarea name="justificativa" rows="4" placeholder="Descreva o motivo da exclusão..."
+        class="w-full border border-outline-variant rounded-lg px-4 py-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-amber-400 resize-none"></textarea>
+      <div class="flex gap-3 justify-end">
+        <button type="button" onclick="document.getElementById('modal-solicitar-exclusao').classList.add('hidden')"
+          class="px-4 py-2 rounded-lg border border-outline-variant text-sm font-bold text-on-surface-variant hover:bg-surface-container-high transition-all">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-bold hover:opacity-90 transition-all flex items-center gap-2">
+          <span class="material-symbols-outlined text-base">send</span>Enviar Pedido
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Modal: produto sem foto -->
 <div id="modal-sem-foto" class="hidden fixed inset-0 bg-black/50 z-[999] flex items-center justify-center px-4">

@@ -203,6 +203,28 @@ class ItemMO(models.Model):
         return f"{self.projeto.id_projeto_manual} - {self.aba} - {self.descricao}"
 
 
+class PedidoExclusaoProduto(models.Model):
+    STATUS_CHOICES = [
+        ('pendente',  'Pendente'),
+        ('aprovado',  'Aprovado'),
+        ('rejeitado', 'Rejeitado'),
+    ]
+    produto         = models.ForeignKey('Produto', on_delete=models.CASCADE, related_name='pedidos_exclusao')
+    solicitante     = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='pedidos_exclusao')
+    justificativa   = models.TextField("Justificativa")
+    status          = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pendente')
+    data_solicitacao = models.DateTimeField(auto_now_add=True)
+    avaliador       = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='exclusoes_avaliadas')
+    data_avaliacao  = models.DateTimeField(null=True, blank=True)
+    motivo_rejeicao = models.TextField("Motivo da Rejeição", blank=True)
+
+    class Meta:
+        ordering = ['-data_solicitacao']
+
+    def __str__(self):
+        return f"Excluir #{self.produto.id_planilha} — {self.get_status_display()}"
+
+
 class ConfiguracaoFinanceira(models.Model):
     """Singleton — configurações financeiras da empresa (Tela Estratégia Financeira)."""
 
